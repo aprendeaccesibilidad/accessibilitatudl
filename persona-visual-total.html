@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>César Cerezo | Persones | Accessibilitat Digital | Universitat de Lleida</title>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
+
+    <header class="site-header">
+      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/logo-udl.png" alt="">
+          <span>
+            <span class="brand-name">Accessibilitat digital</span>
+            <span class="brand-subtitle">Serveis i recursos per a continguts accessibles</span>
+          </span>
+        </a>
+        <button class="menu-button" type="button" aria-controls="menu-principal" aria-expanded="false">
+          <span class="menu-icon" aria-hidden="true"></span>
+          Menú
+        </button>
+      </div>
+      <div class="nav-bar">
+        <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
+          <a href="index.html">Inici</a>
+          <a href="persones.html" aria-current="page">Persones</a>
+          <a href="guies-continguts.html">Guies continguts</a>
+          <a href="avaluar.html">Avaluar</a>
+          <a href="recursos.html">Recursos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contingut">
+      <nav class="breadcrumb" aria-label="Fil d'Ariadna">
+        <a href="index.html">Inici</a>
+        <span aria-hidden="true">›</span>
+        <a href="persones.html">Persones</a>
+        <span aria-hidden="true">›</span>
+        <span>Discapacitat visual total</span>
+      </nav>
+
+      <section class="page-title" aria-labelledby="page-title-heading">
+        <div class="page-title-inner">
+          <h1 id="page-title-heading">César Cerezo</h1>
+          <p>“La web és la meva forma d'estudiar”</p>
+        </div>
+      </section>
+
+      <section class="profile-detail" aria-labelledby="perfil-title">
+        <div class="profile-summary">
+          <figure class="profile-photo">
+            <img src="assets/cesar.jpg" alt="Retrat de César Cerezo, estudiant amb discapacitat visual total">
+          </figure>
+          <p class="section-kicker">01 · Discapacitat visual total</p>
+          <h2 id="perfil-title">Perfil</h2>
+          <p>Estudiant universitari de 21 anys amb discapacitat visual total.</p>
+          <p class="card-meta">Semàntica · Etiquetes · Ordre</p>
+        </div>
+
+        <div class="profile-content">
+          <section aria-labelledby="tecnologia-title">
+            <h3 id="tecnologia-title">Com utilitza la tecnologia</h3>
+            <ul>
+              <li>Lector de pantalla.</li>
+              <li>Navegació amb teclat.</li>
+              <li>Accés a contingut acadèmic.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="passa-title">
+            <h3 id="passa-title">Què li passa</h3>
+            <p>Entra en una web, però tot es llegeix sense ordre.</p>
+            <p class="impact">Es perd i no pot estudiar amb normalitat.</p>
+          </section>
+
+          <section aria-labelledby="barreres-title">
+            <h3 id="barreres-title">Barreres</h3>
+            <ul>
+              <li>Falta d'estructura.</li>
+              <li>Enllaços poc clars.</li>
+              <li>Formularis confusos.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="necessita-title">
+            <h3 id="necessita-title">Necessita</h3>
+            <ul>
+              <li>Ordre i estructura.</li>
+              <li>Navegació clara.</li>
+              <li>Contingut accessible.</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+
+      <section class="highlight-box" aria-labelledby="idea-title">
+        <p class="section-kicker">Idea clau</p>
+        <h2 id="idea-title">Les barreres no són de les persones. Són del disseny.</h2>
+        <p>“Si no entenc la pàgina, no puc continuar.”</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Universitat de Lleida · Accessibilitat Digital</p>
+      <nav aria-label="Enllaços de peu de pàgina">
+        <a href="recursos.html">Contacte</a>
+        <a href="persones.html">Accessibilitat</a>
+        <a href="guies-continguts.html">Ajuda</a>
+      </nav>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

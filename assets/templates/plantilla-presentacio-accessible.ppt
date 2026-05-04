@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <title>Plantilla de presentació accessible</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #111; }
+      section { page-break-after: always; padding: 40px; }
+      h1, h2 { color: #831453; }
+      p, li { font-size: 24px; line-height: 1.4; }
+    </style>
+  </head>
+  <body>
+    <section>
+      <h1>Títol de la presentació</h1>
+      <p>Subtítol o context de la sessió.</p>
+    </section>
+    <section>
+      <h2>Objectius</h2>
+      <ul>
+        <li>Utilitza poc text per diapositiva.</li>
+        <li>Assegura contrast suficient.</li>
+        <li>Afegeix text alternatiu a les imatges.</li>
+      </ul>
+    </section>
+  </body>
+</html>

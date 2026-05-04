@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Persones | Accessibilitat Digital | Universitat de Lleida</title>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
+
+    <header class="site-header">
+      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/logo-udl.png" alt="">
+          <span>
+            <span class="brand-name">Accessibilitat digital</span>
+            <span class="brand-subtitle">Serveis i recursos per a continguts accessibles</span>
+          </span>
+        </a>
+        <button class="menu-button" type="button" aria-controls="menu-principal" aria-expanded="false">
+          <span class="menu-icon" aria-hidden="true"></span>
+          Menú
+        </button>
+      </div>
+      <div class="nav-bar">
+        <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
+          <a href="index.html">Inici</a>
+          <a href="persones.html" aria-current="page">Persones</a>
+          <a href="guies-continguts.html">Guies continguts</a>
+          <a href="avaluar.html">Avaluar</a>
+          <a href="recursos.html">Recursos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contingut">
+      <nav class="breadcrumb" aria-label="Fil d'Ariadna">
+        <a href="index.html">Inici</a>
+        <span aria-hidden="true">›</span>
+        <span>Persones</span>
+      </nav>
+
+      <section class="page-title" aria-labelledby="page-title-heading">
+        <div class="page-title-inner">
+          <h1 id="page-title-heading">Persones</h1>
+        </div>
+      </section>
+
+      <section class="intro-section" aria-labelledby="intro-title">
+        <h2 id="intro-title">Introducció</h2>
+        <p>
+          Les fitxes de persones ajuden a connectar criteris d'accessibilitat amb barreres concretes,
+          contextos d'ús i decisions pràctiques de disseny, contingut i tecnologia.
+        </p>
+      </section>
+
+      <section class="section" aria-labelledby="perfils-title">
+        <div class="section-heading">
+          <h2 id="perfils-title">Perfils de persones</h2>
+          <p>Coneix per comprendre, comprèn per incloure.</p>
+        </div>
+        <div class="person-grid">
+          <a class="person-card person-card-link" href="persona-visual-total.html">
+            <div class="person-card-copy">
+              <div class="person-card-top">
+                <h3>César Cerezo</h3>
+                <p>Discapacitat visual total</p>
+              </div>
+              <ul class="profile-facts">
+                <li>No pot veure la pantalla.</li>
+                <li>Utilitza lector de pantalla.</li>
+                <li>Navega només amb teclat.</li>
+              </ul>
+              <p class="card-meta">Necessita semàntica, etiquetes i ordre lògic.</p>
+            </div>
+          </a>
+          <a class="person-card person-card-link" href="persona-baixa-visio.html">
+            <div class="person-card-copy">
+              <div class="person-card-top">
+                <h3>Blas Blanco</h3>
+                <p>Baixa visió</p>
+              </div>
+              <ul class="profile-facts">
+                <li>Necessita contrast alt.</li>
+                <li>Fa zoom constantment.</li>
+                <li>Necessita una jerarquia clara.</li>
+              </ul>
+              <p class="card-meta">Necessita contrast alt i zoom funcional.</p>
+            </div>
+          </a>
+          <a class="person-card person-card-link" href="persona-motriu.html">
+            <div class="person-card-copy">
+              <div class="person-card-top">
+                <h3>Miguel Mota</h3>
+                <p>Discapacitat motriu</p>
+              </div>
+              <ul class="profile-facts">
+                <li>Mobilitat reduïda a les mans.</li>
+                <li>Utilitza trackball o teclat en pantalla.</li>
+                <li>Necessita més temps per interactuar.</li>
+              </ul>
+              <p class="card-meta">Necessita controls grans i navegació simple.</p>
+            </div>
+          </a>
+          <a class="person-card person-card-link" href="persona-complexitat.html">
+            <div class="person-card-copy">
+              <div class="person-card-top">
+                <h3>Óscar Coiba</h3>
+                <p>Discapacitat intel·lectual</p>
+              </div>
+              <ul class="profile-facts">
+                <li>Necessita informació clara i senzilla.</li>
+                <li>Pot tenir dificultats amb textos complexos.</li>
+                <li>Prefereix instruccions pas a pas.</li>
+              </ul>
+              <p class="card-meta">Necessita llenguatge clar i guia.</p>
+            </div>
+          </a>
+          <a class="person-card person-card-link" href="persona-auditiva.html">
+            <div class="person-card-copy">
+              <div class="person-card-top">
+                <h3>Aurora Ausin</h3>
+                <p>Discapacitat auditiva</p>
+              </div>
+              <ul class="profile-facts">
+                <li>No pot escoltar els sons.</li>
+                <li>Necessita subtítols o transcripcions.</li>
+                <li>Es comunica principalment amb text.</li>
+              </ul>
+              <p class="card-meta">Necessita subtítols i transcripcions.</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="highlight-box" aria-labelledby="idea-title">
+        <p class="section-kicker">Idea clau</p>
+        <h2 id="idea-title">Cada persona interactua de manera diferent amb la tecnologia.</h2>
+        <p>
+          El disseny ha de tenir-ho en compte. Quan el contingut és clar, estructurat, subtitulat i
+          navegable amb teclat, millora l'experiència de tota la comunitat universitària.
+        </p>
+      </section>
+
+      <section class="section" aria-labelledby="situacionals-title">
+        <div class="section-heading">
+          <p class="section-kicker">Discapacitats situacionals</p>
+          <h2 id="situacionals-title">També existeixen discapacitats situacionals</h2>
+          <p>
+            No sempre cal tenir una discapacitat permanent per tenir dificultats. Qualsevol persona pot
+            trobar barreres segons el context.
+          </p>
+        </div>
+
+        <div class="situation-grid">
+          <article class="situation-card">
+            <h3>Situació auditiva</h3>
+            <p>Estàs en una biblioteca o en silenci i no pots escoltar un vídeo.</p>
+            <p class="card-meta">Necessites subtítols</p>
+          </article>
+          <article class="situation-card">
+            <h3>Situació visual</h3>
+            <p>Estàs al sol amb molta llum i no veus bé la pantalla.</p>
+            <p class="card-meta">Necessites bon contrast</p>
+          </article>
+          <article class="situation-card">
+            <h3>Situació motora</h3>
+            <p>Tens una mà ocupada al transport, menjant o fent una altra tasca, i només pots utilitzar una mà.</p>
+            <p class="card-meta">Necessites interfícies simples</p>
+          </article>
+          <article class="situation-card">
+            <h3>Situació cognitiva</h3>
+            <p>Tens pressa o estàs cansat i no tens temps de llegir textos complexos.</p>
+            <p class="card-meta">Necessites informació clara i directa</p>
+          </article>
+        </div>
+
+        <div class="reflection">
+          <h3>Reflexió</h3>
+          <p>
+            L'accessibilitat no és només per a algunes persones. És per a tothom, en algun moment.
+          </p>
+        </div>
+      </section>
+
+      <section class="cta-band" aria-labelledby="cta-title">
+        <div>
+          <p class="section-kicker">Prova-ho tu mateix</p>
+          <h2 id="cta-title">Revisa una pàgina pensant en aquests cinc perfils</h2>
+          <p>Escull una pàgina o document i comprova quines barreres apareixen per a cada persona.</p>
+        </div>
+        <a class="button button-light" href="avaluar.html">Començar revisió</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Universitat de Lleida · Accessibilitat Digital</p>
+      <nav aria-label="Enllaços de peu de pàgina">
+        <a href="recursos.html">Contacte</a>
+        <a href="persones.html">Accessibilitat</a>
+        <a href="guies-continguts.html">Ajuda</a>
+      </nav>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <title>Plantilla de document accessible</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.5; color: #111; }
+      h1, h2 { color: #831453; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #555; padding: 8px; }
+      th { background: #F5ECF1; text-align: left; }
+    </style>
+  </head>
+  <body>
+    <h1>Títol del document</h1>
+    <p>Resum breu del document en llenguatge clar.</p>
+    <h2>Secció principal</h2>
+    <p>Escriu paràgrafs curts i utilitza estils d'encapçalament.</p>
+    <h2>Taula de dades</h2>
+    <table>
+      <tr><th>Concepte</th><th>Descripció</th></tr>
+      <tr><td>Exemple</td><td>Contingut de mostra.</td></tr>
+    </table>
+  </body>
+</html>

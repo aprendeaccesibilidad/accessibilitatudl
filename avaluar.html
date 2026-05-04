@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Avaluar | Accessibilitat Digital | Universitat de Lleida</title>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
+
+    <header class="site-header">
+      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/logo-udl.png" alt="">
+          <span>
+            <span class="brand-name">Accessibilitat digital</span>
+            <span class="brand-subtitle">Serveis i recursos per a continguts accessibles</span>
+          </span>
+        </a>
+        <button class="menu-button" type="button" aria-controls="menu-principal" aria-expanded="false">
+          <span class="menu-icon" aria-hidden="true"></span>
+          Menú
+        </button>
+      </div>
+      <div class="nav-bar">
+        <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
+          <a href="index.html">Inici</a>
+          <a href="persones.html">Persones</a>
+          <a href="guies-continguts.html">Guies continguts</a>
+          <a href="avaluar.html" aria-current="page">Avaluar</a>
+          <a href="recursos.html">Recursos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contingut">
+      <nav class="breadcrumb" aria-label="Fil d'Ariadna">
+        <a href="index.html">Inici</a>
+        <span aria-hidden="true">›</span>
+        <span>Avaluar</span>
+      </nav>
+
+      <section class="page-title" aria-labelledby="page-title-heading">
+        <div class="page-title-inner">
+          <h1 id="page-title-heading">Avaluar</h1>
+        </div>
+      </section>
+
+      <section class="intro-section" aria-labelledby="intro-title">
+        <h2 id="intro-title">Comprova l'accessibilitat d'un servei</h2>
+        <p>
+          L'avaluació combina eines automàtiques, revisió manual, prova amb teclat i criteris WCAG.
+          Cap eina automàtica substitueix la revisió humana.
+        </p>
+      </section>
+
+      <section class="maturity-band" aria-labelledby="maduresa-title">
+        <div>
+          <p class="section-kicker">Maduresa</p>
+          <h2 id="maduresa-title">Avalua el nivell d'accessibilitat de la teva organització</h2>
+          <p>Identifica riscos, prioritats, responsabilitats i propers passos.</p>
+        </div>
+        <a class="button button-light" href="https://docs.google.com/forms/d/e/1FAIpQLSe8C7WT0GmsPRTrznqExcKLmEYkTIApOKPjihjHHd-ErBwbww/viewform?usp=header">Fer avaluació</a>
+      </section>
+
+      <section class="section" aria-labelledby="eines-title">
+        <div class="section-heading">
+          <p class="section-kicker">Eines</p>
+          <h2 id="eines-title">Avaluació d'accessibilitat</h2>
+        </div>
+        <div class="task-grid">
+          <a class="task-card task-card-link" href="https://www.w3.org/WAI/test-evaluate/preliminary/">
+            <span class="card-icon" aria-hidden="true">W3C</span>
+            <h3>Eina d'avaluació fàcil</h3>
+            <p>
+              Easy Checks ajuda a fer una primera revisió d'una pàgina web: títol, imatges,
+              encapçalaments, contrast, focus, formularis i alternatives multimèdia.
+            </p>
+            <p class="card-meta">Primera revisió · Web · WAI</p>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Universitat de Lleida · Accessibilitat Digital</p>
+      <nav aria-label="Enllaços de peu de pàgina">
+        <a href="recursos.html">Contacte</a>
+        <a href="persones.html">Accessibilitat</a>
+        <a href="guies-continguts.html">Ajuda</a>
+      </nav>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

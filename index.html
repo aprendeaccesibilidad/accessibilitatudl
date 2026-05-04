@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accessibilitat Digital | Universitat de Lleida</title>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
+
+    <header class="site-header">
+      <div class="university-bar">
+        <span>Universitat de Lleida</span>
+      </div>
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/logo-udl.png" alt="">
+          <span>
+            <span class="brand-name">Accessibilitat digital</span>
+            <span class="brand-subtitle">Serveis i recursos per a continguts accessibles</span>
+          </span>
+        </a>
+
+        <button class="menu-button" type="button" aria-controls="menu-principal" aria-expanded="false">
+          <span class="menu-icon" aria-hidden="true"></span>
+          Menú
+        </button>
+      </div>
+
+      <div class="nav-bar">
+        <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
+          <a href="index.html" aria-current="page">Inici</a>
+          <a href="persones.html">Persones</a>
+          <a href="guies-continguts.html">Guies continguts</a>
+          <a href="avaluar.html">Avaluar</a>
+          <a href="recursos.html">Recursos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contingut">
+      <section class="featured-event" aria-labelledby="gaad-title">
+        <div class="featured-event-content">
+          <p class="section-kicker">Edició 2026 · #GAADUdL</p>
+          <h2 id="gaad-title">Primera Jornada d'Accessibilitat Digital</h2>
+          <p class="event-meta">Universitat de Lleida · 2026</p>
+          <p>
+            Jornada per aprendre sobre persones, disseny, desenvolupament web, documents, avaluació i
+            intel·ligència artificial en l'àmbit de l'accessibilitat digital.
+          </p>
+          <a class="button button-primary" href="https://gaad.udl.cat">Visita GAAD UdL</a>
+        </div>
+        <div class="featured-event-side">
+          <figure class="featured-event-visual">
+            <img src="assets/iconowebgaad.png" alt="Icona de la jornada GAAD UdL amb símbols d'accessibilitat digital">
+          </figure>
+          <div class="event-facts">
+            <div>
+              <span>Data</span>
+              <strong>28 de maig de 2026</strong>
+            </div>
+            <div>
+              <span>Horari</span>
+              <strong>17:00h - 20:00h</strong>
+            </div>
+            <div>
+              <span>Accés</span>
+              <strong>Online · Teams</strong>
+            </div>
+            <div>
+              <span>Inscripció</span>
+              <strong>Gratuïta</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-highlight" aria-labelledby="persones-title">
+        <div class="section-heading">
+          <p class="section-kicker">Persones</p>
+          <h2 id="persones-title">Entén les barreres reals</h2>
+          <p>
+            L'accessibilitat s'aprèn millor quan connectem barreres concretes amb persones, contextos
+            d'ús i tecnologies de suport reals.
+          </p>
+        </div>
+
+        <div class="person-grid">
+          <a class="person-card person-card-link" href="persona-visual-total.html">
+            <h3>Cèsar Cerezo</h3>
+            <p class="card-meta">Discapacitat visual total</p>
+            <p>Depèn de semàntica, etiquetes i ordre lògic per llegir la web.</p>
+          </a>
+          <a class="person-card person-card-link" href="persona-motriu.html">
+            <h3>Miquel Mota</h3>
+            <p class="card-meta">Discapacitat motriu</p>
+            <p>Necessita controls grans i navegació sense precisió extrema.</p>
+          </a>
+          <a class="person-card person-card-link" href="persona-complexitat.html">
+            <h3>Òscar Coiba</h3>
+            <p class="card-meta">Discapacitat intel·lectual</p>
+            <p>Funciona millor amb llenguatge clar i instruccions pas a pas.</p>
+          </a>
+        </div>
+
+        <a class="text-link" href="persones.html">Veure tots els perfils</a>
+      </section>
+
+      <section class="section" aria-labelledby="tasques-title">
+        <div class="section-heading">
+          <p class="section-kicker">Tasques</p>
+          <h2 id="tasques-title">Què vols fer?</h2>
+        </div>
+
+        <div class="task-grid">
+          <article class="task-card">
+            <span class="card-icon" aria-hidden="true">Web</span>
+            <h3>Millorar contingut web</h3>
+            <p>Aplica encapçalaments, enllaços descriptius, alternatives textuals i llenguatge clar.</p>
+          </article>
+          <article class="task-card">
+            <span class="card-icon" aria-hidden="true">Docs</span>
+            <h3>Crear documents accessibles</h3>
+            <p>Utilitza guies i plantilles per fer documents Word, PDF i presentacions accessibles.</p>
+            <p class="card-meta">Guies + plantilles</p>
+          </article>
+          <article class="task-card">
+            <span class="card-icon" aria-hidden="true">Test</span>
+            <h3>Avaluar accessibilitat</h3>
+            <p>Combina eines automàtiques, revisió manual, prova amb teclat i comprovacions WCAG.</p>
+            <p class="card-meta">Bookmark + revisió</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="maturity-band" aria-labelledby="maduresa-title">
+        <div>
+          <p class="section-kicker">Maduresa</p>
+          <h2 id="maduresa-title">Avalua el nivell d'accessibilitat de la teva organització</h2>
+          <p>Descobreix en quin punt estàs i com millorar.</p>
+        </div>
+        <a class="button button-light" href="https://docs.google.com/forms/d/e/1FAIpQLSe8C7WT0GmsPRTrznqExcKLmEYkTIApOKPjihjHHd-ErBwbww/viewform?usp=header">Fer autoavaluació</a>
+      </section>
+
+      <section class="section resources-section" aria-labelledby="recursos-title">
+        <div class="section-heading">
+          <p class="section-kicker">Recursos</p>
+          <h2 id="recursos-title">Materials per treballar millor</h2>
+        </div>
+        <ul class="resource-list">
+          <li>
+            <a href="recursos.html">Imatges accessibles: generació de text alternatiu amb GPT</a>
+            <span>GPT que crea automàticament descripcions d'imatges (text alternatiu) segons el seu context per millorar l'accessibilitat web.</span>
+          </li>
+        </ul>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>Universitat de Lleida · Accessibilitat Digital</p>
+      <nav aria-label="Enllaços de peu de pàgina">
+        <a href="recursos.html">Contacte</a>
+        <a href="persones.html">Accessibilitat</a>
+        <a href="guies-continguts.html">Ajuda</a>
+      </nav>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

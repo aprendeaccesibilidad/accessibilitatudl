@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Miguel Mota | Persones | Accessibilitat Digital | Universitat de Lleida</title>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
+
+    <header class="site-header">
+      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/logo-udl.png" alt="">
+          <span>
+            <span class="brand-name">Accessibilitat digital</span>
+            <span class="brand-subtitle">Serveis i recursos per a continguts accessibles</span>
+          </span>
+        </a>
+        <button class="menu-button" type="button" aria-controls="menu-principal" aria-expanded="false">
+          <span class="menu-icon" aria-hidden="true"></span>
+          Menú
+        </button>
+      </div>
+      <div class="nav-bar">
+        <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
+          <a href="index.html">Inici</a>
+          <a href="persones.html" aria-current="page">Persones</a>
+          <a href="guies-continguts.html">Guies continguts</a>
+          <a href="avaluar.html">Avaluar</a>
+          <a href="recursos.html">Recursos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contingut">
+      <nav class="breadcrumb" aria-label="Fil d'Ariadna">
+        <a href="index.html">Inici</a>
+        <span aria-hidden="true">›</span>
+        <a href="persones.html">Persones</a>
+        <span aria-hidden="true">›</span>
+        <span>Discapacitat motriu</span>
+      </nav>
+
+      <section class="page-title" aria-labelledby="page-title-heading">
+        <div class="page-title-inner">
+          <h1 id="page-title-heading">Miguel Mota</h1>
+          <p>“Quan la precisió es converteix en una barrera”</p>
+        </div>
+      </section>
+
+      <section class="profile-detail" aria-labelledby="perfil-title">
+        <div class="profile-summary">
+          <figure class="profile-photo">
+            <img src="assets/miguel.jpg" alt="Retrat de Miguel Mota, estudiant amb discapacitat motriu">
+          </figure>
+          <p class="section-kicker">03 · Discapacitat motriu</p>
+          <h2 id="perfil-title">Perfil</h2>
+          <p>Estudiant universitari de 38 anys amb lesió medul·lar i mobilitat reduïda a les mans.</p>
+          <p class="card-meta">Teclat · Focus · Interacció</p>
+        </div>
+
+        <div class="profile-content">
+          <section aria-labelledby="tecnologia-title">
+            <h3 id="tecnologia-title">Com utilitza la tecnologia</h3>
+            <ul>
+              <li>Ratolí amb trackball.</li>
+              <li>Teclat en pantalla.</li>
+              <li>Zoom puntual per interactuar amb elements petits.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="passa-title">
+            <h3 id="passa-title">Què li passa</h3>
+            <p>Ha de clicar en un menú desplegable, però només apareix quan passa el ratolí per sobre.</p>
+            <p>Ha de repetir el moviment diverses vegades.</p>
+            <p class="impact">La tasca es torna lenta i frustrant.</p>
+          </section>
+
+          <section aria-labelledby="barreres-title">
+            <h3 id="barreres-title">Barreres</h3>
+            <ul>
+              <li>Elements petits o difícils de clicar.</li>
+              <li>Menús que depenen del hover.</li>
+              <li>Accions que requereixen molta precisió.</li>
+              <li>Finestres emergents inesperades.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="necessita-title">
+            <h3 id="necessita-title">Necessita</h3>
+            <ul>
+              <li>Enllaços i botons grans i clars.</li>
+              <li>Navegació sense necessitat de precisió extrema.</li>
+              <li>Menús visibles sense passar el ratolí per sobre.</li>
+              <li>Interaccions simples i previsibles.</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+
+      <section class="highlight-box" aria-labelledby="idea-title">
+        <p class="section-kicker">Idea clau</p>
+        <h2 id="idea-title">Cada persona interactua de manera diferent amb la tecnologia.</h2>
+        <p>El disseny ha de tenir-ho en compte.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Universitat de Lleida · Accessibilitat Digital</p>
+      <nav aria-label="Enllaços de peu de pàgina">
+        <a href="recursos.html">Contacte</a>
+        <a href="persones.html">Accessibilitat</a>
+        <a href="guies-continguts.html">Ajuda</a>
+      </nav>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

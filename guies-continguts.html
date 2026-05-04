@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Guies continguts | Accessibilitat Digital | Universitat de Lleida</title>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
+
+    <header class="site-header">
+      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <img class="brand-logo" src="assets/logo-udl.png" alt="">
+          <span>
+            <span class="brand-name">Accessibilitat digital</span>
+            <span class="brand-subtitle">Serveis i recursos per a continguts accessibles</span>
+          </span>
+        </a>
+        <button class="menu-button" type="button" aria-controls="menu-principal" aria-expanded="false">
+          <span class="menu-icon" aria-hidden="true"></span>
+          Menú
+        </button>
+      </div>
+      <div class="nav-bar">
+        <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
+          <a href="index.html">Inici</a>
+          <a href="persones.html">Persones</a>
+          <a href="guies-continguts.html" aria-current="page">Guies continguts</a>
+          <a href="avaluar.html">Avaluar</a>
+          <a href="recursos.html">Recursos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contingut">
+      <nav class="breadcrumb" aria-label="Fil d'Ariadna">
+        <a href="index.html">Inici</a>
+        <span aria-hidden="true">›</span>
+        <span>Guies continguts</span>
+      </nav>
+
+      <section class="page-title" aria-labelledby="page-title-heading">
+        <div class="page-title-inner">
+          <h1 id="page-title-heading">Guies continguts</h1>
+        </div>
+      </section>
+
+      <section class="intro-section" aria-labelledby="intro-title">
+        <h2 id="intro-title">Què vols crear o millorar?</h2>
+        <p>
+          Selecciona el tipus de contingut i aplica pautes concretes abans de publicar. L'objectiu és que
+          cada document, pàgina o servei sigui usable amb diferents tecnologies i contextos.
+        </p>
+      </section>
+
+      <section class="section" aria-labelledby="tasques-title">
+        <div class="section-heading">
+          <p class="section-kicker">Contingut</p>
+          <h2 id="tasques-title">Guies de treball</h2>
+        </div>
+        <div class="task-grid">
+          <a class="task-card task-card-link" href="contingut-accessible.html">
+            <span class="card-icon" aria-hidden="true">Web</span>
+            <h3>Millorar contingut web</h3>
+            <p>Escriu enllaços descriptius, estructura amb encapçalaments i evita informació només per color.</p>
+          </a>
+          <a class="task-card task-card-link" href="documents-accessibles.html">
+            <span class="card-icon" aria-hidden="true">Docs</span>
+            <h3>Crear documents accessibles</h3>
+            <p>Utilitza estils, llistes, taules amb capçaleres, idiomes definits i exportació PDF revisada.</p>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Universitat de Lleida · Accessibilitat Digital</p>
+      <nav aria-label="Enllaços de peu de pàgina">
+        <a href="recursos.html">Contacte</a>
+        <a href="persones.html">Accessibilitat</a>
+        <a href="guies-continguts.html">Ajuda</a>
+      </nav>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
