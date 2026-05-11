@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Documents accessibles | Guies continguts | Universitat de Lleida</title>
+    <title>Documents accessibles | Pautes | Universitat de Lleida</title>
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
@@ -11,85 +11,102 @@
   <body>
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
     <header class="site-header">
-      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="university-bar"><span><a href="https://www.udl.cat/ca/">Universitat de Lleida</a></span></div>
       <div class="topbar">
         <a class="brand" href="index.html"><img class="brand-logo" src="assets/logo-udl.png" alt=""><span><span class="brand-name">Accessibilitat digital</span><span class="brand-subtitle">Serveis i recursos per a continguts accessibles</span></span></a>
         <button class="menu-button" type="button" aria-controls="menu-principal" aria-expanded="false"><span class="menu-icon" aria-hidden="true"></span>Menú</button>
       </div>
       <div class="nav-bar">
         <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
-          <a href="index.html">Inici</a><a href="persones.html">Persones</a><a href="guies-continguts.html" aria-current="page">Guies continguts</a><a href="avaluar.html">Avaluar</a><a href="recursos.html">Recursos</a>
+          <a href="index.html">Inici</a><a href="persones.html">Persones</a><a href="guies-continguts.html" aria-current="page">Pautes</a><a href="avaluar.html">Avaluar</a><a href="recursos.html">Recursos</a>
         </nav>
       </div>
     </header>
 
     <main id="contingut">
       <nav class="breadcrumb" aria-label="Fil d'Ariadna">
-        <a href="index.html">Inici</a><span aria-hidden="true">›</span><a href="guies-continguts.html">Guies continguts</a><span aria-hidden="true">›</span><span>Documents accessibles</span>
+        <a href="index.html">Inici</a><span aria-hidden="true">›</span><a href="guies-continguts.html">Pautes</a><span aria-hidden="true">›</span><span>Documents accessibles</span>
       </nav>
       <section class="page-title" aria-labelledby="page-title-heading">
-        <div class="page-title-inner"><h1 id="page-title-heading">Documents accessibles</h1><p>Documents, presentacions, fulls de càlcul i PDF</p></div>
+        <div class="page-title-inner"><h1 id="page-title-heading">Documents accessibles</h1><p>Documents, presentacions i PDF</p></div>
       </section>
 
       <div class="content-guide">
-        <section class="guide-section" aria-labelledby="docs-title">
-          <h2 id="docs-title">Els documents també formen part del contingut digital</h2>
-          <p>Han de ser accessibles perquè l'alumnat, el professorat i el personal puguin llegir-los, navegar-los i reutilitzar-los amb diferents tecnologies.</p>
-          <p>Els documents accessibles són més fàcils de llegir i entendre per a tothom, no només per a persones amb discapacitat.</p>
-          <div class="example-box">
-            <p><strong>Idea clau:</strong> si estructures bé el contingut, millores l'experiència de totes les persones.</p>
+        <section class="guide-section" aria-labelledby="docs-heading">
+          <div class="section-heading">
+            <p class="section-kicker">Bones pràctiques</p>
+            <h2 id="docs-heading">Crear documents accessibles</h2>
           </div>
-          <div class="two-column-info">
-            <div>
-              <h3>Bones pràctiques generals</h3>
-              <ul>
-                <li>Utilitza encapçalaments estructurats.</li>
-                <li>Afegeix metadades: títol, autor i idioma.</li>
-                <li>Inclou text alternatiu a les imatges.</li>
-                <li>Utilitza colors amb bon contrast.</li>
-                <li>Evita utilitzar taules per maquetar.</li>
-              </ul>
-              <h3>Conceptes clau</h3>
-              <ul>
-                <li>Revisa l'accessibilitat amb eines automàtiques.</li>
-                <li>Estructura el document com un esquema.</li>
-                <li>Escriu contingut clar i llegible.</li>
-                <li>Utilitza formats correctes.</li>
-              </ul>
-            </div>
-            <div>
-              <h3>Informació sobre PDF</h3>
-              <p>Un PDF accessible ha de conservar l'estructura del document original: títols, ordre de lectura, idioma, text alternatiu i etiquetes.</p>
-              <h4>Abans de crear un PDF</h4>
-              <ul>
-                <li>Parteix d'un document font accessible.</li>
-                <li>No exportis imatges de text com si fossin contingut.</li>
-                <li>Comprova l'ordre de lectura i les etiquetes.</li>
-                <li>Revisa formularis i taules si n'hi ha.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
+          <details class="disclosure" open>
+            <summary>
+              <h2 id="docs-title">Veure totes les bones pràctiques</h2>
+            </summary>
+            <div class="disclosure-body">
+              <div class="example-box">
+                <h3>Estructura bé el contingut per millorar l'experiència de totes les persones.</h3>
+                <p>Els documents accessibles són més fàcils de llegir i entendre per a tothom, no només per a persones amb discapacitat.</p>
+                <ul class="anchor-list">
+                  <li><a href="#general-title">Bones pràctiques generals</a></li>
+                  <li><a href="#conceptes-title">Conceptes clau</a></li>
+                  <li><a href="#pdf-title">Informació sobre PDF</a></li>
+                </ul>
+              </div>
 
-        <section class="guide-section" aria-labelledby="downloads-title">
-          <h2 id="downloads-title">Plantilles descarregables</h2>
+              <section class="guide-section" aria-labelledby="general-title">
+                <h2 id="general-title">Bones pràctiques generals</h2>
+                <ul>
+                  <li>Utilitza encapçalaments estructurats.</li>
+                  <li>Afegeix metadades: títol, autor i idioma.</li>
+                  <li>Inclou text alternatiu a les imatges.</li>
+                  <li>Utilitza colors amb bon contrast.</li>
+                  <li>Evita utilitzar taules per maquetar.</li>
+                </ul>
+              </section>
+
+              <section class="guide-section" aria-labelledby="conceptes-title">
+                <h2 id="conceptes-title">Conceptes clau</h2>
+                <ul>
+                  <li>Revisa l'accessibilitat amb eines automàtiques.</li>
+                  <li>Estructura el document com un esquema.</li>
+                  <li>Escriu contingut clar i llegible.</li>
+                  <li>Utilitza formats correctes.</li>
+                </ul>
+              </section>
+
+              <section class="guide-section" aria-labelledby="pdf-title">
+                <h2 id="pdf-title">Informació sobre PDF</h2>
+                <p>Un PDF accessible ha de conservar l'estructura del document original: títols, ordre de lectura, idioma, text alternatiu i etiquetes.</p>
+                <h3>Abans de crear un PDF</h3>
+                <ul>
+                  <li>Parteix d'un document font accessible.</li>
+                  <li>No exportis imatges de text com si fossin contingut.</li>
+                  <li>Comprova l'ordre de lectura i les etiquetes.</li>
+                  <li>Revisa formularis i taules si n'hi ha.</li>
+                </ul>
+              </section>
+            </div>
+          </details>
+
+        <section class="guide-section plantilles-band" aria-labelledby="downloads-title">
+          <div class="section-heading">
+            <p class="section-kicker">Plantilles</p>
+            <h2 id="downloads-title">Plantilles descarregables</h2>
+          </div>
           <div class="download-grid">
             <a class="download-card" href="assets/templates/plantilla-document-accessible.doc" download>
               <span class="file-icon file-icon-word" aria-hidden="true">W</span>
-              <h3>Plantilla Word accessible</h3>
+              <h3>Descarrega la Plantilla Word <span class="download-size">25 Kb</span></h3>
               <p>Document base amb títols, taula de dades i estructura inicial.</p>
-            </a>
-            <a class="download-card" href="assets/templates/plantilla-presentacio-accessible.ppt" download>
-              <span class="file-icon file-icon-powerpoint" aria-hidden="true">P</span>
-              <h3>Plantilla PowerPoint accessible (pròximament)</h3>
-              <p>Presentació base amb estructura clara i recomanacions de contrast.</p>
             </a>
           </div>
         </section>
 
         <section class="guide-section" aria-labelledby="tipus-title">
-          <h2 id="tipus-title">Guies disponibles</h2>
-          <div class="document-type-grid">
+          <div class="section-heading">
+            <p class="section-kicker">Guies</p>
+            <h2 id="tipus-title">Guies disponibles</h2>
+          </div>
+          <div class="document-type-grid document-type-grid-2">
             <article class="document-type-card">
               <div>
                 <h3>Documents</h3>

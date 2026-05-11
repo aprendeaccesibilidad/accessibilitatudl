@@ -12,7 +12,7 @@
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
 
     <header class="site-header">
-      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="university-bar"><span><a href="https://www.udl.cat/ca/">Universitat de Lleida</a></span></div>
       <div class="topbar">
         <a class="brand" href="index.html">
           <img class="brand-logo" src="assets/logo-udl.png" alt="">
@@ -30,7 +30,7 @@
         <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
           <a href="index.html">Inici</a>
           <a href="persones.html" aria-current="page">Persones</a>
-          <a href="guies-continguts.html">Guies continguts</a>
+          <a href="guies-continguts.html">Pautes</a>
           <a href="avaluar.html">Avaluar</a>
           <a href="recursos.html">Recursos</a>
         </nav>
@@ -51,146 +51,150 @@
       </section>
 
       <section class="intro-section" aria-labelledby="intro-title">
-        <h2 id="intro-title">Introducció</h2>
+        <h2 id="intro-title">Coneix per comprendre, comprèn per incloure.</h2>
         <p>
-          Les fitxes de persones ajuden a connectar criteris d'accessibilitat amb barreres concretes,
-          contextos d'ús i decisions pràctiques de disseny, contingut i tecnologia.
+          Les fitxes de persones ajuden a compendre les barreres concretes que tenen els usuaris amb
+          discapacitat al utilitzar la tecnologia.
         </p>
       </section>
 
-      <section class="section" aria-labelledby="perfils-title">
+      <section class="section" aria-labelledby="perfils">
         <div class="section-heading">
-          <h2 id="perfils-title">Perfils de persones</h2>
-          <p>Coneix per comprendre, comprèn per incloure.</p>
+          <p class="section-kicker">Persones</p>
+          <h2 id="perfils">Perfils de persones</h2>
         </div>
-        <div class="person-grid">
-          <a class="person-card person-card-link" href="persona-visual-total.html">
-            <div class="person-card-copy">
-              <div class="person-card-top">
-                <h3>César Cerezo</h3>
-                <p>Discapacitat visual total</p>
-              </div>
-              <ul class="profile-facts">
-                <li>No pot veure la pantalla.</li>
-                <li>Utilitza lector de pantalla.</li>
-                <li>Navega només amb teclat.</li>
-              </ul>
-              <p class="card-meta">Necessita semàntica, etiquetes i ordre lògic.</p>
-            </div>
+
+        <div class="profile-grid">
+          <a class="profile-card" href="persona-visual-total.html">
+            <span class="number">01</span>
+            <span class="name">César Cerezo</span>
+            <span class="type">Discapacitat visual total</span>
+            <p>65 anys. Ceguesa des dels 55 anys. Utilitza el teclat i depèn d'alternatives textuals a les imatges.</p>
+            <p><strong>Necessita:</strong> estructura semàntica, etiquetes, ordre lògic, idioma ben definit i alternatives textuals.</p>
+            <span class="chips" aria-label="Paraules clau">
+              <span class="chip">Alternatives d'imatge</span>
+              <span class="chip">Teclat</span>
+              <span class="chip">Semàntica</span>
+            </span>
           </a>
-          <a class="person-card person-card-link" href="persona-baixa-visio.html">
-            <div class="person-card-copy">
-              <div class="person-card-top">
-                <h3>Blas Blanco</h3>
-                <p>Baixa visió</p>
-              </div>
-              <ul class="profile-facts">
-                <li>Necessita contrast alt.</li>
-                <li>Fa zoom constantment.</li>
-                <li>Necessita una jerarquia clara.</li>
-              </ul>
-              <p class="card-meta">Necessita contrast alt i zoom funcional.</p>
-            </div>
+
+          <a class="profile-card" href="persona-baixa-visio.html">
+            <span class="number">02</span>
+            <span class="name">Blas Blanco</span>
+            <span class="type">Baixa visió</span>
+            <p>24 anys. Estudiant de primer del grau d'informàtica. Utilitza ZoomText, DesktopZoom o la lupa del sistema operatiu.</p>
+            <p><strong>Necessita:</strong> bon contrast, continguts que s'adaptin al zoom i enllaços clarament identificats.</p>
+            <span class="chips" aria-label="Paraules clau">
+              <span class="chip">Zoom</span>
+              <span class="chip">Contrast</span>
+              <span class="chip">Text flexible</span>
+            </span>
           </a>
-          <a class="person-card person-card-link" href="persona-motriu.html">
-            <div class="person-card-copy">
-              <div class="person-card-top">
-                <h3>Miguel Mota</h3>
-                <p>Discapacitat motriu</p>
-              </div>
-              <ul class="profile-facts">
-                <li>Mobilitat reduïda a les mans.</li>
-                <li>Utilitza trackball o teclat en pantalla.</li>
-                <li>Necessita més temps per interactuar.</li>
-              </ul>
-              <p class="card-meta">Necessita controls grans i navegació simple.</p>
-            </div>
+
+          <a class="profile-card" href="persona-motriu.html">
+            <span class="number">03</span>
+            <span class="name">Miguel Mota</span>
+            <span class="type">Discapacitat motriu</span>
+            <p>38 anys. Estudiant de doctorat amb lesió medul·lar i baixa mobilitat a les mans. Navega amb teclat i ratolí.</p>
+            <p><strong>Necessita:</strong> controls grans, menús visibles, focus clar i navegació sense precisió extrema.</p>
+            <span class="chips" aria-label="Paraules clau">
+              <span class="chip">Teclat</span>
+              <span class="chip">Focus</span>
+              <span class="chip">Controls grans</span>
+            </span>
           </a>
-          <a class="person-card person-card-link" href="persona-complexitat.html">
-            <div class="person-card-copy">
-              <div class="person-card-top">
-                <h3>Óscar Coiba</h3>
-                <p>Discapacitat intel·lectual</p>
-              </div>
-              <ul class="profile-facts">
-                <li>Necessita informació clara i senzilla.</li>
-                <li>Pot tenir dificultats amb textos complexos.</li>
-                <li>Prefereix instruccions pas a pas.</li>
-              </ul>
-              <p class="card-meta">Necessita llenguatge clar i guia.</p>
-            </div>
+
+          <a class="profile-card" href="persona-auditiva.html">
+            <span class="number">04</span>
+            <span class="name">Aurora Ausin</span>
+            <span class="type">Discapacitat auditiva</span>
+            <p>32 anys. Persona sorda des de petita. Prefereix la llengua de signes i utilitza molt el text i les videotrucades.</p>
+            <p><strong>Necessita:</strong> subtítols sincronitzats, transcripcions i alternatives visuals per a l'àudio.</p>
+            <span class="chips" aria-label="Paraules clau">
+              <span class="chip">Subtítols</span>
+              <span class="chip">Transcripció</span>
+              <span class="chip">Llengua de signes</span>
+            </span>
           </a>
-          <a class="person-card person-card-link" href="persona-auditiva.html">
-            <div class="person-card-copy">
-              <div class="person-card-top">
-                <h3>Aurora Ausin</h3>
-                <p>Discapacitat auditiva</p>
-              </div>
-              <ul class="profile-facts">
-                <li>No pot escoltar els sons.</li>
-                <li>Necessita subtítols o transcripcions.</li>
-                <li>Es comunica principalment amb text.</li>
-              </ul>
-              <p class="card-meta">Necessita subtítols i transcripcions.</p>
-            </div>
+
+          <a class="profile-card" href="persona-complexitat.html">
+            <span class="number">05</span>
+            <span class="name">Óscar Coiba</span>
+            <span class="type">Discapacitat intel·lectual</span>
+            <p>35 anys. Té una discapacitat intel·lectual límit. No utilitza tecnologia d'assistència específica.</p>
+            <p><strong>Necessita:</strong> instruccions clares, menys opcions, ajuda visual i missatges d'error comprensibles.</p>
+            <span class="chips" aria-label="Paraules clau">
+              <span class="chip">Llenguatge clar</span>
+              <span class="chip">Ajuda visual</span>
+              <span class="chip">Pas a pas</span>
+            </span>
+          </a>
+
+          <a class="profile-card" href="persona-gran.html">
+            <span class="number">06</span>
+            <span class="name">Rosa Vidal</span>
+            <span class="type">Persona gran</span>
+            <p>72 anys. Jubilada que estudia al programa senior de la UdL. Utilitza tauleta i telèfon mòbil de forma habitual.</p>
+            <p><strong>Necessita:</strong> text llegible, navegació simple, botons clars i ajudes per entendre processos digitals.</p>
+            <span class="chips" aria-label="Paraules clau">
+              <span class="chip">Text gran</span>
+              <span class="chip">Navegació simple</span>
+              <span class="chip">Ajuda contextual</span>
+            </span>
           </a>
         </div>
       </section>
 
-      <section class="highlight-box" aria-labelledby="idea-title">
-        <p class="section-kicker">Idea clau</p>
-        <h2 id="idea-title">Cada persona interactua de manera diferent amb la tecnologia.</h2>
+      <section class="key-idea" aria-labelledby="idea-clau">
+        <p>Idea clau</p>
+        <h2 id="idea-clau">Cada persona interactua de manera diferent amb la tecnologia.</h2>
         <p>
-          El disseny ha de tenir-ho en compte. Quan el contingut és clar, estructurat, subtitulat i
-          navegable amb teclat, millora l'experiència de tota la comunitat universitària.
+          El disseny ha de tenir-ho en compte. Quan el contingut és clar, estructurat, subtitulat i navegable,
+          millora l'experiència de tota la comunitat universitària.
         </p>
       </section>
 
-      <section class="section" aria-labelledby="situacionals-title">
-        <div class="section-heading">
-          <p class="section-kicker">Discapacitats situacionals</p>
-          <h2 id="situacionals-title">També existeixen discapacitats situacionals</h2>
-          <p>
-            No sempre cal tenir una discapacitat permanent per tenir dificultats. Qualsevol persona pot
-            trobar barreres segons el context.
-          </p>
-        </div>
+      <section class="situational" aria-labelledby="situacionals">
+        <p>Discapacitats situacionals</p>
+        <h2 id="situacionals">També existeixen discapacitats situacionals</h2>
+        <p>
+          No sempre cal tenir una discapacitat permanent per tenir dificultats. Qualsevol persona pot trobar
+          barreres segons el context.
+        </p>
 
-        <div class="situation-grid">
-          <article class="situation-card">
+        <div class="situational-grid">
+          <article class="situation">
             <h3>Situació auditiva</h3>
             <p>Estàs en una biblioteca o en silenci i no pots escoltar un vídeo.</p>
-            <p class="card-meta">Necessites subtítols</p>
+            <p><strong>Necessites subtítols</strong></p>
           </article>
-          <article class="situation-card">
+          <article class="situation">
             <h3>Situació visual</h3>
             <p>Estàs al sol amb molta llum i no veus bé la pantalla.</p>
-            <p class="card-meta">Necessites bon contrast</p>
+            <p><strong>Necessites bon contrast</strong></p>
           </article>
-          <article class="situation-card">
+          <article class="situation">
             <h3>Situació motora</h3>
-            <p>Tens una mà ocupada al transport, menjant o fent una altra tasca, i només pots utilitzar una mà.</p>
-            <p class="card-meta">Necessites interfícies simples</p>
+            <p>Tens una mà ocupada al transport, menjant o fent una altra tasca.</p>
+            <p><strong>Necessites interfícies simples</strong></p>
           </article>
-          <article class="situation-card">
+          <article class="situation">
             <h3>Situació cognitiva</h3>
             <p>Tens pressa o estàs cansat i no tens temps de llegir textos complexos.</p>
-            <p class="card-meta">Necessites informació clara i directa</p>
+            <p><strong>Necessites informació clara i directa</strong></p>
           </article>
         </div>
 
-        <div class="reflection">
-          <h3>Reflexió</h3>
-          <p>
-            L'accessibilitat no és només per a algunes persones. És per a tothom, en algun moment.
-          </p>
+        <div class="reflection" aria-labelledby="reflexio">
+          <h3 id="reflexio">Reflexió</h3>
+          <p>L'accessibilitat no és només per a algunes persones. És per a tothom, en algun moment.</p>
         </div>
       </section>
 
-      <section class="cta-band" aria-labelledby="cta-title">
-        <div>
-          <p class="section-kicker">Prova-ho tu mateix</p>
-          <h2 id="cta-title">Revisa una pàgina pensant en aquests cinc perfils</h2>
+      <section class="try-it" aria-labelledby="prova-ho">
+        <div class="try-it-copy">
+          <p>Prova-ho tu mateix</p>
+          <h2 id="prova-ho">Revisa una pàgina pensant en aquests cinc perfils</h2>
           <p>Escull una pàgina o document i comprova quines barreres apareixen per a cada persona.</p>
         </div>
         <a class="button button-light" href="avaluar.html">Començar revisió</a>

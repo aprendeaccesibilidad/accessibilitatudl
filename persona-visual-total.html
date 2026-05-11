@@ -8,11 +8,11 @@
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body class="persona-visual-total-page">
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
 
     <header class="site-header">
-      <div class="university-bar"><span>Universitat de Lleida</span></div>
+      <div class="university-bar"><span><a href="https://www.udl.cat/ca/">Universitat de Lleida</a></span></div>
       <div class="topbar">
         <a class="brand" href="index.html">
           <img class="brand-logo" src="assets/logo-udl.png" alt="">
@@ -30,7 +30,7 @@
         <nav class="primary-nav" id="menu-principal" aria-label="Menú principal">
           <a href="index.html">Inici</a>
           <a href="persones.html" aria-current="page">Persones</a>
-          <a href="guies-continguts.html">Guies continguts</a>
+          <a href="guies-continguts.html">Pautes</a>
           <a href="avaluar.html">Avaluar</a>
           <a href="recursos.html">Recursos</a>
         </nav>
@@ -49,61 +49,215 @@
       <section class="page-title" aria-labelledby="page-title-heading">
         <div class="page-title-inner">
           <h1 id="page-title-heading">César Cerezo</h1>
-          <p>“La web és la meva forma d'estudiar”</p>
+          <p>Perfil de persona amb discapacitat visual total. César té 65 anys, és professor catedràtic i utilitza JAWS per escoltar el contingut que apareix a la pantalla.</p>
         </div>
       </section>
 
       <section class="profile-detail" aria-labelledby="perfil-title">
-        <div class="profile-summary">
-          <figure class="profile-photo">
-            <img src="assets/cesar.jpg" alt="Retrat de César Cerezo, estudiant amb discapacitat visual total">
-          </figure>
-          <p class="section-kicker">01 · Discapacitat visual total</p>
-          <h2 id="perfil-title">Perfil</h2>
-          <p>Estudiant universitari de 21 anys amb discapacitat visual total.</p>
-          <p class="card-meta">Semàntica · Etiquetes · Ordre</p>
-        </div>
+          <div class="profile-summary profile-summary-wide">
+            <figure class="profile-photo">
+              <img src="assets/cesar.jpg" alt="Retrat de César Cerezo, estudiant amb discapacitat visual total">
+            </figure>
+            <div class="profile-summary-copy">
+              <p class="profile-badge">01 · Discapacitat visual total</p>
+              <h2 id="perfil-title">Perfil</h2>
+              <ul class="profile-summary-list">
+                <li><strong>Edat:</strong> 65 anys</li>
+                <li><strong>Ocupació:</strong> professor catedràtic</li>
+                <li><strong>Educació:</strong> doctorat en Enginyeria Agrònoma</li>
+                <li><strong>Condició:</strong> ceguesa des dels 55 anys.</li>
+                <li><strong>Vista:</strong> ara només distingeix llums i ombres.</li>
+                <li><strong>Tecnologia:</strong> ordinador Windows amb JAWS</li>
+                <li><strong>Necessita:</strong> autonomia, estructura clara, idioma ben definit i contingut compatible amb lector de pantalla</li>
+              </ul>
+              <details class="disclosure profile-more">
+                <summary>Més info del usuari</summary>
+                <p>Escolta la ràdio per estar al dia i participa en un grup de Skype amb altres persones amb discapacitat visual, on comparteixen experiències sobre tecnologia i vida quotidiana.</p>
+                <h3>Dificultats habituals</h3>
+                <ul>
+                  <li>Pàgines noves sense estructura clara.</li>
+                  <li>Elements no semàntics que el lector de pantalla no interpreta correctament.</li>
+                  <li>Imatges sense text alternatiu.</li>
+                  <li>Idioma no especificat o canvis d'idioma no marcats.</li>
+                  <li>Dependència d'altres persones per instal·lar o configurar programes.</li>
+                </ul>
+              </details>
+            </div>
+          </div>
 
         <div class="profile-content">
-          <section aria-labelledby="tecnologia-title">
-            <h3 id="tecnologia-title">Com utilitza la tecnologia</h3>
-            <ul>
-              <li>Lector de pantalla.</li>
-              <li>Navegació amb teclat.</li>
-              <li>Accés a contingut acadèmic.</li>
-            </ul>
-          </section>
-
-          <section aria-labelledby="passa-title">
-            <h3 id="passa-title">Què li passa</h3>
-            <p>Entra en una web, però tot es llegeix sense ordre.</p>
-            <p class="impact">Es perd i no pot estudiar amb normalitat.</p>
+          <section aria-labelledby="usa-title">
+            <h2 id="usa-title">Com utilitza la tecnologia</h2>
+            <p>Utilitza un ordinador personal amb Windows.</p>
+            <p>Fa servir JAWS, un lector de pantalla que llegeix el text que apareix a la pantalla.</p>
+            <p>Prefereix comunicar-se per Skype o telèfon perquè li sembla més àgil que escriure correus electrònics.</p>
+            <p>Accedeix millor a pàgines conegudes perquè ja n'ha memoritzat l'estructura.</p>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Ús de la tecnologia assistencial per un usuari</summary>
+                <p>Llista de vídeos que mostren com les persones amb discapacitat visual total utilitzen el lector de pantalla per accedir al contingut digital.</p>
+                <table class="resource-table">
+                  <caption>Recursos i exemples de tecnologia assistencial</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Més informació</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ponència sobre accessibilitat digital i lectors de pantalla.<span class="resource-note">Oriol Gomez Sentis: <a href="https://www.linkedin.com/in/ogomez92/" target="_blank" rel="noreferrer">LinkedIn</a></span></td>
+                      <td>
+                        <a href="https://youtu.be/EqeCXECzHk8?t=1004" target="_blank" rel="noreferrer">Video de la ponencia</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Exemple de navegació real amb lector de pantalla.<span class="resource-note">Victor Alberto Lorenzo: <a href="https://www.linkedin.com/in/v%C3%ADctor-alberto-lorenzo-670b856b/" target="_blank" rel="noreferrer">LinkedIn</a></span></td>
+                      <td>
+                        <a href="https://youtu.be/KZDo-J0lya4?t=263" target="_blank" rel="noreferrer">Vídeo d'ús de JAWS</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Demostració d'interacció amb dictat i lector de pantalla.</td>
+                      <td>
+                        <a href="https://www.w3.org/WAI/perspective-videos/speech/" target="_blank" rel="noreferrer">Vídeo de W3C</a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+            </div>
           </section>
 
           <section aria-labelledby="barreres-title">
-            <h3 id="barreres-title">Barreres</h3>
+            <h2 id="barreres-title">Barreres principals</h2>
             <ul>
-              <li>Falta d'estructura.</li>
-              <li>Enllaços poc clars.</li>
-              <li>Formularis confusos.</li>
+              <li>Pot navegar per algunes pàgines que coneix, però quan entra en llocs nous es perd amb facilitat si no pot entendre l'estructura de la pàgina.</li>
+              <li>JAWS de vegades es bloqueja i no sap per què passa.</li>
+              <li>Necessita ajuda per instal·lar programes.</li>
+              <li>En pàgines noves li costa orientar-se i entendre com està organitzat el contingut.</li>
+              <li>Si es perd molt, pot reiniciar el navegador o fins i tot l'ordinador.</li>
+              <li>Els textos en anglès o en català poden crear problemes si l'idioma no està ben definit o la pronunciació no és adequada.</li>
             </ul>
           </section>
 
-          <section aria-labelledby="necessita-title">
-            <h3 id="necessita-title">Necessita</h3>
+          <section aria-labelledby="necessitats-title">
+            <h2 id="necessitats-title">Necessitats</h2>
             <ul>
-              <li>Ordre i estructura.</li>
-              <li>Navegació clara.</li>
-              <li>Contingut accessible.</li>
+              <li>Pàgines amb estructura semàntica clara.</li>
+              <li>Encapçalaments, enllaços i controls ben identificats.</li>
+              <li>Imatges amb alternatives textuals.</li>
+              <li>Idioma de la pàgina i dels fragments ben indicat.</li>
+              <li>Missatges i processos que no el deixin bloquejat.</li>
+              <li>Major autonomia per no dependre sempre d'altres persones.</li>
             </ul>
+          </section>
+
+          <section aria-labelledby="accio-title">
+            <h2 id="accio-title">Què pots fer tu</h2>
+            <ul>
+              <li>Usa encapçalaments reals.</li>
+              <li>Escriu enllaços descriptius.</li>
+              <li>Afegeix text alternatiu.</li>
+              <li>Comprova la pàgina amb teclat.</li>
+              <li>No publiquis documents escanejats sense OCR.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="extras-title">
+            <h2 id="extras-title">Més informació</h2>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Eines assistencials</summary>
+                <p>Llista d'eines assistencials que utilitzen els usuaris amb discapacitat visual total.</p>
+                <table class="resource-table">
+                  <caption>Eines assistencials</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Més informació</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Lector de pantalla de referència per a Windows.</td>
+                      <td><a href="https://www.freedomscientific.com/products/software/jaws/" target="_blank" rel="noreferrer">JAWS (Windows)</a></td>
+                    </tr>
+                    <tr>
+                      <td>Lector de pantalla gratuït i molt utilitzat.</td>
+                      <td><a href="https://nvda.es/" target="_blank" rel="noreferrer">NVDA (Windows)</a></td>
+                    </tr>
+                    <tr>
+                      <td>Recull d'accessos directes útils a macOS.</td>
+                      <td><a href="https://dequeuniversity.com/screenreaders/voiceover-keyboard-shortcuts" target="_blank" rel="noreferrer">VoiceOver Keyboard Shortcuts on a Mac (Deque)</a></td>
+                    </tr>
+                    <tr>
+                      <td>Guia oficial d'Apple per començar.</td>
+                      <td><a href="https://support.apple.com/es-es/guide/voiceover-guide/welcome/web" target="_blank" rel="noreferrer">Uso de VoiceOver (Mac)</a></td>
+                    </tr>
+                    <tr>
+                      <td>Guia pràctica per revisar contingut amb VoiceOver.</td>
+                      <td><a href="http://accesibilidadweb.dlsi.ua.es/?menu=utilizando-voiceover-evaluacio" target="_blank" rel="noreferrer">Utilizando VoiceOver para evaluación</a></td>
+                    </tr>
+                    <tr>
+                      <td>Porta d'entrada a diverses guies de lectura de pantalla.</td>
+                      <td><a href="https://dequeuniversity.com/screenreaders" target="_blank" rel="noreferrer">Manuales de otros navegadores de voz</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Simuladors</summary>
+                <p>Llista de simuladors per percebre el contingut digital com una persona amb discapacitat visual total.</p>
+                <table class="resource-table">
+                  <caption>Simuladors</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Més informació</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Extensió per sensibilitzar sobre navegació textual.</td>
+                      <td><a href="https://chromewebstore.google.com/detail/site-unseen/aflfgnngnnhdoffmmpmakkdflfedldlh" target="_blank" rel="noreferrer">Site Unseen</a></td>
+                    </tr>
+                    <tr>
+                      <td>Versió textual d'una pàgina per provar estructures.</td>
+                      <td><a href="https://www.textise.net/" target="_blank" rel="noreferrer">Navegador de texto</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Checklist d'avaluació</summary>
+                <p>Verifica aquesta informació d'un lloc web per saber si el contingut és accessible per les persones amb discapacitat visual total.</p>
+                <ul>
+                  <li>La pàgina té un únic h1 clar?</li>
+                  <li>Els encapçalaments segueixen un ordre lògic?</li>
+                  <li>Els enllaços són comprensibles fora de context?</li>
+                  <li>Les imatges informatives tenen alternativa textual?</li>
+                  <li>Els controls tenen nom accessible?</li>
+                  <li>Els formularis tenen etiquetes visibles o accessibles?</li>
+                  <li>L'idioma de la pàgina està indicat?</li>
+                  <li>Els canvis d'idioma estan marcats?</li>
+                </ul>
+              </details>
+
+            </div>
           </section>
         </div>
       </section>
 
-      <section class="highlight-box" aria-labelledby="idea-title">
-        <p class="section-kicker">Idea clau</p>
-        <h2 id="idea-title">Les barreres no són de les persones. Són del disseny.</h2>
-        <p>“Si no entenc la pàgina, no puc continuar.”</p>
+      <section class="try-it" aria-labelledby="prova-ho">
+        <div class="try-it-copy">
+          <p>Prova-ho tu mateix</p>
+          <h2 id="prova-ho">Revisa una pàgina pensant amb el perfil de persona amb discapacitat visual total</h2>
+          <p>Escull una pàgina o document i comprova quines barreres pot tenir.</p>
+        </div>
+        <a class="button button-light" href="avaluar.html">Començar revisió</a>
       </section>
     </main>
 
