@@ -31,6 +31,7 @@ body {
   background: var(--paper);
   font-family: var(--font-main);
   line-height: 1.55;
+  overflow-x: clip;
 }
 
 main {
@@ -435,8 +436,9 @@ button:focus-visible {
 }
 
 .profile-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
   gap: 1rem;
   margin: 1.5rem 0 0;
 }
@@ -444,6 +446,8 @@ button:focus-visible {
 .profile-card {
   display: flex;
   flex-direction: column;
+  flex: 1 1 18rem;
+  min-width: 16rem;
   gap: 0.7rem;
   min-height: 100%;
   padding: 1.25rem;
@@ -1263,8 +1267,12 @@ button:focus-visible {
   cursor: pointer;
 }
 
-.disclosure summary h2,
-.disclosure summary h3 {
+.disclosure summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.disclosure summary .disclosure-title {
   display: inline;
   margin: 0;
   color: inherit;
@@ -1722,5 +1730,346 @@ button:focus-visible {
 
   .site-footer {
     display: grid;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar,
+  .content-guide,
+  .section,
+  .maturity-band,
+  .page-title,
+  .intro-section,
+  .key-idea,
+  .situational,
+  .try-it {
+    width: calc(100% - 1rem);
+  }
+
+  .page-title,
+  .intro-section,
+  .key-idea,
+  .situational,
+  .try-it,
+  .section {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .section-heading {
+    max-width: 100%;
+  }
+
+  .resource-table,
+  .resource-table thead,
+  .resource-table tbody,
+  .resource-table tr,
+  .resource-table th,
+  .resource-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .resource-table thead {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .resource-table tr {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .resource-table th,
+  .resource-table td {
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .resource-table td:first-child {
+    width: 100%;
+    margin-bottom: 0.45rem;
+  }
+
+  .resource-table td:last-child {
+    margin-bottom: 0;
+  }
+
+  .try-it {
+    grid-template-columns: 1fr;
+  }
+
+  .try-it .button {
+    justify-self: start;
+  }
+
+  .anchor-links-inline {
+    gap: 0.35rem 0.55rem;
+  }
+
+  .anchor-links-inline a {
+    display: inline-block;
+  }
+}
+
+@media (max-width: 375px) {
+  .site-header {
+    overflow-x: clip;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 0.9rem 0 0.7rem;
+  }
+
+  .brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    width: 100%;
+  }
+
+  .brand-logo {
+    width: 4.8rem;
+  }
+
+  .brand-name {
+    font-size: 1.45rem;
+    line-height: 1.12;
+  }
+
+  .brand-subtitle {
+    font-size: 0.88rem;
+    line-height: 1.22;
+  }
+
+  .menu-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-bar {
+    width: 100%;
+    overflow-x: clip;
+  }
+
+  .primary-nav {
+    width: calc(100% - 0.75rem);
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem 0;
+  }
+
+  .primary-nav a {
+    padding: 0.25rem 0;
+  }
+
+  .university-bar span,
+  .topbar,
+  .nav-bar,
+  .section,
+  .maturity-band,
+  .content-guide,
+  .page-title-inner,
+  .intro-section,
+  .hero,
+  .featured-event,
+  .resources-section,
+  .key-idea,
+  .situational,
+  .try-it {
+    width: calc(100% - 0.75rem);
+  }
+
+  .breadcrumb {
+    width: calc(100% - 0.75rem);
+    padding-top: 1rem;
+    font-size: 0.82rem;
+  }
+
+  .page-title-inner,
+  .intro-section,
+  .hero,
+  .featured-event,
+  .section,
+  .key-idea,
+  .situational,
+  .try-it,
+  .content-guide {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .page-title h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  .profile-detail,
+  .profile-summary-wide,
+  .profile-content {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-detail {
+    width: calc(100% - 0.75rem);
+    gap: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  .profile-summary {
+    padding: 1rem;
+  }
+
+  .profile-photo {
+    margin-bottom: 1rem;
+  }
+
+  .profile-summary h2 {
+    font-size: 1.4rem;
+  }
+
+  .profile-summary-list {
+    padding-left: 1rem;
+  }
+
+  .profile-content section {
+    padding: 1rem;
+  }
+
+  .details-stack {
+    gap: 0.6rem;
+  }
+
+  .disclosure {
+    padding: 0.9rem 0.95rem;
+  }
+
+  .disclosure summary {
+    font-size: 0.98rem;
+    line-height: 1.25;
+  }
+
+  .resource-table,
+  .resource-table thead,
+  .resource-table tbody,
+  .resource-table tr,
+  .resource-table th,
+  .resource-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .resource-table tr {
+    padding: 0.7rem 0;
+  }
+
+  .resource-table td:first-child {
+    width: 100%;
+    margin-bottom: 0.3rem;
+  }
+
+  .resource-table caption {
+    font-size: 0.92rem;
+  }
+
+  .resource-note {
+    overflow-wrap: anywhere;
+  }
+
+  .page-title p,
+  .intro-section p,
+  .guide-section p,
+  .guide-section li,
+  .try-it p,
+  .resource-table td,
+  .resource-table th,
+  .download-card p,
+  .download-card h3,
+  .document-type-card p,
+  .person-card p,
+  .person-grid .person-card h3 {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .intro-section h2,
+  .key-idea h2,
+  .situational h2,
+  .try-it h2,
+  .section h2,
+  .guide-section h2,
+  .guide-section .section-heading h2,
+  .document-type-card h3,
+  .download-card h3 {
+    font-size: 1.35rem;
+    line-height: 1.18;
+  }
+
+  .section-kicker,
+  .eyebrow,
+  .guide-section .section-heading .section-kicker {
+    margin-bottom: 0.45rem;
+    font-size: 0.72rem;
+  }
+
+  .profile-grid .person-card,
+  .task-card,
+  .document-type-card div,
+  .download-card {
+    padding: 1rem;
+  }
+
+  .profile-card .name {
+    font-size: 1.2rem;
+  }
+
+  .profile-card .type {
+    font-size: 0.98rem;
+  }
+
+  .chips,
+  .anchor-links-inline,
+  .guide-links,
+  .resource-table {
+    gap: 0.4rem;
+  }
+
+  .resource-table caption {
+    padding-bottom: 0.5rem;
+  }
+
+  .resource-table tr {
+    padding: 0.75rem 0;
+  }
+
+  .download-card .download-size {
+    display: inline-block;
+    margin-left: 0.25rem;
+    font-size: 0.85em;
+  }
+
+  .featured-event,
+  .resources-section,
+  .section,
+  .content-guide,
+  .page-title-inner,
+  .intro-section,
+  .hero,
+  .key-idea,
+  .situational,
+  .try-it {
+    overflow-x: clip;
+  }
+
+  .try-it .button {
+    width: 100%;
+    max-width: 100%;
   }
 }

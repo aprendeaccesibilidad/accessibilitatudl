@@ -8,7 +8,7 @@
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body class="persona-visual-total-page">
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
 
     <header class="site-header">
@@ -54,59 +54,184 @@
       </section>
 
       <section class="profile-detail" aria-labelledby="perfil-title">
-        <div class="profile-summary">
-          <figure class="profile-photo">
+        <div class="profile-summary profile-summary-wide">
+          <figure class="profile-photo profile-photo-left">
             <img src="assets/miguel.jpg" alt="Retrat de Miguel Mota, estudiant amb discapacitat motriu">
           </figure>
-          <p class="section-kicker">03 · Discapacitat motriu</p>
-          <h2 id="perfil-title">Perfil</h2>
-          <p>Estudiant universitari de 38 anys amb lesió medul·lar i mobilitat reduïda a les mans.</p>
-          <p class="card-meta">Teclat · Focus · Interacció</p>
+          <div class="profile-summary-copy">
+            <p class="profile-badge">03 · Discapacitat motriu</p>
+            <h2 id="perfil-title">Perfil</h2>
+            <ul class="profile-summary-list">
+              <li><strong>Edat:</strong> 38 anys</li>
+              <li><strong>Ocupació:</strong> estudiant de doctorat</li>
+              <li><strong>Educació:</strong> estudis superiors</li>
+              <li><strong>Condició:</strong> lesió medul·lar amb baixa mobilitat a les mans</li>
+              <li><strong>Mobilitat:</strong> pot interactuar amb l'ordinador, però les accions precises o combinades li requereixen més temps</li>
+              <li><strong>Tecnologia:</strong> Windows 8, ratolí amb trackball, teclat en pantalla i lupa del sistema operatiu</li>
+              <li><strong>Necessita:</strong> controls grans, navegació per teclat, focus visible, menús accessibles i processos sense finestres inesperades</li>
+            </ul>
+            <details class="disclosure profile-more">
+              <summary>Més info de l'usuari</summary>
+              <p>La discapacitat motriu pot afectar la precisió, la velocitat, la força, la coordinació o la capacitat de mantenir una postura. També pot aparèixer temporalment per una lesió, tremolor, dolor, cansament o ús d'un dispositiu en condicions poc favorables.</p>
+            </details>
+          </div>
         </div>
 
         <div class="profile-content">
           <section aria-labelledby="tecnologia-title">
-            <h3 id="tecnologia-title">Com utilitza la tecnologia</h3>
+            <h2 id="tecnologia-title">Com utilitza la tecnologia</h2>
             <ul>
-              <li>Navegació amb teclat.</li>
-              <li>Focus visible per orientar-se.</li>
-              <li>Zoom puntual per interactuar amb elements petits.</li>
+              <li>Utilitza sempre un ratolí amb trackball per moure's per la pantalla.</li>
+              <li>Fa servir Windows i l'actualitza quan apareixen versions noves.</li>
+              <li>Ha provat Dragon Naturally Speaking, però prefereix el teclat en pantalla de Windows.</li>
+              <li>Quan ha d'interactuar amb àrees petites, activa la lupa de Windows per guanyar precisió.</li>
             </ul>
-          </section>
 
-          <section aria-labelledby="passa-title">
-            <h3 id="passa-title">Què li passa</h3>
-            <p>Ha de clicar en un menú desplegable, però només apareix quan passa el ratolí per sobre.</p>
-            <p>Ha de repetir el moviment diverses vegades.</p>
-            <p class="impact">La tasca es torna lenta i frustrant.</p>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Ús de la tecnologia assistencial per un usuari</summary>
+                <p>Llista de vídeos que mostren com les persones amb discapacitat motriu utilitzen el teclat i altres ajudes per interactuar amb el contingut digital.</p>
+                <table class="resource-table">
+                  <caption>Recursos i exemples de tecnologia assistencial</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Vídeo de W3C sobre navegació per teclat.</td>
+                      <td><a href="https://www.w3.org/WAI/perspective-videos/keyboard/">W3C WAI Perspective Video: Keyboard</a></td>
+                    </tr>
+                    <tr>
+                      <td>Vídeo de W3C sobre controls accessibles.</td>
+                      <td><a href="https://www.w3.org/WAI/perspective-videos/controls/">W3C WAI Perspective Video: Controls</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+            </div>
           </section>
 
           <section aria-labelledby="barreres-title">
-            <h3 id="barreres-title">Barreres</h3>
+            <h2 id="barreres-title">Barreres principals</h2>
             <ul>
-              <li>Elements petits o difícils de clicar.</li>
-              <li>Menús que depenen del hover.</li>
-              <li>Accions que requereixen molta precisió.</li>
-              <li>Finestres emergents inesperades.</li>
+              <li>Els botons o objectes molt petits li exigeixen més precisió i temps.</li>
+              <li>Les interaccions que combinen clicar i moure el ratolí, com en mapes, li costen especialment.</li>
+              <li>Els menús que només apareixen en passar el ratolí per sobre li resulten frustrants.</li>
+              <li>Si ha de mantenir una posició precisa per desplegar opcions, pot haver de repetir l'acció diverses vegades.</li>
+              <li>Les finestres emergents automàtiques li molesten perquè ha de tancar-les abans de continuar.</li>
+              <li>Les pàgines sense focus visible o amb navegació de teclat incompleta dificulten l'accés.</li>
             </ul>
           </section>
 
-          <section aria-labelledby="necessita-title">
-            <h3 id="necessita-title">Necessita</h3>
+          <section aria-labelledby="necessitats-title">
+            <h2 id="necessitats-title">Necessitats</h2>
             <ul>
-              <li>Enllaços i botons grans i clars.</li>
-              <li>Navegació sense necessitat de precisió extrema.</li>
-              <li>Menús visibles sense passar el ratolí per sobre.</li>
-              <li>Interaccions simples i previsibles.</li>
+              <li>Enllaços interns que facilitin saltar a seccions de pàgines llargues.</li>
+              <li>Controls grans, separats i fàcils d'activar.</li>
+              <li>Menús que es puguin obrir amb clic i també amb teclat, no només amb hover.</li>
+              <li>Focus visible i ordre de tabulació lògic.</li>
+              <li>Evitar finestres noves o emergents inesperades.</li>
+              <li>Temps suficient per completar accions sense pressió.</li>
             </ul>
+          </section>
+
+          <section aria-labelledby="accio-title">
+            <h2 id="accio-title">Què pots fer tu</h2>
+            <ul>
+              <li>Comprova tota la pàgina només amb teclat.</li>
+              <li>Fes que el focus sigui visible i coherent.</li>
+              <li>No amaguis opcions importants només darrere d'un hover.</li>
+              <li>Dissenya àrees clicables grans i amb separació suficient.</li>
+              <li>Evita gestos complexos com arrossegar si no hi ha alternativa.</li>
+              <li>No obris finestres noves sense avisar.</li>
+              <li>Afegeix enllaços de salt i estructura clara en pàgines llargues.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="extras-title">
+            <h2 id="extras-title">Més informació</h2>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Eines assistencials</summary>
+                <p>Llista d'eines assistencials que utilitzen els usuaris amb discapacitat motriu.</p>
+                <table class="resource-table">
+                  <caption>Eines assistencials</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Teclat virtual integrat al sistema operatiu.</td>
+                      <td><a href="https://support.microsoft.com/en-us/windows/use-the-on-screen-keyboard-osk-to-type-ecbb5e08-5b4e-d8c8-f794-81dbf896267a">Teclat en pantalla de Windows</a></td>
+                    </tr>
+                    <tr>
+                      <td>Ús de dreceres de teclat per facilitar interaccions.</td>
+                      <td><a href="https://support.microsoft.com/en-gb/windows/windows-keyboard-shortcuts-for-accessibility-021bcb62-45c8-e4ef-1e4f-41b8c1fc87fd">Dreceres de teclat d'accessibilitat de Windows</a></td>
+                    </tr>
+                    <tr>
+                      <td>Ajuda d'accessibilitat per a configuració i ús de Windows.</td>
+                      <td><a href="https://support.microsoft.com/en-us/accessibility">Ajuda d'accessibilitat de Microsoft</a></td>
+                    </tr>
+                    <tr>
+                      <td>Dispositius especials en casos més greus.</td>
+                      <td><a href="https://support.microsoft.com/en-us/accessibility">Dispositius d'entrada alternatius i ajuda d'accessibilitat</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Simuladors</summary>
+                <p>Llista de simuladors per percebre el contingut digital com una persona amb discapacitat motriu.</p>
+                <table class="resource-table">
+                  <caption>Simuladors</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Extensió per simular Parkinson.</td>
+                      <td><a href="https://chrome.google.com/webstore/detail/web-disability-simulator/olioanlbgbpmdlgjnnampnnlohigkjla">Web Disability Simulator - Parkinson</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Checklist d'avaluació</summary>
+                <p>Verifica aquesta informació d'un lloc web per saber si el contingut és accessible per a persones amb discapacitat motriu.</p>
+                <ul>
+                  <li>Es pot completar tota la tasca amb teclat?</li>
+                  <li>El focus visible es veu clarament en tots els components?</li>
+                  <li>L'ordre de tabulació segueix l'ordre visual i lògic?</li>
+                  <li>Els controls tenen una mida suficient i separació adequada?</li>
+                  <li>Els menús funcionen sense dependre només del hover?</li>
+                  <li>Hi ha alternatives a arrossegar, mantenir premut o fer gestos complexos?</li>
+                  <li>La pàgina evita finestres emergents o canvis inesperats?</li>
+                  <li>Els enllaços interns ajuden a navegar per continguts llargs?</li>
+                </ul>
+              </details>
+            </div>
           </section>
         </div>
       </section>
 
-      <section class="highlight-box" aria-labelledby="idea-title">
-        <p class="section-kicker">Idea clau</p>
-        <h2 id="idea-title">Cada persona interactua de manera diferent amb la tecnologia.</h2>
-        <p>El disseny ha de tenir-ho en compte.</p>
+      <section class="try-it" aria-labelledby="prova-ho">
+        <div class="try-it-copy">
+          <p>Prova-ho tu mateix</p>
+          <h2 id="prova-ho">Revisa una pàgina pensant amb el perfil de persona amb discapacitat motriu</h2>
+          <p>Escull una pàgina o document i comprova quines barreres pot tenir.</p>
+        </div>
+        <a class="button button-light" href="avaluar.html">Començar revisió</a>
       </section>
     </main>
 

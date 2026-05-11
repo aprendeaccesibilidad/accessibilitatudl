@@ -8,7 +8,7 @@
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body class="persona-visual-total-page">
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
 
     <header class="site-header">
@@ -54,59 +54,167 @@
       </section>
 
       <section class="profile-detail" aria-labelledby="perfil-title">
-        <div class="profile-summary">
-          <figure class="profile-photo">
-            <img src="assets/aurora.jpg" alt="Retrat d'Aurora Ausin, administrativa amb discapacitat auditiva">
+        <div class="profile-summary profile-summary-wide">
+          <figure class="profile-photo profile-photo-left">
+            <img src="assets/aurora.jpg" alt="Retrat d'Aurora Ausin, usuària amb discapacitat auditiva">
           </figure>
-          <p class="section-kicker">05 · Discapacitat auditiva</p>
-          <h2 id="perfil-title">Perfil</h2>
-          <p>Administrativa a la Universitat de Lleida amb discapacitat auditiva total.</p>
-          <p class="card-meta">Subtítols · Transcripcions · Visual</p>
+          <div class="profile-summary-copy">
+            <p class="profile-badge">04 · Discapacitat auditiva</p>
+            <h2 id="perfil-title">Perfil</h2>
+            <ul class="profile-summary-list">
+              <li><strong>Edat:</strong> 32 anys</li>
+              <li><strong>Ocupació:</strong> administrativa</li>
+              <li><strong>Educació:</strong> secundària i FP de gestió administrativa</li>
+              <li><strong>Condició:</strong> sordesa des dels 3 anys arran d'una meningitis</li>
+              <li><strong>Audició:</strong> no pot accedir a informació sonora sense alternatives visuals o textuals</li>
+              <li><strong>Tecnologia:</strong> Windows 8 a casa, Linux i OpenOffice a la feina, smartphone per missatges</li>
+              <li><strong>Necessita:</strong> subtítols sincronitzats, transcripcions, llengua de signes, textos clars i missatges comprensibles</li>
+            </ul>
+            <details class="disclosure profile-more">
+              <summary>Més info de l'usuari</summary>
+              <p>La discapacitat auditiva no sempre implica les mateixes preferències de comunicació. Algunes persones prefereixen subtítols, altres llengua de signes, lectura labial, text escrit o combinacions d'aquestes opcions.</p>
+            </details>
+          </div>
         </div>
 
         <div class="profile-content">
           <section aria-labelledby="tecnologia-title">
-            <h3 id="tecnologia-title">Com utilitza la tecnologia</h3>
+            <h2 id="tecnologia-title">Com utilitza la tecnologia</h2>
             <ul>
-              <li>Missatgeria i correu electrònic.</li>
-              <li>Videotrucades per llegir els llavis.</li>
-              <li>Ús intensiu de text per comunicar-se.</li>
+              <li>A casa utilitza Windows 8.</li>
+              <li>A la feina utilitza Linux i s'hi ha hagut d'acostumar perquè algunes funcions són diferents.</li>
+              <li>A la feina utilitza OpenOffice i escriu correus electrònics, que revisa amb el corrector abans d'enviar.</li>
+              <li>Fa servir molt el telèfon intel·ligent per comunicar-se amb missatges de text.</li>
+              <li>Utilitza Skype perquè pot veure les cares de les persones i llegir els llavis.</li>
+              <li>Sempre que pot, prefereix correus o missatges telefònics, tot i que sap que pot cometre errors en la construcció de frases.</li>
             </ul>
-          </section>
 
-          <section aria-labelledby="passa-title">
-            <h3 id="passa-title">Què li passa</h3>
-            <p>Reprodueix un vídeo, però no té subtítols.</p>
-            <p>No pot entendre el contingut.</p>
-            <p class="impact">Perd completament la informació.</p>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Ús de la tecnologia assistencial per un usuari</summary>
+                <p>Llista de vídeos que mostren com les persones amb discapacitat auditiva accedeixen al contingut digital amb suport visual i textual.</p>
+                <table class="resource-table">
+                  <caption>Recursos i exemples de tecnologia assistencial</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Vídeo de W3C sobre contingut comprensible.</td>
+                      <td><a href="https://www.w3.org/WAI/perspective-videos/understandable/">W3C WAI Perspective Video: Understandable</a></td>
+                    </tr>
+                    <tr>
+                      <td>Vídeo de W3C sobre subtítols.</td>
+                      <td><a href="https://www.w3.org/WAI/perspective-videos/captions/">W3C WAI Perspective Video: Captions</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+            </div>
           </section>
 
           <section aria-labelledby="barreres-title">
-            <h3 id="barreres-title">Barreres</h3>
+            <h2 id="barreres-title">Barreres principals</h2>
             <ul>
-              <li>Vídeos sense subtítols.</li>
-              <li>Subtítols mal sincronitzats.</li>
-              <li>Contingut només en àudio.</li>
-              <li>Textos llargs i difícils de comprendre.</li>
+              <li>Els missatges en anglès li dificulten entendre què passa amb l'ordinador.</li>
+              <li>Els vídeos sense subtítols li impedeixen accedir al contingut.</li>
+              <li>Els subtítols mal sincronitzats dificulten la comprensió.</li>
+              <li>Els àudios sense transcripció passen desapercebuts o no li aporten informació.</li>
+              <li>Les webs amb molt text li resulten feixugues i sovint les abandona.</li>
+              <li>La informació només sonora, com avisos o alarmes, no és accessible per a ella.</li>
             </ul>
           </section>
 
-          <section aria-labelledby="necessita-title">
-            <h3 id="necessita-title">Necessita</h3>
+          <section aria-labelledby="necessitats-title">
+            <h2 id="necessitats-title">Necessitats</h2>
             <ul>
-              <li>Subtítols clars i sincronitzats.</li>
-              <li>Transcripcions de contingut àudio.</li>
-              <li>Suport visual: imatges i vídeos.</li>
-              <li>Contingut breu i entenedor.</li>
+              <li>Vídeos amb subtítols sincronitzats i, quan sigui possible, versió en llengua de signes.</li>
+              <li>Transcripcions per a fitxers d'àudio.</li>
+              <li>Continguts visuals que ajudin a explicar la informació.</li>
+              <li>Textos clars, directes i ben estructurats.</li>
+              <li>Missatges d'error i instruccions en l'idioma de la pàgina.</li>
+              <li>Alternatives visuals per a notificacions sonores.</li>
             </ul>
+          </section>
+
+          <section aria-labelledby="accio-title">
+            <h2 id="accio-title">Què pots fer tu</h2>
+            <ul>
+              <li>Afegeix subtítols sincronitzats als vídeos.</li>
+              <li>Proporciona transcripcions per a àudios i podcasts.</li>
+              <li>No donis informació només mitjançant so.</li>
+              <li>Escriu instruccions i missatges en llenguatge clar.</li>
+              <li>Acompanya explicacions complexes amb imatges, icones o vídeo accessible.</li>
+              <li>Evita blocs de text massa llargs sense estructura.</li>
+              <li>Quan el públic ho requereixi, ofereix contingut en llengua de signes.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="extras-title">
+            <h2 id="extras-title">Més informació</h2>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Eines assistencials</summary>
+                <p>No utilitza eines assistencials.</p>
+              </details>
+
+              <details class="disclosure">
+                <summary>Simuladors</summary>
+                <p>Llista de recursos per comprendre millor l'experiència de la discapacitat auditiva i la comprensió textual.</p>
+                <table class="resource-table">
+                  <caption>Simuladors</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Aplicació que genera soroll constant de fons i pot desactivar l'altaveu.</td>
+                      <td><a href="http://simplynoise.com/">SimplyNoise</a></td>
+                    </tr>
+                    <tr>
+                      <td>Eina indicada al PPT per a l'activitat de comprovació de textos complexos.</td>
+                      <td><a href="http://163.117.129.208:8080/">Comprovació de textos complexos</a></td>
+                    </tr>
+                    <tr>
+                      <td>Informació sobre la plataforma EASIER per a la comprensió de textos.</td>
+                      <td><a href="https://hulat.inf.uc3m.es/noticia/PlataformaEASIERunaayudaenlacomprensi%C3%B3ndelostextos">Plataforma EASIER</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Checklist d'avaluació</summary>
+                <p>Verifica aquesta informació d'un lloc web per saber si el contingut és accessible per a persones amb discapacitat auditiva.</p>
+                <ul>
+                  <li>Els vídeos tenen subtítols sincronitzats?</li>
+                  <li>Els àudios tenen transcripció textual?</li>
+                  <li>La informació sonora important també apareix de manera visual?</li>
+                  <li>Els subtítols tenen bon contrast i són llegibles?</li>
+                  <li>Els textos són clars, breus i ben estructurats?</li>
+                  <li>Els missatges d'error apareixen en l'idioma adequat?</li>
+                  <li>Les instruccions complexes tenen suport visual?</li>
+                  <li>S'ofereix llengua de signes quan és necessari per al públic objectiu?</li>
+                </ul>
+              </details>
+            </div>
           </section>
         </div>
       </section>
 
-      <section class="highlight-box" aria-labelledby="idea-title">
-        <p class="section-kicker">Idea clau</p>
-        <h2 id="idea-title">Cada persona interactua de manera diferent amb la tecnologia.</h2>
-        <p>El disseny ha de tenir-ho en compte.</p>
+      <section class="try-it" aria-labelledby="prova-ho">
+        <div class="try-it-copy">
+          <p>Prova-ho tu mateix</p>
+          <h2 id="prova-ho">Revisa una pàgina pensant amb el perfil de persona amb discapacitat auditiva</h2>
+          <p>Escull una pàgina o document i comprova quines barreres pot tenir.</p>
+        </div>
+        <a class="button button-light" href="avaluar.html">Començar revisió</a>
       </section>
     </main>
 

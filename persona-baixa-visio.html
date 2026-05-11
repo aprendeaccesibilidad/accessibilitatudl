@@ -8,7 +8,7 @@
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body class="persona-visual-total-page">
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
 
     <header class="site-header">
@@ -54,56 +54,210 @@
       </section>
 
       <section class="profile-detail" aria-labelledby="perfil-title">
-        <div class="profile-summary">
-          <figure class="profile-photo">
-            <img src="assets/blas.jpg" alt="Retrat de Blas Blanco, professor amb baixa visió">
+        <div class="profile-summary profile-summary-wide">
+          <figure class="profile-photo profile-photo-left">
+            <img src="assets/blas.jpg" alt="Retrat de Blas Blanco, estudiant amb baixa visió">
           </figure>
-          <p class="section-kicker">02 · Baixa visió</p>
-          <h2 id="perfil-title">Perfil</h2>
-          <p>Professor universitari de 58 anys amb baixa visió progressiva.</p>
-          <p class="card-meta">Contrast · Zoom · Jerarquia</p>
+          <div class="profile-summary-copy">
+            <p class="profile-badge">02 · Discapacitat de baixa visió</p>
+            <h2 id="perfil-title">Perfil</h2>
+            <ul class="profile-summary-list">
+              <li><strong>Edat:</strong> 24 anys</li>
+              <li><strong>Ocupació:</strong> estudiant de primer del grau d'informàtica</li>
+              <li><strong>Educació:</strong> estudis secundaris</li>
+              <li><strong>Condició:</strong> baixa visió per retinosi pigmentària</li>
+              <li><strong>Vista:</strong> necessita ampliar el contingut i apropar-se a la pantalla per percebre bé els elements</li>
+              <li><strong>Tecnologia:</strong> Windows, DesktopZoom, lupa de Windows i pantalles grans</li>
+              <li><strong>Necessita:</strong> contingut flexible, bon contrast, text llegible, elements grans i orientació clara quan fa zoom</li>
+            </ul>
+            <details class="disclosure profile-more">
+              <summary>Més info de l'usuari</summary>
+              <p>La baixa visió no implica una única manera de veure: pot haver-hi visió borrosa, pèrdua de camp visual, sensibilitat al contrast, dificultat amb colors o cansament visual. També pot aparèixer temporalment per medicació, fatiga, edat o condicions de visualització.</p>
+            </details>
+          </div>
         </div>
 
         <div class="profile-content">
-          <section aria-labelledby="tecnologia-title">
-            <h3 id="tecnologia-title">Com utilitza la tecnologia</h3>
+          <section aria-labelledby="usa-title">
+            <h2 id="usa-title">Com utilitza la tecnologia</h2>
             <ul>
-              <li>Fa zoom constant.</li>
-              <li>S'apropa a la pantalla.</li>
-              <li>Llegeix i prepara classes.</li>
+              <li>Utilitza Windows.</li>
+              <li>A casa treballa amb una pantalla gran de 27 polzades i DesktopZoom, recomanat pel seu assessor de l'ONCE.</li>
+              <li>Per estudiar fa servir una pantalla de 22 polzades i sovint en té prou amb la lupa de Windows.</li>
+              <li>S'apropa a la pantalla per percebre millor els elements.</li>
+              <li>Li agraden molt els videojocs i utilitza l'ordinador sobretot per oci i estudis.</li>
             </ul>
-          </section>
 
-          <section aria-labelledby="passa-title">
-            <h3 id="passa-title">Què li passa</h3>
-            <p>Amplia la pantalla, però la web no s'adapta.</p>
-            <p class="impact">Perd context i es cansa ràpid.</p>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Ús de la tecnologia assistencial per un usuari</summary>
+                <p>Llista de vídeos que mostren com les persones amb discapacitat de baixa visió utilitzen ampliadors de pantalla i reflow per accedir al contingut digital.</p>
+                <table class="resource-table">
+                  <caption>Recursos i exemples de tecnologia assistencial</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Así ve una persona con retinosis pigmentaria.</td>
+                      <td><a href="https://www.youtube.com/watch?v=29b8kO7wiRc">Vídeo YouTube</a></td>
+                    </tr>
+                    <tr>
+                      <td>Vídeo de W3C sobre maquetació i reflow.</td>
+                      <td><a href="https://www.w3.org/WAI/perspective-videos/layout/">W3C WAI Perspective Video: Layout</a></td>
+                    </tr>
+                    <tr>
+                      <td>Vídeo de W3C sobre personalització visual.</td>
+                      <td><a href="https://www.w3.org/WAI/perspective-videos/customizable/">W3C WAI Perspective Video: Customizable</a></td>
+                    </tr>
+                    <tr>
+                      <td>Vídeo de W3C sobre contrast.</td>
+                      <td><a href="https://www.w3.org/WAI/perspective-videos/contrast/">W3C WAI Perspective Video: Contrast</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+            </div>
           </section>
 
           <section aria-labelledby="barreres-title">
-            <h3 id="barreres-title">Barreres</h3>
+            <h2 id="barreres-title">Barreres principals</h2>
             <ul>
-              <li>Poc contrast.</li>
-              <li>Contingut que no s'adapta.</li>
-              <li>Text petit o dins d'imatges.</li>
+              <li>Té dificultats amb textos de poc contrast, com text gris clar sobre fons blanc.</li>
+              <li>Quan navega amb zoom molt elevat, pot perdre l'orientació dins de la pàgina.</li>
+              <li>Si el text no s'adapta a l'amplada de la pantalla, es perd entre línies i el contingut deixa de tenir sentit.</li>
+              <li>Vídeos, mapes, imatges grans o continguts que surten de la pantalla l'obliguen a reduir el zoom, i llavors pot no veure-ho bé.</li>
+              <li>Els missatges superposats sobre imatges li molesten perquè ha de moure el ratolí i sovint el text és massa petit.</li>
+              <li>Si els enllaços no estan subratllats, li costa identificar-los perquè no sempre percep el canvi del punter.</li>
             </ul>
           </section>
 
-          <section aria-labelledby="necessita-title">
-            <h3 id="necessita-title">Necessita</h3>
+          <section aria-labelledby="necessitats-title">
+            <h2 id="necessitats-title">Necessitats</h2>
             <ul>
-              <li>Bon contrast.</li>
-              <li>Zoom funcional.</li>
-              <li>Disseny clar.</li>
+              <li>Dissenys elàstics i responsius que funcionin amb zoom elevat.</li>
+              <li>Text que es pugui ampliar sense pèrdua de contingut ni desplaçament horitzontal innecessari.</li>
+              <li>Contrastos suficients i combinacions de color llegibles.</li>
+              <li>Enllaços i controls visibles, grans i fàcils d'identificar.</li>
+              <li>Subtítols i textos sobre vídeo amb contrast adequat, encara que sovint prefereix escoltar el vídeo.</li>
             </ul>
+          </section>
+
+          <section aria-labelledby="accio-title">
+            <h2 id="accio-title">Què pots fer tu</h2>
+            <ul>
+              <li>Assegura un contrast suficient entre text i fons.</li>
+              <li>No fixis mides de text o contenidors que impedeixin el reflow.</li>
+              <li>Comprova la pàgina amb zoom al 200% i al 400%.</li>
+              <li>No transmetis informació només amb color.</li>
+              <li>Fes visibles els enllaços amb subratllat o altres indicadors persistents.</li>
+              <li>Evita textos petits o missatges importants superposats a imatges sense alternativa accessible.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="extras-title">
+            <h2 id="extras-title">Més informació</h2>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Eines assistencials</summary>
+                <p>Llista d'eines assistencials que utilitzen els usuaris amb discapacitat de baixa visió.</p>
+                <table class="resource-table">
+                  <caption>Eines assistencials</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ampliador de pantalla comercial molt utilitzat.</td>
+                      <td><a href="https://www.zoomtext.com/">ZoomText</a></td>
+                    </tr>
+                    <tr>
+                      <td>Ús de zoom del sistema operatiu en macOS.</td>
+                      <td><a href="https://support.apple.com/es-es/guide/mac-help/mchl779716b8/mac">MAC Configurar zoom al Sistema operatiu</a></td>
+                    </tr>
+                    <tr>
+                      <td>Ús de la Lupa per facilitar la visualització dels elements.</td>
+                      <td><a href="https://support.microsoft.com/es-es/windows/usar-la-lupa-para-facilitar-la-visualizaci%C3%B3n-de-los-elementos-en-la-pantalla-414948ba-8b1c-d3bd-8615-0e5e32204198">Windows - Lupa</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Simuladors</summary>
+                <p>Llista de simuladors per percebre el contingut digital com una persona amb discapacitat de baixa visió.</p>
+                <table class="resource-table">
+                  <caption>Simuladors</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Extensió per simular diferents barreres visuals i cognitives.</td>
+                      <td><a href="https://chrome.google.com/webstore/detail/web-disability-simulator/olioanlbgbpmdlgjnnampnnlohigkjla">Web Disability Simulator</a></td>
+                    </tr>
+                    <tr>
+                      <td>Simulador de diverses discapacitats, inclosa baixa visió.</td>
+                      <td><a href="https://www.funkify.org/simulators/">Funkify Simulator</a></td>
+                    </tr>
+                    <tr>
+                      <td>Filtres CSS per provar desenfocament o canvis de color.</td>
+                      <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/filter">CSSFilter / CSS filter</a></td>
+                    </tr>
+                    <tr>
+                      <td>Filtre de daltonisme sobre pàgines web.</td>
+                      <td><a href="https://www.toptal.com/designers/colorfilter">Colorblind Web Page Filter</a></td>
+                    </tr>
+                    <tr>
+                      <td>Extensió per simular daltonisme.</td>
+                      <td><a href="https://chrome.google.com/webstore/detail/colorblinding/dgbgleaofjainknadoffbjkclicbbgaa">ColorBlinding</a></td>
+                    </tr>
+                    <tr>
+                      <td>Simulador de baixa visió.</td>
+                      <td><a href="https://accessgarage.wordpress.com/2013/02/09/458/">NoCoffee</a></td>
+                    </tr>
+                    <tr>
+                      <td>Aplicació mòbil per experimentar diferents tipus de baixa visió.</td>
+                      <td><a href="https://www.tengobajavision.com/app/simulador/">Tengo baja visión</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Checklist d'avaluació</summary>
+                <p>Verifica aquesta informació d'un lloc web per saber si el contingut és accessible per a persones amb discapacitat de baixa visió.</p>
+                <ul>
+                  <li>El contingut es pot ampliar fins al 200% o 400% sense perdre informació?</li>
+                  <li>El text es redistribueix sense obligar a fer scroll horitzontal?</li>
+                  <li>El contrast de text, icones i controls és suficient?</li>
+                  <li>Els enllaços són visibles sense dependre només del color?</li>
+                  <li>Els controls interactius tenen una mida i una separació adequades?</li>
+                  <li>Els missatges superposats són llegibles i no tapen informació important?</li>
+                  <li>La informació essencial no depèn només de la percepció visual fina?</li>
+                </ul>
+              </details>
+            </div>
           </section>
         </div>
       </section>
 
-      <section class="highlight-box" aria-labelledby="idea-title">
-        <p class="section-kicker">Idea clau</p>
-        <h2 id="idea-title">Les barreres no són de les persones. Són del disseny.</h2>
-        <p>“Cada detall mal dissenyat em frena.”</p>
+      <section class="try-it" aria-labelledby="prova-ho">
+        <div class="try-it-copy">
+          <p>Prova-ho tu mateix</p>
+          <h2 id="prova-ho">Revisa una pàgina pensant amb el perfil de persona amb baixa visió</h2>
+          <p>Escull una pàgina o document i comprova quines barreres pot tenir.</p>
+        </div>
+        <a class="button button-light" href="avaluar.html">Començar revisió</a>
       </section>
     </main>
 

@@ -8,7 +8,7 @@
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body class="persona-visual-total-page">
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
 
     <header class="site-header">
@@ -54,50 +54,111 @@
       </section>
 
       <section class="profile-detail" aria-labelledby="perfil-title">
-        <div class="profile-summary">
-          <figure class="profile-photo">
+        <div class="profile-summary profile-summary-wide">
+          <figure class="profile-photo profile-photo-left">
             <img src="assets/hero-accessibility.png" alt="Imatge representativa d'accessibilitat digital">
           </figure>
-          <p class="section-kicker">06 · Persona gran</p>
-          <h2 id="perfil-title">Perfil</h2>
-          <p>Persona jubilada de 72 anys que utilitza la tauleta per fer tràmits, llegir avisos i reservar activitats.</p>
-          <p class="card-meta">Llegibilitat · Ritme · Suport</p>
+          <div class="profile-summary-copy">
+            <p class="profile-badge">06 · Persona gran</p>
+            <h2 id="perfil-title">Perfil</h2>
+            <ul class="profile-summary-list">
+              <li><strong>Edat:</strong> 72 anys</li>
+              <li><strong>Ocupació:</strong> jubilada</li>
+              <li><strong>Educació:</strong> programa sènior de la UdL</li>
+              <li><strong>Condició:</strong> usuària gran amb més necessitat de suport en entorns digitals</li>
+              <li><strong>Ús:</strong> utilitza tauleta i telèfon mòbil de forma habitual</li>
+              <li><strong>Necessita:</strong> text llegible, navegació simple, botons clars i ajudes per entendre processos digitals</li>
+            </ul>
+          </div>
         </div>
 
         <div class="profile-content">
           <section aria-labelledby="tecnologia-title">
-            <h3 id="tecnologia-title">Com utilitza la tecnologia</h3>
+            <h2 id="tecnologia-title">Com utilitza la tecnologia</h2>
             <ul>
-              <li>Tauleta i telèfon mòbil.</li>
-              <li>Correu electrònic i videotrucades.</li>
-              <li>Consulta de documents i cites.</li>
+              <li>Consulta informació i fa tràmits amb la tauleta.</li>
+              <li>Utilitza el telèfon mòbil per comunicar-se i gestionar activitats del dia a dia.</li>
+              <li>Prefereix pantalles clares i amb poques distraccions.</li>
+              <li>Agraeix els missatges directes i les instruccions pas a pas.</li>
             </ul>
-          </section>
-
-          <section aria-labelledby="passa-title">
-            <h3 id="passa-title">Què li passa</h3>
-            <p>Troba textos massa petits i pantalles amb massa informació.</p>
-            <p class="impact">Quan no troba la informació ràpid, abandona la tasca.</p>
           </section>
 
           <section aria-labelledby="barreres-title">
-            <h3 id="barreres-title">Barreres</h3>
+            <h2 id="barreres-title">Barreres principals</h2>
             <ul>
-              <li>Text amb poca llegibilitat.</li>
+              <li>Text petit o poc contrastat.</li>
+              <li>Procés amb massa passos o massa informació a la vegada.</li>
               <li>Botons i enllaços poc clars.</li>
-              <li>Procés amb massa passos.</li>
               <li>Missatges tècnics o confusos.</li>
+              <li>Canvis de pantalla inesperats.</li>
             </ul>
           </section>
 
-          <section aria-labelledby="necessita-title">
-            <h3 id="necessita-title">Necessita</h3>
+          <section aria-labelledby="necessitats-title">
+            <h2 id="necessitats-title">Necessitats</h2>
             <ul>
               <li>Text gran i contrastat.</li>
               <li>Navegació senzilla i coherent.</li>
               <li>Ajuda contextual i clara.</li>
               <li>Passos curts i previsibles.</li>
+              <li>Botons amb bona mida i espai entre elements.</li>
             </ul>
+          </section>
+
+          <section aria-labelledby="accio-title">
+            <h2 id="accio-title">Què pots fer tu</h2>
+            <ul>
+              <li>Escriu amb llenguatge clar i frases curtes.</li>
+              <li>Organitza el contingut en passos simples.</li>
+              <li>Fes que els errors expliquin la causa i la solució.</li>
+              <li>Evita sobrecarregar la pantalla amb massa opcions.</li>
+              <li>Mantén la navegació i els patrons d'interacció consistents.</li>
+              <li>Inclou suport visual quan sigui útil.</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="extras-title">
+            <h2 id="extras-title">Més informació</h2>
+            <div class="details-stack">
+              <details class="disclosure">
+                <summary>Eines assistencials</summary>
+                <p>No utilitza eines assistencials específiques.</p>
+              </details>
+
+              <details class="disclosure">
+                <summary>Simuladors</summary>
+                <p>Recursos per experimentar com poden afectar l'edat i la lectura en entorns digitals.</p>
+                <table class="resource-table">
+                  <caption>Simuladors</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Simulador relacionat amb l'experiència de navegació en edats avançades.</td>
+                      <td><a href="https://www.tengobajavision.com/app/simulador/">Tengo baja visión</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <details class="disclosure">
+                <summary>Checklist d'avaluació</summary>
+                <p>Verifica aquesta informació d'un lloc web per saber si el contingut és accessible per a persones grans.</p>
+                <ul>
+                  <li>El text és prou gran i llegible?</li>
+                  <li>Els botons i enllaços tenen una mida suficient?</li>
+                  <li>La navegació és simple i coherent?</li>
+                  <li>Els missatges són clars i sense tecnicismes?</li>
+                  <li>Hi ha suport visual per entendre millor la informació?</li>
+                  <li>Els passos són curts i previsibles?</li>
+                  <li>La pàgina evita distraccions i massa opcions alhora?</li>
+                </ul>
+              </details>
+            </div>
           </section>
         </div>
       </section>
