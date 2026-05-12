@@ -8,8 +8,9 @@
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body class="home-page">
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
+    <h1 class="sr-only">Accesibilidad digital de la Universitat de Lleida</h1>
 
     <header class="site-header">
       <div class="university-bar">
@@ -47,16 +48,6 @@
           <p class="section-kicker">Edició 2026 · #GAADUdL</p>
           <h2 id="gaad-title">Primera Jornada d'Accessibilitat Digital</h2>
           <p class="event-meta">Universitat de Lleida · 2026</p>
-          <p>
-            Jornada per aprendre sobre persones, disseny, desenvolupament web, documents, avaluació i
-            intel·ligència artificial en l'àmbit de l'accessibilitat digital.
-          </p>
-          <a class="button button-primary" href="https://gaad.udl.cat">Visita GAAD UdL</a>
-        </div>
-        <div class="featured-event-side">
-          <figure class="featured-event-visual">
-            <img src="assets/iconowebgaad.png" alt="Icona de la jornada GAAD UdL amb símbols d'accessibilitat digital">
-          </figure>
           <div class="event-facts">
             <div>
               <span>Data</span>
@@ -75,6 +66,16 @@
               <strong>Gratuïta</strong>
             </div>
           </div>
+          <a class="button button-primary" href="https://gaad.udl.cat">Visita GAAD UdL</a>
+        </div>
+        <div class="featured-event-side">
+          <figure class="featured-event-visual">
+            <img src="assets/iconowebgaad.png" alt="Icona de la jornada GAAD UdL amb símbols d'accessibilitat digital">
+          </figure>
+          <p>
+            Jornada per aprendre sobre persones, disseny, desenvolupament web, documents, avaluació i
+            intel·ligència artificial en l'àmbit de l'accessibilitat digital.
+          </p>
         </div>
       </section>
 
@@ -124,7 +125,7 @@
           <article class="task-card">
             <span class="card-icon" aria-hidden="true">Docs</span>
             <h3>Crear documents accessibles</h3>
-            <p>Utilitza guies i plantilles per fer documents Word, PDF i presentacions accessibles.</p>
+            <p>Utilitza guies i plantilles per fer documents de Microsoft Word, PDF i presentacions de Microsoft PowerPoint accessibles.</p>
             <p class="card-meta">Guies + plantilles</p>
           </article>
           <article class="task-card">
@@ -143,10 +144,19 @@
         </div>
         <ul class="resource-list">
           <li>
-            <a href="recursos.html">Imatges accessibles: generació de text alternatiu amb GPT</a>
+            <a href="recursos.html#imatges-accessibles">Imatges accessibles: generació de text alternatiu amb GPT</a>
             <span>GPT que crea automàticament descripcions d'imatges (text alternatiu) segons el seu context per millorar l'accessibilitat web.</span>
           </li>
         </ul>
+      </section>
+
+      <section class="try-it" aria-labelledby="formacio-title">
+        <div class="try-it-copy">
+          <p>Formació</p>
+          <h2 id="formacio-title">Vols apendre accessibilitat digital?</h2>
+          <p>Consulta les microcredencials de la Universitat de Lleida.</p>
+        </div>
+        <a class="button button-light" href="http://aprendeaccesibilidad.udl.cat/">Veure el curs</a>
       </section>
 
     </main>
