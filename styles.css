@@ -60,19 +60,25 @@ a:focus-visible,
 button:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .button-primary:focus-visible,
 .button-light:focus-visible,
+.maturity-band a:focus-visible,
+.cta-band a:focus-visible,
+.university-bar a:focus-visible {
+  outline-color: var(--focus-dark);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 6px var(--base-dark);
+}
+
 .person-card-link:focus-visible,
 .task-card-link:focus-visible,
 .download-card:focus-visible,
 .card-actions a:focus-visible,
-.maturity-band a:focus-visible,
-.cta-band a:focus-visible,
-.site-footer a:focus-visible,
-.university-bar a:focus-visible {
-  outline-color: var(--focus-dark);
+.site-footer a:focus-visible {
+  outline-color: var(--focus);
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .skip-link {
@@ -155,10 +161,17 @@ button:focus-visible {
 
 .brand {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1.15rem;
+  min-width: 0;
+  max-width: 100%;
   color: var(--ink);
   text-decoration: none;
+}
+
+.brand > span {
+  min-width: 0;
 }
 
 .brand:hover {
@@ -181,6 +194,7 @@ button:focus-visible {
   font-size: clamp(1.7rem, 3vw, 2.7rem);
   font-weight: 800;
   line-height: 1.05;
+  overflow-wrap: anywhere;
 }
 
 .brand-subtitle {
@@ -188,6 +202,7 @@ button:focus-visible {
   font-family: var(--font-main);
   font-size: clamp(0.92rem, 1.3vw, 1.15rem);
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .menu-button {
@@ -228,6 +243,20 @@ button:focus-visible {
 
 .menu-icon::after {
   top: 0.38rem;
+}
+
+.menu-button.is-open .menu-icon {
+  background: transparent;
+}
+
+.menu-button.is-open .menu-icon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.menu-button.is-open .menu-icon::after {
+  top: 0;
+  transform: rotate(-45deg);
 }
 
 .nav-bar {
@@ -812,6 +841,72 @@ button:focus-visible {
   border-color: #fff;
 }
 
+@media (forced-colors: active) {
+  html {
+    forced-color-adjust: auto;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid LinkText;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+
+  .button-primary,
+  .button-light,
+  .download-card,
+  .person-card-link,
+  .task-card-link,
+  .try-it,
+  .featured-event,
+  .plantilles-band,
+  .site-header,
+  .site-footer {
+    forced-color-adjust: auto;
+    border-color: ButtonText;
+  }
+
+  .skip-link {
+    background: Highlight;
+    color: HighlightText;
+  }
+}
+
+@media (prefers-contrast: more) {
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible {
+    outline-width: 4px;
+    outline-offset: 4px;
+  }
+
+  .button-primary,
+  .button-light,
+  .download-card,
+  .person-card-link,
+  .task-card-link,
+  .profile-card,
+  .situation,
+  .try-it {
+    border-width: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 .section {
   width: min(100% - 2rem, var(--content-max));
   padding: 3.25rem 0;
@@ -1312,6 +1407,7 @@ button:focus-visible {
 .disclosure summary:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 4px;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .disclosure summary .disclosure-title {
@@ -1729,6 +1825,10 @@ button:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .profile-summary-wide {
+    grid-template-columns: 1fr;
+  }
+
   .person-grid,
   .task-grid,
   .situation-grid,
@@ -1750,6 +1850,11 @@ button:focus-visible {
 
   .button-light {
     justify-self: start;
+  }
+
+  .profile-photo {
+    max-width: 16rem;
+    margin-inline: auto;
   }
 }
 
@@ -1977,6 +2082,8 @@ button:focus-visible {
   }
 
   .profile-photo {
+    max-width: 13rem;
+    margin-inline: auto;
     margin-bottom: 1rem;
   }
 

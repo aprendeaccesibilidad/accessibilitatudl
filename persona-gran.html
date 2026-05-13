@@ -3,14 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rosa Vidal | Persones | Accessibilitat Digital | Universitat de Lleida</title>
+    <title>Marta Pérez | Persona gran | Accessibilitat Digital | Universitat de Lleida</title>
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="assets/udl.jpeg">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body class="persona-visual-total-page">
     <a class="skip-link" href="#contingut">Saltar al contingut principal</a>
-    <h1 class="sr-only">Accesibilidad digital de la Universitat de Lleida</h1>
 
     <header class="site-header">
       <div class="university-bar"><span><a href="https://www.udl.cat/ca/">Universitat de Lleida</a></span></div>
@@ -38,7 +37,7 @@
       </div>
     </header>
 
-    <main id="contingut">
+    <main id="contingut" tabindex="-1">
       <nav class="breadcrumb" aria-label="Fil d'Ariadna">
         <a href="index.html">Inici</a>
         <span aria-hidden="true">›</span>
@@ -49,27 +48,37 @@
 
       <section class="page-title" aria-labelledby="page-title-heading">
         <div class="page-title-inner">
-          <h1 id="page-title-heading">Rosa Vidal</h1>
-          <p>“La informació clara em fa guanyar autonomia”</p>
+          <h1 id="page-title-heading">Marta Pérez</h1>
+          <p>“Les persones grans som grans, no idiotes. També ens encanta la tecnologia.”</p>
         </div>
       </section>
 
       <section class="profile-detail" aria-labelledby="perfil-title">
         <div class="profile-summary profile-summary-wide">
           <figure class="profile-photo profile-photo-left">
-            <img src="assets/hero-accessibility.png" alt="Imatge representativa d'accessibilitat digital">
+            <img src="assets/personas/rosa.jpg" alt="Retrat de Marta Pérez, persona gran activa que aprèn, utilitza i ensenya tecnologia digital">
           </figure>
           <div class="profile-summary-copy">
-            <p class="profile-badge">06 · Persona gran</p>
+            <p class="profile-badge">01 · Persona gran activa i digital</p>
             <h2 id="perfil-title">Perfil</h2>
             <ul class="profile-summary-list">
-              <li><strong>Edat:</strong> 72 anys</li>
-              <li><strong>Ocupació:</strong> jubilada</li>
-              <li><strong>Educació:</strong> programa sènior de la UdL</li>
-              <li><strong>Condició:</strong> usuària gran amb més necessitat de suport en entorns digitals</li>
-              <li><strong>Ús:</strong> utilitza tauleta i telèfon mòbil de forma habitual</li>
-              <li><strong>Necessita:</strong> text llegible, navegació simple, botons clars i ajudes per entendre processos digitals</li>
+              <li><strong>Edat:</strong> 75 anys</li>
+              <li><strong>Ocupació:</strong> jubilada i dinamitzadora de classes d'informàtica en un centre educatiu per a gent gran</li>
+              <li><strong>Educació:</strong> secundària</li>
+              <li><strong>Condició:</strong> persona gran activa, amb ganes d'aprendre i de compartir coneixements</li>
+              <li><strong>Tecnologia:</strong> ordinador, tauleta i mòbil</li>
+              <li><strong>Ús:</strong> WhatsApp, fotografies, consultar el temps, jocs online, compres per internet, tràmits i pagament de factures</li>
+              <li><strong>Necessita:</strong> tecnologia clara, entenedora i no paternalista; que no se la discrimini per edat ni se la tracti com si no pogués aprendre</li>
             </ul>
+            <details class="disclosure profile-more">
+              <summary>Més info</summary>
+              <p>
+                L'envelliment pot afectar la memòria, l'atenció, la velocitat de processament, la confiança,
+                la destresa o la capacitat d'adaptar-se a canvis constants en la tecnologia. També pot
+                aparèixer de manera temporal en qualsevol persona per cansament, estrès, manca de pràctica,
+                por a equivocar-se o ús d'un dispositiu en condicions poc favorables.
+              </p>
+            </details>
           </div>
         </div>
 
@@ -77,44 +86,55 @@
           <section aria-labelledby="tecnologia-title">
             <h2 id="tecnologia-title">Com utilitza la tecnologia</h2>
             <ul>
-              <li>Consulta informació i fa tràmits amb la tauleta.</li>
-              <li>Utilitza el telèfon mòbil per comunicar-se i gestionar activitats del dia a dia.</li>
-              <li>Prefereix pantalles clares i amb poques distraccions.</li>
-              <li>Agraeix els missatges directes i les instruccions pas a pas.</li>
+              <li>Utilitza la tecnologia sobretot en centres socials i educatius, sovint amb companys i companyes.</li>
+              <li>Fa servir el mòbil per comunicar-se per WhatsApp, fer fotos, consultar el temps i fer gestions bàsiques.</li>
+              <li>Quan pot triar, prefereix una tauleta o un ordinador, perquè li resulten més còmodes per llegir, escriure, comprar o fer tràmits.</li>
+              <li>Juga a jocs online, compra per internet i paga factures de manera digital.</li>
+              <li>Participa com a dinamitzadora de classes d'informàtica i ajuda altres persones grans a perdre la por a la tecnologia.</li>
+              <li>Ensenya a iniciar-se en el món digital i a utilitzar la tecnologia amb més autonomia i confiança.</li>
+              <li>Pren notes dels processos nous perquè, si passa temps sense utilitzar una eina, pot oblidar alguns passos.</li>
             </ul>
           </section>
 
           <section aria-labelledby="barreres-title">
             <h2 id="barreres-title">Barreres principals</h2>
             <ul>
-              <li>Text petit o poc contrastat.</li>
-              <li>Procés amb massa passos o massa informació a la vegada.</li>
-              <li>Botons i enllaços poc clars.</li>
-              <li>Missatges tècnics o confusos.</li>
-              <li>Canvis de pantalla inesperats.</li>
+              <li>Li costa aprendre coses noves quan les interfícies canvien sovint o no expliquen bé què cal fer.</li>
+              <li>Quan no utilitza una tecnologia durant un temps, pot oblidar el procés i necessita revisar les seves notes.</li>
+              <li>Els tutorials, manuals i recursos d'ajuda sovint són massa tècnics, llargs o difícils d'entendre.</li>
+              <li>Moltes administracions públiques no pensen prou en les persones grans quan dissenyen tràmits digitals.</li>
+              <li>Algunes webs i aplicacions assumeixen que la gent gran no utilitzarà la tecnologia o que només necessita funcions molt bàsiques.</li>
+              <li>La discriminació per edat pot fer que altres persones li parlin amb condescendència o no confiïn en la seva capacitat digital.</li>
+              <li>Les dificultats no sempre tenen a veure amb la visió: sovint el problema principal és la càrrega cognitiva, la memòria, l'organització de la informació i la manca de claredat.</li>
             </ul>
           </section>
 
           <section aria-labelledby="necessitats-title">
             <h2 id="necessitats-title">Necessitats</h2>
             <ul>
-              <li>Text gran i contrastat.</li>
-              <li>Navegació senzilla i coherent.</li>
-              <li>Ajuda contextual i clara.</li>
-              <li>Passos curts i previsibles.</li>
-              <li>Botons amb bona mida i espai entre elements.</li>
+              <li>Interfícies digitals clares, coherents i fàcils de recordar.</li>
+              <li>Processos pas a pas, amb instruccions visibles i llenguatge senzill.</li>
+              <li>Tutorials i manuals comprensibles, sense tecnicismes innecessaris.</li>
+              <li>Disseny que no tracti la gent gran com a persones incapaces.</li>
+              <li>Tràmits digitals de l'administració pública més accessibles i millor explicats.</li>
+              <li>Temps suficient per aprendre, practicar i consolidar els processos.</li>
+              <li>Possibilitat de recuperar-se fàcilment d'errors sense quedar bloquejada.</li>
+              <li>Disseny fet amb persones grans, no només per a persones grans.</li>
             </ul>
           </section>
 
           <section aria-labelledby="accio-title">
             <h2 id="accio-title">Què pots fer tu</h2>
             <ul>
-              <li>Escriu amb llenguatge clar i frases curtes.</li>
-              <li>Organitza el contingut en passos simples.</li>
-              <li>Fes que els errors expliquin la causa i la solució.</li>
-              <li>Evita sobrecarregar la pantalla amb massa opcions.</li>
-              <li>Mantén la navegació i els patrons d'interacció consistents.</li>
-              <li>Inclou suport visual quan sigui útil.</li>
+              <li>Trenca estereotips sobre la gent gran i la tecnologia.</li>
+              <li>No assumeixis que una persona gran no pot o no vol utilitzar eines digitals.</li>
+              <li>Dissenya processos clars, consistents i fàcils de reprendre.</li>
+              <li>Redueix la càrrega cognitiva: menys passos, menys soroll visual i instruccions més directes.</li>
+              <li>Escriu tutorials amb llenguatge planer.</li>
+              <li>Mantén els botons, menús i accions importants en llocs previsibles.</li>
+              <li>Ofereix ajuda contextual sense infantilitzar.</li>
+              <li>Treballa amb persones grans durant el procés de disseny i prova les solucions amb elles.</li>
+              <li>Recorda que l'envelliment ens afecta a tots i a totes: ara mateix també t'estàs fent gran.</li>
             </ul>
           </section>
 
@@ -122,13 +142,52 @@
             <h2 id="extras-title">Més informació</h2>
             <div class="details-stack">
               <details class="disclosure">
-                <summary>Eines assistencials</summary>
-                <p>No utilitza eines assistencials específiques.</p>
+                <summary>Eines de suport</summary>
+                <p>Llista d'eines i recursos que poden ajudar les persones grans a utilitzar la tecnologia amb més autonomia.</p>
+                <table class="resource-table">
+                  <caption>Eines de suport</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Descripció</th>
+                      <th scope="col">Recurs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Permeten ajustar la mida del text, el contrast, el zoom, el volum, els subtítols o la velocitat d'interacció.</td>
+                      <td>Opcions d'accessibilitat del sistema</td>
+                    </tr>
+                    <tr>
+                      <td>Ajuden a fer cerques, enviar missatges, crear recordatoris o consultar informació sense haver d'escriure tant.</td>
+                      <td>Assistents de veu</td>
+                    </tr>
+                    <tr>
+                      <td>Faciliten recordar i utilitzar contrasenyes segures sense haver-les de memoritzar totes.</td>
+                      <td>Gestors de contrasenyes</td>
+                    </tr>
+                    <tr>
+                      <td>Ajuden a organitzar cites, medicació, tràmits, activitats o tasques digitals pendents.</td>
+                      <td>Recordatoris i calendari</td>
+                    </tr>
+                    <tr>
+                      <td>Serveixen per guardar passos, instruccions i processos que es consulten quan fa temps que no s'utilitza una eina.</td>
+                      <td>Notes digitals o en paper</td>
+                    </tr>
+                    <tr>
+                      <td>Redueix distraccions i facilita llegir continguts llargs.</td>
+                      <td>Mode lectura del navegador</td>
+                    </tr>
+                    <tr>
+                      <td>Permeten rebre ajuda a distància d'una persona de confiança.</td>
+                      <td>Videotrucades i compartició de pantalla</td>
+                    </tr>
+                  </tbody>
+                </table>
               </details>
 
               <details class="disclosure">
                 <summary>Simuladors</summary>
-                <p>Recursos per experimentar com poden afectar l'edat i la lectura en entorns digitals.</p>
+                <p>Llista de simuladors i activitats per entendre millor algunes barreres que pot trobar una persona gran quan utilitza tecnologia.</p>
                 <table class="resource-table">
                   <caption>Simuladors</caption>
                   <thead>
@@ -139,8 +198,28 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Simulador relacionat amb l'experiència de navegació en edats avançades.</td>
-                      <td><a href="https://www.tengobajavision.com/app/simulador/">Tengo baja visión</a></td>
+                      <td>Permet veure com poden afectar la lectura digital la pèrdua de contrast, la visió borrosa o la mida de lletra massa petita.</td>
+                      <td>Simulador de baixa visió</td>
+                    </tr>
+                    <tr>
+                      <td>Ajuda a comprovar si botons, enllaços i controls són prou grans i fàcils d'activar.</td>
+                      <td>Simulador de tremolor o poca precisió</td>
+                    </tr>
+                    <tr>
+                      <td>Serveix per detectar processos massa llargs, complexos o estressants.</td>
+                      <td>Prova amb temps limitat</td>
+                    </tr>
+                    <tr>
+                      <td>Consisteix a reprendre una tasca després d'una pausa per veure si el procés és fàcil de recordar.</td>
+                      <td>Prova de memòria de passos</td>
+                    </tr>
+                    <tr>
+                      <td>Ajuda a valorar si la interfície continua sent comprensible en contextos amb soroll, cansament o poca concentració.</td>
+                      <td>Navegació amb distraccions</td>
+                    </tr>
+                    <tr>
+                      <td>No és un simulador, però és la prova més important: observar persones grans reals utilitzant el producte.</td>
+                      <td>Test amb persones grans</td>
                     </tr>
                   </tbody>
                 </table>
@@ -148,20 +227,34 @@
 
               <details class="disclosure">
                 <summary>Checklist d'avaluació</summary>
-                <p>Verifica aquesta informació d'un lloc web per saber si el contingut és accessible per a persones grans.</p>
+                <p>Verifica aquesta informació d'un lloc web o aplicació per saber si el contingut és accessible i usable per a persones grans.</p>
                 <ul>
-                  <li>El text és prou gran i llegible?</li>
-                  <li>Els botons i enllaços tenen una mida suficient?</li>
-                  <li>La navegació és simple i coherent?</li>
-                  <li>Els missatges són clars i sense tecnicismes?</li>
-                  <li>Hi ha suport visual per entendre millor la informació?</li>
-                  <li>Els passos són curts i previsibles?</li>
-                  <li>La pàgina evita distraccions i massa opcions alhora?</li>
+                  <li>La informació important és fàcil de trobar?</li>
+                  <li>Els textos són clars i comprensibles?</li>
+                  <li>Els passos d'un procés estan ben ordenats?</li>
+                  <li>Els botons tenen etiquetes concretes i previsibles?</li>
+                  <li>Es pot entendre què passarà abans de prémer un botó?</li>
+                  <li>Els errors expliquen com solucionar el problema?</li>
+                  <li>La interfície evita canvis inesperats?</li>
+                  <li>Els tutorials són breus, visuals i fàcils de seguir?</li>
+                  <li>La mida del text i l'espaiat faciliten la lectura?</li>
+                  <li>Les tasques es poden reprendre sense haver de començar de zero?</li>
+                  <li>S'ha provat el producte amb persones grans reals?</li>
+                  <li>El disseny evita tractar la gent gran com a persones incapaces?</li>
                 </ul>
               </details>
             </div>
           </section>
         </div>
+      </section>
+
+      <section class="try-it" aria-labelledby="prova-ho-title">
+        <div class="try-it-copy">
+          <p class="section-kicker">Prova-ho tu mateix</p>
+          <h2 id="prova-ho-title">Revisa una pàgina pensant en aquest perfil</h2>
+          <p>Escull una pàgina o document i comprova quines barreres pot tenir.</p>
+        </div>
+        <a class="button button-light" href="avaluar.html">Començar revisió</a>
       </section>
     </main>
 
