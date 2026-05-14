@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evaluación básica de accesibilidad · Bookmarklet</title>
+  <meta name="description" content="Bookmarklet de evaluación básica de accesibilidad con observación por discapacidad y marcas visibles sobre la página.">
+  <style>
+    :root {
+      --bg: #f5f5f2;
+      --surface: #ffffff;
+      --soft: #eeeeeb;
+      --soft-2: #ddddda;
+      --text: #171717;
+      --muted: #626262;
+      --accent: #f7bd3d;
+      --teal: #831451;
+      --teal-soft: #f8e9f1;
+      --border: #d8d8d4;
+      --focus: #0b66d8;
+      --shadow: 0 18px 44px rgb(0 0 0 / .12);
+      --radius: 26px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a { color: #831451; font-weight: 850; }
+    :focus-visible { outline: 4px solid var(--focus); outline-offset: 4px; }
+
+    .skip-link {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      transform: translateY(-160%);
+      z-index: 100;
+      border-radius: 1rem;
+      padding: .75rem 1rem;
+      background: var(--text);
+      color: white;
+      font-weight: 900;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    header {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: .65rem;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 950;
+    }
+
+    .brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 1rem;
+      background: var(--teal);
+      color: white;
+      font-weight: 950;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .95rem;
+    }
+
+    nav a:hover {
+      color: var(--text);
+      text-decoration: underline;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem 5rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 2rem;
+      align-items: center;
+      padding: 3rem 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      border-radius: 999px;
+      background: var(--teal-soft);
+      color: var(--teal);
+      padding: .4rem .8rem;
+      font-size: .9rem;
+      font-weight: 950;
+    }
+
+    h1 {
+      max-width: 13ch;
+      margin: 1rem 0;
+      font-size: 4.6rem;
+      line-height: .92;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 .7rem;
+      font-size: 2.6rem;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 64ch;
+      color: var(--muted);
+      font-size: 1.2rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .85rem;
+      margin-top: 1.6rem;
+    }
+
+    .bookmarklet-button,
+    .button {
+      display: inline-flex;
+      min-height: 3.3rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1.2rem;
+      padding: .85rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 950;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .bookmarklet-button {
+      border: 0;
+      background: var(--teal);
+      color: white;
+      box-shadow: 0 10px 22px rgb(131 20 81 / .25);
+    }
+
+    .bookmarklet-button:hover { color: white; background: #6f0f44; }
+
+    .button {
+      border: 2px solid var(--soft-2);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .note {
+      margin-top: .8rem;
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .card,
+    .preview,
+    .install {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgb(255 255 255 / .88);
+      box-shadow: var(--shadow);
+    }
+
+    .install { padding: 1.25rem; }
+    .install h2 { font-size: 1.35rem; letter-spacing: 0; }
+
+    .install ol {
+      display: grid;
+      gap: .75rem;
+      padding-left: 1.25rem;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .warning {
+      border-left: 6px solid var(--accent);
+      border-radius: 1rem;
+      background: #fff8e8;
+      padding: .85rem 1rem;
+      color: #4b3200;
+      font-weight: 750;
+    }
+
+    section { margin-top: 3rem; }
+
+    .section-intro {
+      max-width: 74ch;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .card { padding: 1.25rem; }
+    .card h3 { margin: 0 0 .4rem; font-size: 1.15rem; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .summary-band {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      background: var(--border);
+      margin-top: 1.2rem;
+    }
+
+    .summary-item {
+      background: var(--surface);
+      padding: 1rem;
+    }
+
+    .summary-item strong {
+      display: block;
+      color: var(--teal);
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+
+    .summary-item span {
+      display: block;
+      margin-top: .25rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .check-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .75rem;
+      margin-top: 1.2rem;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 1.25rem 1fr;
+      gap: .7rem;
+      align-items: start;
+      border: 1px solid var(--border);
+      border-radius: .85rem;
+      background: var(--surface);
+      padding: .9rem;
+    }
+
+    .check-dot {
+      width: 1.1rem;
+      height: 1.1rem;
+      border: 3px solid var(--text);
+      border-radius: 999px;
+      background: var(--accent);
+      margin-top: .15rem;
+    }
+
+    .check-item strong {
+      display: block;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .check-item span {
+      display: block;
+      margin-top: .2rem;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 1.25rem;
+      align-items: start;
+      margin-top: 1.2rem;
+    }
+
+    .fake-page {
+      min-height: 620px;
+      padding: 1.25rem;
+    }
+
+    .fake-page h3 { margin-top: 0; font-size: 1.8rem; }
+
+    .fake-image {
+      display: grid;
+      place-items: center;
+      height: 180px;
+      margin: 1rem 0;
+      border-radius: 1.4rem;
+      background: linear-gradient(135deg, #e4efda, #bcd5a0);
+      color: #334155;
+      font-weight: 950;
+    }
+
+    .preview {
+      overflow: hidden;
+      background: #f7f7f5;
+      color: var(--text);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      border-radius: 1rem;
+    }
+
+    .preview-top {
+      min-height: 120px;
+      background: #831451;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .preview-logo {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .preview-top strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1.08;
+    }
+
+    .preview-top span {
+      display: block;
+      font-size: 1rem;
+      opacity: .92;
+      font-weight: 700;
+    }
+
+    .preview-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border-top: 1px solid var(--border);
+      background: white;
+      box-shadow: 0 -8px 20px rgb(0 0 0 / .08);
+    }
+
+    .preview-tab {
+      min-height: 84px;
+      background: white;
+      color: #444;
+      font-weight: 950;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .preview-tab:first-child {
+      background: #fff5d6;
+      box-shadow: inset 0 5px 0 var(--accent);
+      color: var(--teal);
+    }
+
+    .preview-info {
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #fff8e7 0%, #f7f7f5 100%);
+      padding: 1rem;
+    }
+
+    .preview-info-card {
+      border: 1px solid #dfd8c6;
+      border-radius: 1rem;
+      background: white;
+      padding: 1rem;
+      box-shadow: 0 6px 16px rgb(0 0 0 / .06);
+    }
+
+    .preview-info-card strong {
+      display: block;
+      margin-bottom: .3rem;
+      font-size: 1.12rem;
+    }
+
+    .preview-info-card span {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .preview-tabs span {
+      display: block;
+      font-size: 1.8rem;
+    }
+
+    .preview-actions {
+      padding: 1rem;
+      display: grid;
+      gap: .8rem;
+    }
+
+    .preview-action {
+      display: grid;
+      grid-template-columns: 1.35rem 3.4rem 1fr;
+      gap: .8rem;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      background: white;
+      padding: 1rem;
+      box-shadow: 0 6px 16px rgb(0 0 0 / .08);
+    }
+
+    .preview-action .icon {
+      font-size: 1.8rem;
+    }
+
+    .preview-action .dot {
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 3px solid #8b8b87;
+      border-radius: 999px;
+      background: white;
+    }
+
+    .preview-action:first-child {
+      background: #fffaf0;
+      box-shadow: 0 0 0 4px rgb(247 189 61 / .22), 0 6px 16px rgb(0 0 0 / .08);
+    }
+
+    .preview-action:first-child .dot {
+      border: 5px solid #171717;
+      background: var(--accent);
+    }
+
+    .preview-action strong {
+      display: block;
+      line-height: 1.1;
+    }
+
+    .preview-action span:not(.icon) {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .preview-action .enable {
+      border-radius: 999px;
+      background: var(--teal);
+      color: white;
+      padding: .65rem .95rem;
+      font-weight: 950;
+    }
+
+    pre {
+      overflow-x: auto;
+      border-radius: 1rem;
+      background: #151515;
+      color: #f2f2f2;
+      padding: 1rem;
+      font-size: .92rem;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: .95em;
+    }
+
+    .copy-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+      margin-top: .75rem;
+    }
+
+    .status { color: var(--muted); font-weight: 750; }
+
+    footer {
+      margin-top: 4rem;
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 920px) {
+      header { flex-direction: column; align-items: start; }
+      .hero, .demo-grid { grid-template-columns: 1fr; }
+      .grid, .summary-band, .check-list { grid-template-columns: 1fr; }
+      h1 { font-size: 3rem; }
+      h2 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+  <header>
+    <a class="brand" href="#">
+      <span class="brand-mark" aria-hidden="true">A11y</span>
+      <span>Evaluación básica</span>
+    </a>
+    <nav aria-label="Principal">
+      <a href="#instalar">Instalar</a>
+      <a href="#perfiles">Discapacidades</a>
+      <a href="#evaluaciones">Evaluaciones</a>
+      <a href="#demo">Interfaz</a>
+      <a href="#github">GitHub Pages</a>
+    </nav>
+  </header>
+
+  <main id="contenido">
+    <section class="hero" aria-labelledby="titulo">
+      <div>
+        <span class="eyebrow">Bookmarklet · [Beta]</span>
+        <h1 id="titulo">Evaluación básica de accesibilidad</h1>
+        <p class="lead">
+          Un panel lateral para observar una página desde distintas discapacidades. Activa una comprobación cada vez y mira las marcas directamente sobre el contenido evaluado.
+        </p>
+
+        <div class="summary-band" aria-label="Resumen de la herramienta">
+          <div class="summary-item">
+            <strong>1 comprobación</strong>
+            <span>Activo cada vez para evitar señales mezcladas.</span>
+          </div>
+          <div class="summary-item">
+            <strong>5 miradas</strong>
+            <span>Ceguera, baja visión, motriz, auditiva y cognitiva.</span>
+          </div>
+          <div class="summary-item">
+            <strong>Marcas visibles</strong>
+            <span>Amarillo para revisar, rojo para errores detectables.</span>
+          </div>
+        </div>
+
+        <div class="actions" id="instalar">
+          <a id="bookmarklet-link" class="bookmarklet-button" href="#">Evaluación básica</a>
+          <button class="button" type="button" id="copy-bookmarklet">Copiar código</button>
+        </div>
+        <p class="note">
+          Arrastra el botón <strong>Evaluación básica</strong> a la barra de favoritos. Luego abre una página y pulsa el favorito.
+        </p>
+      </div>
+
+      <aside class="install" aria-labelledby="install-title">
+        <h2 id="install-title">Instalación</h2>
+        <ol>
+          <li>Haz visible la barra de favoritos del navegador.</li>
+          <li>Arrastra el botón granate a la barra.</li>
+          <li>Abre una página que quieras evaluar.</li>
+          <li>Elige una discapacidad en la parte inferior.</li>
+          <li>Activa una comprobación para ver la página marcada.</li>
+        </ol>
+        <p class="warning">
+          Para usarlo en webs HTTPS, publica estos archivos en un hosting HTTPS. Algunas páginas bloquean scripts externos por seguridad.
+        </p>
+      </aside>
+    </section>
+
+    <section id="perfiles" aria-labelledby="perfiles-title">
+      <h2 id="perfiles-title">Observación por discapacidad</h2>
+      <p class="section-intro">
+        La herramienta no solo lista comprobaciones: organiza la mirada. Cada filtro muestra las pruebas más relevantes para observar barreras desde una discapacidad concreta.
+      </p>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Ceguera total</h3>
+          <p>Texto alternativo, título, encabezados, puntos de referencia, enlaces de salto, idioma, formularios y transcripciones.</p>
+        </article>
+        <article class="card">
+          <h3>Baja visión</h3>
+          <p>Texto alternativo de imágenes, contraste y zoom.</p>
+        </article>
+        <article class="card">
+          <h3>Discapacidad motriz</h3>
+          <p>Orden de foco, enlace de salto, campos de formulario y controles utilizables.</p>
+        </article>
+        <article class="card">
+          <h3>Discapacidad auditiva</h3>
+          <p>Audio, video, subtítulos, transcripciones y alternativas equivalentes al contenido sonoro.</p>
+        </article>
+        <article class="card">
+          <h3>Cognitiva</h3>
+          <p>Títulos claros, etiquetas, errores, contraste, audio y vídeo con apoyos textuales.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="evaluaciones" aria-labelledby="evaluaciones-title">
+      <h2 id="evaluaciones-title">Qué evalúa</h2>
+      <p class="section-intro">
+        Cada comprobación marca elementos de la página actual. Solo se activa una a la vez para que la observación sea sencilla y no se mezclen señales visuales.
+      </p>
+
+      <div class="check-list">
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Texto alternativo de imágenes</strong><span>Marca imágenes sin atributo `alt` en rojo y muestra el texto alternativo cuando existe.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Título de la página</strong><span>Muestra el título y pide comprobar si se ajusta al contenido real de la página.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Encabezados</strong><span>Muestra una jerarquía visual H1, H2, H3, H4 como árbol de estructura.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Puntos de referencia</strong><span>Marca `main`, `nav`, `header`, `footer`, `aside`, regiones y roles ARIA.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Contraste de color</strong><span>Detecta textos visibles con contraste insuficiente cuando puede calcularlo automáticamente.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Texto de enlaces</strong><span>Señala enlaces vacíos o poco descriptivos como “leer más” o “aquí”.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Enlace de salto</strong><span>Marca el origen y el destino del salto al contenido principal.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Idioma de la página</strong><span>Muestra el idioma declarado en `html[lang]` para confirmar si corresponde al contenido.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Zoom</strong><span>Guía la revisión manual al 200%: reflow, contenido visible y controles utilizables.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Audio y vídeo</strong><span>Busca reproductores y revisa transcripción textual, subtítulos, audiodescripción y transcripción completa.</span></span>
+        </div>
+        <div class="check-item">
+          <span class="check-dot" aria-hidden="true"></span>
+          <span><strong>Formularios</strong><span>Revisa etiquetas, propósito del campo, campos obligatorios y errores asociados.</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" aria-labelledby="demo-title">
+      <h2 id="demo-title">Interfaz actual</h2>
+      <p class="section-intro">
+        El panel reserva espacio lateral, muestra una instrucción breve arriba, una lista de comprobaciones en el centro y los filtros por discapacidad abajo.
+      </p>
+
+      <div class="demo-grid">
+        <article class="fake-page card">
+          <h3>Página de ejemplo</h3>
+          <p>Contenido de prueba con imagen, enlaces y formulario.</p>
+          <div class="fake-image">Imagen de ejemplo</div>
+          <p><a href="#">Leer más</a> sobre accesibilidad web.</p>
+          <form>
+            <label for="demo-nombre">Nombre</label>
+            <input id="demo-nombre" name="demo-nombre" required>
+          </form>
+        </article>
+
+        <aside class="preview" aria-label="Vista previa del panel">
+          <div class="preview-top">
+            <div>
+              <strong>Evaluación básica de accesibilidad</strong>
+              <span>[Beta]</span>
+            </div>
+          </div>
+
+          <div class="preview-info" aria-hidden="true">
+            <div class="preview-info-card">
+              <strong>Evalúa encabezados</strong>
+              <span>Observa saltos de nivel y orden lógico.</span>
+            </div>
+          </div>
+
+          <div class="preview-actions">
+            <div class="preview-action">
+              <span class="dot"></span>
+              <span class="icon">On</span>
+              <span><strong>Encabezados</strong></span>
+            </div>
+            <div class="preview-action">
+              <span class="dot"></span>
+              <span class="icon">Off</span>
+              <span><strong>Puntos de referencia</strong></span>
+            </div>
+            <div class="preview-action">
+              <span class="dot"></span>
+              <span class="icon">Off</span>
+              <span><strong>Contraste de color</strong></span>
+            </div>
+          </div>
+
+          <div class="preview-tabs" aria-hidden="true">
+            <div class="preview-tab"><span>👁</span>Ceguera</div>
+            <div class="preview-tab"><span>◐</span>Baja visión</div>
+            <div class="preview-tab"><span>✋</span>Motriz</div>
+            <div class="preview-tab"><span>👂</span>Auditiva</div>
+            <div class="preview-tab"><span>🧠</span>Cognitiva</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="github" aria-labelledby="github-title">
+      <h2 id="github-title">Subir a GitHub Pages</h2>
+      <p class="section-intro">
+        Para probar en páginas HTTPS, publica estos archivos con HTTPS. GitHub Pages sirve el JavaScript desde una URL pública y evita bloqueos habituales de los navegadores.
+      </p>
+
+      <pre><code>a11y-funkify-style-bookmarklet/
+├── index.html
+├── a11y-profile-checker.js
+└── README.md</code></pre>
+
+      <p>
+        En GitHub: <strong>Settings → Pages → Deploy from branch → main → /root</strong>.
+      </p>
+
+      <h3>Código generado del bookmarklet</h3>
+      <pre><code id="bookmarklet-code">Cargando…</code></pre>
+
+      <div class="copy-row">
+        <button class="button" type="button" id="copy-bookmarklet-2">Copiar código del bookmarklet</button>
+        <span class="status" id="copy-status" role="status" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Prototipo educativo. Ayuda a guiar revisiones, pero no sustituye una auditoría completa ni la revisión experta.
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    function buildBookmarklet() {
+      const scriptUrl = new URL("a11y-profile-checker.js", window.location.href).href;
+      return "javascript:(function(){"
+        + "if(window.A11yProfileCheckerFunkify){window.A11yProfileCheckerFunkify.open();return;}"
+        + "var s=document.createElement('script');"
+        + "s.src='" + scriptUrl + "?v=1';"
+        + "s.onload=function(){if(window.A11yProfileCheckerFunkify){window.A11yProfileCheckerFunkify.open();}};"
+        + "s.onerror=function(){alert('No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea publico y este disponible por HTTPS.');};"
+        + "document.body.appendChild(s);"
+        + "})();";
+    }
+
+    function setBookmarklet() {
+      const code = buildBookmarklet();
+      document.getElementById("bookmarklet-link").setAttribute("href", code);
+      document.getElementById("bookmarklet-code").textContent = code;
+    }
+
+    async function copyBookmarklet() {
+      const status = document.getElementById("copy-status");
+      try {
+        await navigator.clipboard.writeText(buildBookmarklet());
+        status.textContent = "Código copiado.";
+      } catch (error) {
+        status.textContent = "No se pudo copiar automáticamente. Selecciona el código y cópialo manualmente.";
+      }
+    }
+
+    document.getElementById("copy-bookmarklet").addEventListener("click", copyBookmarklet);
+    document.getElementById("copy-bookmarklet-2").addEventListener("click", copyBookmarklet);
+    setBookmarklet();
+  </script>
+</body>
+</html>
