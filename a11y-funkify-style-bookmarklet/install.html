@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instalar · Evaluación básica de accesibilidad</title>
+  <meta name="description" content="Página de instalación del bookmarklet de evaluación básica de accesibilidad.">
+  <style>
+    :root {
+      --bg: #f5f5f2;
+      --surface: #ffffff;
+      --text: #171717;
+      --muted: #626262;
+      --accent: #831451;
+      --accent-soft: #f8e9f1;
+      --border: #d8d8d4;
+      --focus: #0b66d8;
+      --shadow: 0 18px 44px rgb(0 0 0 / .12);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    :focus-visible { outline: 4px solid var(--focus); outline-offset: 4px; }
+    a { color: var(--accent); font-weight: 850; }
+    header, main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: .65rem;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 950;
+    }
+    .brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 1rem;
+      background: var(--accent);
+      color: white;
+      font-weight: 950;
+    }
+    .panel {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+    }
+    .eyebrow {
+      display: inline-flex;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: .35rem .75rem;
+      font-size: .92rem;
+      font-weight: 950;
+    }
+    h1 {
+      margin: .9rem 0 .6rem;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height: .98;
+      letter-spacing: 0;
+    }
+    .lead {
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    .install-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 1.25rem;
+      margin-top: 1.4rem;
+      align-items: start;
+    }
+    .bookmarklet {
+      display: inline-flex;
+      min-height: 3.4rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1.1rem;
+      padding: .85rem 1.2rem;
+      border: 0;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 950;
+      box-shadow: 0 10px 22px rgb(131 20 81 / .25);
+    }
+    .bookmarklet:hover { background: #6f0f44; color: white; }
+    .toolbar-note {
+      display: grid;
+      gap: .7rem;
+      margin: .95rem 0 0;
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 1.05rem;
+    }
+    .drag-gif {
+      display: block;
+      width: min(100%, 560px);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      background: white;
+      box-shadow: 0 8px 18px rgb(0 0 0 / .08);
+    }
+    .steps {
+      margin: 1.15rem 0 0;
+      padding-left: 1.25rem;
+      color: var(--muted);
+      font-weight: 650;
+      display: grid;
+      gap: .65rem;
+    }
+    .aside {
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      background: #fffaf0;
+      padding: 1rem;
+    }
+    .aside strong {
+      display: block;
+      margin-bottom: .35rem;
+      color: var(--accent);
+      font-size: 1.08rem;
+    }
+    .aside p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .copy-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .button {
+      display: inline-flex;
+      min-height: 3.1rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1rem;
+      padding: .7rem 1rem;
+      font-size: .98rem;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      background: white;
+      color: var(--text);
+    }
+    pre {
+      overflow-x: auto;
+      border-radius: 1rem;
+      background: #151515;
+      color: #f2f2f2;
+      padding: 1rem;
+      font-size: .92rem;
+      line-height: 1.5;
+      margin: 1rem 0 0;
+    }
+    footer {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 1.25rem 2rem;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+    @media (max-width: 820px) {
+      header, main, footer { padding-left: 1rem; padding-right: 1rem; }
+      header { flex-direction: column; align-items: start; }
+      .install-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">A11y</span>
+      <span>Instalación</span>
+    </a>
+    <a class="button" href="index.html">Volver a la presentación</a>
+  </header>
+
+  <main>
+    <section class="panel" aria-labelledby="title">
+      <span class="eyebrow">Instalación</span>
+      <h1 id="title">Instalación</h1>
+      <p class="lead">Arrastra el botón a la barra de favoritos del navegador.</p>
+
+      <div class="install-grid">
+        <div>
+          <a id="bookmarklet-link" class="bookmarklet" href="#">Evaluación básica</a>
+          <div class="toolbar-note">
+            <img class="drag-gif" src="drag-bookmarks.gif" alt="Animación que muestra cómo arrastrar el bookmarklet a la barra de favoritos">
+            <span>Drag to your bookmarks toolbar. Arrastra a la barra de favoritos.</span>
+          </div>
+
+          <ol class="steps">
+            <li>Haz visible la barra de favoritos del navegador.</li>
+            <li>Arrastra el botón granate a esa barra.</li>
+            <li>Abre una página que quieras evaluar.</li>
+            <li>Pulsa el favorito para abrir la herramienta.</li>
+          </ol>
+
+          <div class="copy-row">
+            <button class="button" type="button" id="copy-bookmarklet">Copiar código</button>
+          </div>
+          <pre><code id="bookmarklet-code">Cargando…</code></pre>
+        </div>
+
+        <aside class="aside" aria-label="Nota de instalación">
+          <strong>Qué vas a mover</strong>
+          <p>El botón no instala nada solo. Lo que haces es guardar el enlace del bookmarklet en la barra de favoritos para abrirlo cuando quieras.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Si quieres volver a la presentación, usa el enlace de arriba.</p>
+  </footer>
+
+  <script>
+    function buildBookmarklet() {
+      const scriptUrl = new URL("a11y-profile-checker.js", window.location.href).href;
+      return "javascript:(function(){"
+        + "if(window.A11yProfileCheckerFunkify){window.A11yProfileCheckerFunkify.open();return;}"
+        + "var s=document.createElement('script');"
+        + "s.src='" + scriptUrl + "?v=1';"
+        + "s.onload=function(){if(window.A11yProfileCheckerFunkify){window.A11yProfileCheckerFunkify.open();}};"
+        + "s.onerror=function(){alert('No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea publico y este disponible por HTTPS.');};"
+        + "document.body.appendChild(s);"
+        + "})();";
+    }
+
+    const code = buildBookmarklet();
+    const link = document.getElementById("bookmarklet-link");
+    const codeEl = document.getElementById("bookmarklet-code");
+    const copyButton = document.getElementById("copy-bookmarklet");
+    link.setAttribute("href", code);
+    codeEl.textContent = code;
+
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(code);
+        copyButton.textContent = "Código copiado";
+      } catch (_error) {
+        copyButton.textContent = "Selecciona el código para copiarlo";
+      }
+    });
+  </script>
+</body>
+</html>
