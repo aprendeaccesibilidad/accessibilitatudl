@@ -13,7 +13,11 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const INFO_URL = "http://localhost:8000/index.html";
+  const BUILD = "235";
+  const PANEL_WIDTH_VAR = "--apcf-panel-width";
+  const PANEL_WIDTH_OPEN = "430px";
+  const PANEL_WIDTH_COLLAPSED = "3rem";
+  const INFO_URL = "https://accessibilitat.udl.cat/A11yEvaluaBasico/";
   const SCRIPT_BASE = (() => {
     const src = document.currentScript && document.currentScript.src;
     return src ? src.slice(0, src.lastIndexOf("/") + 1) : "";
@@ -73,13 +77,6 @@
       guide: "https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/"
     },
     {
-      id: "contrast",
-      title: "Contraste de color",
-      category: "Visual",
-      profiles: ["baja-vision"],
-      guide: "https://www.w3.org/WAI/test-evaluate/easy-checks/color-contrast/"
-    },
-    {
       id: "skip-link",
       title: "Enlace de salto",
       category: "Interacción",
@@ -97,14 +94,14 @@
       id: "audio",
       title: "Audio",
       category: "Audio y video",
-      profiles: ["visual-total", "auditiva"],
+      profiles: ["visual-total", "auditiva", "cognitiva"],
       guide: "https://www.w3.org/WAI/media/av/transcripts/"
     },
     {
       id: "video",
       title: "Vídeo",
       category: "Audio y video",
-      profiles: ["visual-total", "auditiva"],
+      profiles: ["visual-total", "auditiva", "cognitiva"],
       guide: "https://www.w3.org/WAI/media/av/"
     },
     {
@@ -137,14 +134,6 @@
       profiles: ["visual-total", "motriz", "baja-vision"],
       guide: "https://w3.org/wai/test-evaluate/easy-checks/keyboard-focus/"
     },
-    {
-      id: "form-errors",
-      title: "Errores",
-      category: "Formularios",
-      profiles: ["visual-total", "baja-vision", "cognitiva"],
-      wcag: "3.3.1, 3.3.3",
-      guide: "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"
-    }
   ];
 
   const state = {
@@ -166,8 +155,14 @@
     lastSelectedElement: null,
     floatingPosition: null,
     summaryFloatingPosition: null,
-    grayscale: false
+    grayscale: false,
+    panelCollapsed: false
   };
+
+  function syncPanelWidth() {
+    document.documentElement.style.setProperty(PANEL_WIDTH_VAR, state.panelCollapsed ? PANEL_WIDTH_COLLAPSED : PANEL_WIDTH_OPEN);
+    document.documentElement.classList.toggle("apcf-panel-collapsed", state.panelCollapsed);
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -194,15 +189,22 @@
     style.id = STYLE_ID;
     style.textContent = `
       html.${PAGE_SHIFT} {
-        padding-left: min(430px, 100vw) !important;
+        --apcf-panel-width: ${PANEL_WIDTH_OPEN};
+        padding-left: var(${PANEL_WIDTH_VAR}) !important;
         box-sizing: border-box !important;
+        font-size: 16px !important;
+      }
+
+      html.${PAGE_SHIFT}.apcf-panel-collapsed {
+        --apcf-panel-width: ${PANEL_WIDTH_COLLAPSED};
       }
 
       html.${PAGE_SHIFT} body {
         margin-left: 0 !important;
-        max-width: calc(100vw - min(430px, 100vw)) !important;
+        max-width: calc(100vw - var(${PANEL_WIDTH_VAR})) !important;
         box-sizing: border-box !important;
         overflow-x: auto !important;
+        font-size: 16px !important;
       }
 
       #${PANEL_ID} {
@@ -210,7 +212,7 @@
         position: fixed;
         inset: 0 auto 0 0;
         z-index: 2147483647;
-        width: min(430px, 100vw);
+        width: var(${PANEL_WIDTH_VAR});
         height: 100vh;
         display: grid;
         grid-template-rows: auto auto auto 1fr auto;
@@ -219,6 +221,8 @@
         border-right: 1px solid #d7d7d2;
         box-shadow: 16px 0 40px rgb(0 0 0 / .2);
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 16px;
+        line-height: 1.4;
       }
 
       #${PANEL_ID} *, #${PANEL_ID} *::before, #${PANEL_ID} *::after {
@@ -226,13 +230,106 @@
         font-family: inherit;
       }
 
-      #${PANEL_ID} button, #${PANEL_ID} input { font: inherit; }
+      #${PANEL_ID} :where(header, nav, section, fieldset, legend, div, span, h1, h2, h3, p, ol, ul, li, table, thead, tbody, tr, th, td, button, input, label, a, img),
+      .${FLOATING} :where(header, nav, section, fieldset, legend, div, span, h1, h2, h3, p, ol, ul, li, table, thead, tbody, tr, th, td, button, input, label, a, img) {
+        all: revert;
+        box-sizing: border-box !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+        letter-spacing: 0 !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed {
+        overflow: visible !important;
+        background: transparent !important;
+        border-right: 0 !important;
+        box-shadow: none !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed > :not(.apcf-panel-toggle) {
+        display: none !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-toggle {
+        position: absolute !important;
+        top: .05rem !important;
+        right: -.95rem !important;
+        z-index: 2147483647 !important;
+        width: 2.25rem !important;
+        height: 3.55rem !important;
+        padding: 0 !important;
+        border: 2px solid #5d0d39 !important;
+        border-right: 0 !important;
+        border-radius: 0 1rem 1rem 0 !important;
+        background: #8a1f66 !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 18px rgb(0 0 0 / .22) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed .apcf-panel-toggle {
+        right: -1.25rem !important;
+        width: 3.15rem !important;
+        height: 4.15rem !important;
+        border-radius: 0 1rem 1rem 0 !important;
+      }
+
+      #${PANEL_ID} .apcf-panel-toggle-icon {
+        display: none !important;
+        width: 1.35rem !important;
+        height: 1.35rem !important;
+        object-fit: contain !important;
+        filter: none !important;
+        pointer-events: none !important;
+        flex: 0 0 auto !important;
+        background: transparent !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed .apcf-panel-toggle-icon {
+        display: block !important;
+        width: 1.55rem !important;
+        height: 1.55rem !important;
+        margin-right: .1rem !important;
+      }
+
+      #${PANEL_ID} .apcf-panel-toggle::after {
+        content: "" !important;
+        display: block !important;
+        width: 1.1rem !important;
+        height: 1.1rem !important;
+        border-top: .32rem solid #ffffff !important;
+        border-right: .32rem solid #ffffff !important;
+        transform: rotate(225deg) !important;
+        margin-left: .35rem !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed .apcf-panel-toggle::after {
+        transform: rotate(45deg) !important;
+        margin-left: -.05rem !important;
+      }
+
+      #${PANEL_ID} button,
+      #${PANEL_ID} input,
+      .${FLOATING} button,
+      .${FLOATING} input {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        font: inherit !important;
+      }
+
+      #${PANEL_ID} img,
+      .${FLOATING} img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
 
       #${PANEL_ID} .apcf-header {
-        min-height: 5.4rem;
+        min-height: 3.2rem;
         display: grid;
-        grid-template-rows: 1fr auto;
-        padding: .52rem .7rem .36rem;
+        grid-template-rows: auto auto;
+        padding: .42rem .7rem 0;
         background: #831451;
         color: #ffffff;
         border-bottom: 0;
@@ -243,7 +340,8 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         gap: .35rem;
-        align-items: start;
+        align-items: center;
+        width: 100%;
         padding: 0;
         background: transparent;
         border-bottom: 0;
@@ -251,32 +349,49 @@
 
       #${PANEL_ID} .apcf-window-title {
         display: inline-flex;
-        align-items: baseline;
-        justify-content: flex-start;
-        gap: .25rem;
+        align-items: center;
+        justify-content: flex-end;
+        gap: .35rem;
         color: #ffffff;
         font-size: 1.28rem;
         line-height: .96;
         font-weight: 950;
-        justify-self: center;
-        margin-inline: auto;
-        text-align: center;
+        justify-self: end;
+        text-align: right;
         letter-spacing: 0;
         flex-wrap: wrap;
       }
 
+      #${PANEL_ID} .apcf-title-icon {
+        width: 1.95rem;
+        height: 1.95rem;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        object-fit: contain;
+        flex: 0 0 auto;
+        filter: none;
+        opacity: 1;
+      }
+
       #${PANEL_ID} .apcf-release-note {
         display: block;
+        margin: .3rem -0.7rem 0;
+        padding: .18rem .7rem .22rem;
+        background: #ffffff;
         color: #171717;
-        font-size: .74rem;
+        font-size: .72rem;
         font-weight: 850;
         line-height: 1.15;
+        text-align: right;
+        white-space: nowrap;
       }
 
       #${PANEL_ID} .apcf-release-note a {
         color: #315bdc;
-        font-weight: 850;
+        font-weight: 900;
         text-decoration: underline;
+        text-underline-offset: .12em;
       }
 
       #${PANEL_ID} .apcf-header-main {
@@ -313,7 +428,7 @@
         align-items: center;
         gap: .5rem;
         width: 100%;
-        padding: .16rem .95rem;
+        padding: .16rem .95rem .16rem .35rem;
         background: #000000;
         color: #ffffff;
         font-size: 1.15rem;
@@ -353,12 +468,12 @@
       }
 
       #${PANEL_ID} .apcf-close {
-        width: 2.05rem;
-        height: 2.05rem;
+        width: 1.6rem;
+        height: 1.6rem;
         position: relative;
         padding: 0;
         cursor: pointer;
-        transform: translateY(-.02rem);
+        transform: translateY(-.06rem) translateX(-1.55rem);
       }
 
       #${PANEL_ID} .apcf-close::before,
@@ -397,7 +512,7 @@
         align-content: start;
         gap: .05rem;
         min-height: 5.15rem;
-        padding: .3rem .95rem .28rem;
+        padding: .3rem .95rem .28rem .35rem;
         border-bottom: 1px solid #dadad7;
         background: #fff8e7;
         color: #312200;
@@ -550,13 +665,15 @@
       }
 
       #${PANEL_ID} .apcf-profile {
-        min-height: 116px;
+        min-height: 82px;
         display: grid;
-        place-items: center;
-        gap: .28rem;
+        grid-template-rows: 2.2rem auto;
+        align-items: center;
+        justify-items: center;
+        gap: 0;
         border-right: 1px solid #e1e1de;
         color: #4d4d4d;
-        padding: .55rem .2rem;
+        padding: .2rem .16rem .1rem;
         font-size: .84rem;
         line-height: 1.05;
         font-weight: 850;
@@ -565,8 +682,12 @@
 
       #${PANEL_ID} .apcf-profile-icon {
         display: block;
-        width: 2.8rem;
-        height: 2.8rem;
+        width: 2.2rem;
+        height: 2.2rem;
+        max-width: 2.2rem;
+        max-height: 2.2rem;
+        min-width: 2.2rem;
+        min-height: 2.2rem;
         object-fit: contain;
       }
 
@@ -579,6 +700,7 @@
       }
 
       #${PANEL_ID} .apcf-close:focus-visible,
+      #${PANEL_ID} .apcf-panel-toggle:focus-visible,
       #${PANEL_ID} .apcf-release-note a:focus-visible,
       #${PANEL_ID} .apcf-check:focus-visible,
       #${PANEL_ID} .apcf-profile-wrap input:focus-visible + .apcf-profile {
@@ -587,19 +709,28 @@
       }
 
       .${MARK} {
-        outline: 4px solid #f7bd3d !important;
+        outline: 2px solid #171717 !important;
         outline-offset: 3px !important;
-        box-shadow: 0 0 0 8px rgb(247 189 61 / .28) !important;
+        box-shadow: 0 0 0 6px rgb(247 189 61 / .36) !important;
       }
 
       .${MARK}[data-apcf-severity="error"] {
-        outline-color: #c1121f !important;
-        box-shadow: 0 0 0 8px rgb(193 18 31 / .24) !important;
+        box-shadow: 0 0 0 6px rgb(155 28 43 / .28) !important;
+      }
+
+      .${MARK}[data-apcf-skip-link="true"] {
+        box-shadow: 0 0 0 6px rgb(247 189 61 / .36) !important;
+      }
+
+      .${MARK}[data-apcf-mark-kind="media"],
+      .${MARK}[data-apcf-mark-kind="link"] {
+        outline: 2px solid #171717 !important;
+        outline-offset: 3px !important;
+        box-shadow: 0 0 0 6px rgb(247 189 61 / .36) !important;
       }
 
       .${MARK}[data-apcf-severity="ok"] {
-        outline-color: #f7bd3d !important;
-        box-shadow: 0 0 0 8px rgb(247 189 61 / .28) !important;
+        box-shadow: 0 0 0 6px rgb(247 189 61 / .28) !important;
       }
 
       .${LABEL} {
@@ -623,7 +754,7 @@
         opacity: .95 !important;
       }
 
-      .${LABEL}[data-apcf-severity="error"] { background: #c1121f !important; color: white !important; }
+      .${LABEL}[data-apcf-severity="error"] { background: #9b1c2b !important; color: white !important; }
       .${LABEL}[data-apcf-severity="warn"] { background: #f7bd3d !important; color: #171717 !important; }
       .${LABEL}[data-apcf-severity="ok"] { background: #f7bd3d !important; color: #171717 !important; }
       .${LABEL}[data-apcf-skip-link="true"] {
@@ -636,12 +767,12 @@
       .${FLOATING} {
         position: fixed !important;
         z-index: 2147483647 !important;
-        left: calc(430px + 1rem) !important;
+        left: calc(var(${PANEL_WIDTH_VAR}) + 1rem) !important;
         right: 1rem !important;
         top: 50% !important;
         transform: translateY(-50%) !important;
-        width: min(900px, calc(100vw - 430px - 2rem)) !important;
-        max-width: min(900px, calc(100vw - 430px - 2rem)) !important;
+        width: min(900px, calc(100vw - var(${PANEL_WIDTH_VAR}) - 2rem)) !important;
+        max-width: min(900px, calc(100vw - var(${PANEL_WIDTH_VAR}) - 2rem)) !important;
         max-height: min(74vh, calc(100vh - 2rem)) !important;
         display: grid !important;
         grid-template-rows: auto minmax(0, 1fr) !important;
@@ -655,6 +786,10 @@
         font: 600 17px/1.46 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
       }
 
+      .${FLOATING}, .${FLOATING} * {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      }
+
       .${FLOATING}.apcf-floating-minimized {
         top: auto !important;
         bottom: 1rem !important;
@@ -665,13 +800,13 @@
 
       .${FLOATING}.apcf-floating-summary {
         z-index: 2147483647 !important;
-        left: calc(430px + 1rem) !important;
+        left: calc(var(${PANEL_WIDTH_VAR}) + 1rem) !important;
         right: 1rem !important;
         top: auto !important;
         bottom: 1rem !important;
         transform: none !important;
-        width: min(900px, calc(100vw - 430px - 2rem)) !important;
-        max-width: calc(100vw - 430px - 2rem) !important;
+        width: min(900px, calc(100vw - var(${PANEL_WIDTH_VAR}) - 2rem)) !important;
+        max-width: calc(100vw - var(${PANEL_WIDTH_VAR}) - 2rem) !important;
         max-height: none !important;
         grid-template-rows: auto !important;
       }
@@ -733,6 +868,33 @@
         hyphens: auto !important;
       }
 
+      .${FLOATING}.apcf-floating-summary .apcf-summary-text p.apcf-summary-alert {
+        display: inline-block !important;
+        width: fit-content !important;
+        max-width: 100% !important;
+        margin: .06rem 0 0 !important;
+        padding: .18rem .42rem !important;
+        border-radius: .38rem !important;
+        background: #8f1d2c !important;
+        color: #ffffff !important;
+      }
+
+      .${FLOATING}.apcf-floating-summary .apcf-summary-text .apcf-summary-alert-inline {
+        display: inline-block !important;
+        margin: .06rem 0 0 .35rem !important;
+        padding: .18rem .42rem !important;
+        border-radius: .38rem !important;
+        background: #8f1d2c !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+      }
+
+      .${FLOATING}.apcf-floating-summary .apcf-summary-text .apcf-summary-alert-block {
+        display: block !important;
+        width: fit-content !important;
+        margin: .18rem 0 0 !important;
+      }
+
       .${FLOATING}.apcf-floating-summary p {
         margin: .18rem 0 0 !important;
         color: #f2f2f2 !important;
@@ -745,6 +907,16 @@
       .${FLOATING}.apcf-floating-summary p:first-of-type {
         color: #f7bd3d !important;
         font-weight: 800 !important;
+      }
+
+      .${FLOATING}.apcf-floating-summary[data-apcf-severity="error"] .apcf-floating-head {
+        border-bottom-color: rgb(255 255 255 / .42) !important;
+      }
+
+      .${FLOATING}.apcf-floating-summary[data-apcf-severity="error"] .apcf-floating-control {
+        border-color: #ffffff !important;
+        background: #7a0010 !important;
+        color: #ffffff !important;
       }
 
       .${FLOATING} .apcf-floating-head:active {
@@ -795,7 +967,7 @@
         gap: .5rem !important;
         margin: .45rem 0 !important;
         border-radius: .6rem !important;
-        background: #b1121c !important;
+        background: #8f1d2c !important;
         color: #ffffff !important;
         padding: .55rem .7rem !important;
         font-size: 1.08rem !important;
@@ -944,11 +1116,11 @@
       .apcf-wand-tip {
         position: fixed !important;
         z-index: 2147483647 !important;
-        left: calc(430px + 1rem) !important;
+        left: calc(var(${PANEL_WIDTH_VAR}) + 1rem) !important;
         right: 1rem !important;
         bottom: 1rem !important;
         top: auto !important;
-        max-width: calc(100vw - 430px - 2rem) !important;
+        max-width: calc(100vw - var(${PANEL_WIDTH_VAR}) - 2rem) !important;
         min-height: 5.75rem !important;
         border: 2px solid #171717 !important;
         border-radius: .9rem !important;
@@ -998,6 +1170,12 @@
         box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08) !important;
       }
 
+      .${FLOATING} .apcf-muted-note {
+        color: #5f5f5f !important;
+        font-weight: 650 !important;
+        font-size: .95em !important;
+      }
+
       .${FLOATING} .apcf-media-list {
         display: grid !important;
         gap: 0 !important;
@@ -1024,7 +1202,7 @@
         font-weight: 900 !important;
         line-height: 1.1 !important;
         position: sticky !important;
-        top: 0 !important;
+        top: 3.2rem !important;
         z-index: 2 !important;
       }
 
@@ -1048,7 +1226,19 @@
 
       .${FLOATING} .apcf-list-head--image,
       .${FLOATING} .apcf-list-head--media {
-        grid-template-columns: 2.9rem minmax(3rem, 4.8rem) minmax(0, 1.2fr) minmax(0, 1fr) !important;
+        grid-template-columns: 3.4rem minmax(3rem, 4.8rem) minmax(0, 1.2fr) minmax(0, 1fr) !important;
+      }
+
+      .${FLOATING} .apcf-list-head--video {
+        grid-template-columns: 3rem minmax(8rem, .85fr) minmax(3.25rem, .45fr) minmax(0, 1.55fr) minmax(7rem, .95fr) minmax(0, 1.2fr) !important;
+      }
+
+      .${FLOATING} .apcf-list-head--image > span:first-child {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 3.4rem !important;
+        text-align: center !important;
       }
 
       .${FLOATING} .apcf-list-head--link {
@@ -1071,7 +1261,7 @@
         appearance: none !important;
         width: 100% !important;
         display: grid !important;
-        grid-template-columns: 2.9rem minmax(3rem, 4.8rem) minmax(0, 1.2fr) minmax(0, 1fr) !important;
+        grid-template-columns: 3.4rem minmax(3rem, 4.8rem) minmax(0, 1.2fr) minmax(0, 1fr) !important;
         gap: 0 !important;
         align-items: start !important;
         border: 1px solid #595959 !important;
@@ -1118,6 +1308,10 @@
 
       .${FLOATING} .apcf-form-item {
         grid-template-columns: 3rem minmax(10rem, 16%) minmax(0, 1fr) minmax(0, 1fr) !important;
+      }
+
+      .${FLOATING} .apcf-video-item {
+        grid-template-columns: 3rem minmax(8rem, .85fr) minmax(3.25rem, .45fr) minmax(0, 1.55fr) minmax(7rem, .95fr) minmax(0, 1.2fr) !important;
       }
 
       .${FLOATING} .apcf-form-item strong {
@@ -1169,8 +1363,35 @@
       }
 
       .${FLOATING} .apcf-link-item[data-apcf-severity="error"] {
-        border-color: #c1121f !important;
-        background: rgb(193 18 31 / .18) !important;
+        border-color: #8f1d2c !important;
+        background: rgb(143 29 44 / .22) !important;
+      }
+
+      .${FLOATING} .apcf-media-item[data-apcf-severity="error"] {
+        border-color: #8f1d2c !important;
+        background: #8f1d2c !important;
+        color: #ffffff !important;
+      }
+
+      .${FLOATING} .apcf-media-item[data-apcf-severity="error"] > * {
+        border-color: rgb(255 255 255 / .42) !important;
+        color: #ffffff !important;
+      }
+
+      .${FLOATING} .apcf-media-item[data-apcf-severity="error"] .apcf-mini-button {
+        background: #ffffff !important;
+        color: #7a0010 !important;
+        border-color: #ffffff !important;
+      }
+
+      .${FLOATING} .apcf-media-item[data-apcf-severity="warn"] {
+        border-color: #7d5e12 !important;
+        background: rgb(247 189 61 / .16) !important;
+      }
+
+      .${FLOATING} .apcf-media-item[data-apcf-severity="ok"] {
+        border-color: #4f7d3a !important;
+        background: rgb(79 125 58 / .22) !important;
       }
 
       .${FLOATING} .apcf-link-item[data-apcf-severity="warn"] {
@@ -1191,6 +1412,25 @@
       .${FLOATING} .apcf-media-item span {
         color: #e0e0e0 !important;
         font-size: 1.04rem !important;
+      }
+
+      .${FLOATING} .apcf-video-item strong,
+      .${FLOATING} .apcf-video-item span {
+        font-size: .92rem !important;
+      }
+
+      .${FLOATING} .apcf-video-item > :nth-child(2) {
+        word-break: break-word !important;
+      }
+
+      .${FLOATING} .apcf-video-item > :nth-child(3) {
+        text-align: center !important;
+        font-variant-numeric: tabular-nums !important;
+      }
+
+      .${FLOATING} .apcf-video-item > :nth-child(4),
+      .${FLOATING} .apcf-video-item > :nth-child(6) {
+        word-break: break-word !important;
       }
 
       .${FLOATING} .apcf-media-item strong,
@@ -1274,7 +1514,7 @@
       .${FLOATING} .apcf-data-table thead th,
       .${FLOATING} .apcf-contrast-table thead th {
         position: sticky !important;
-        top: 0 !important;
+        top: 3.2rem !important;
         z-index: 1 !important;
         background: #202020 !important;
         color: #f7bd3d !important;
@@ -1369,7 +1609,7 @@
       .${FLOATING} .apcf-data-table td:nth-child(8) { width: 5.8rem !important; }
 
       .${FLOATING} .apcf-data-table tr[data-apcf-severity="error"] td {
-        background: rgb(193 18 31 / .16) !important;
+        background: rgb(143 29 44 / .22) !important;
         color: #ffdddd !important;
       }
 
@@ -1384,7 +1624,7 @@
       }
 
       .${FLOATING} .apcf-contrast-table tr[data-apcf-severity="error"] td {
-        background: rgb(193 18 31 / .18) !important;
+        background: rgb(143 29 44 / .22) !important;
         color: #ffdddd !important;
       }
 
@@ -1396,6 +1636,11 @@
       .${FLOATING} .apcf-contrast-table tr[data-apcf-severity="ok"] td {
         background: rgb(79 125 58 / .22) !important;
         color: #f1ffe6 !important;
+      }
+
+      .${FLOATING} .apcf-contrast-table tr[data-apcf-severity="review"] td {
+        background: rgb(120 120 120 / .18) !important;
+        color: #f3f3f3 !important;
       }
 
       .${FLOATING} .apcf-mini-button {
@@ -1432,6 +1677,304 @@
       .${FLOATING} .apcf-contrast-pass {
         color: #f7bd3d !important;
         font-weight: 950 !important;
+      }
+
+      #${PANEL_ID},
+      #${PANEL_ID} * {
+        text-transform: none !important;
+        letter-spacing: 0 !important;
+        text-shadow: none !important;
+        filter: none !important;
+        animation: none !important;
+        transition: none !important;
+      }
+
+      #${PANEL_ID} {
+        position: fixed !important;
+        inset: 0 auto 0 0 !important;
+        z-index: 2147483647 !important;
+        width: var(${PANEL_WIDTH_VAR}) !important;
+        height: 100vh !important;
+        display: grid !important;
+        grid-template-rows: auto auto auto 1fr auto !important;
+        overflow: visible !important;
+        background: #f7f7f5 !important;
+        color: #171717 !important;
+        border: 0 !important;
+        border-right: 1px solid #d7d7d2 !important;
+        border-radius: 0 !important;
+        box-shadow: 16px 0 40px rgb(0 0 0 / .2) !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+        font-size: 16px !important;
+        line-height: 1.4 !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed {
+        overflow: visible !important;
+        background: transparent !important;
+        border-right: 0 !important;
+        box-shadow: none !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed > :not(.apcf-panel-toggle) {
+        display: none !important;
+      }
+
+      #${PANEL_ID} .apcf-panel-toggle {
+        position: absolute !important;
+        top: 0 !important;
+        right: -.95rem !important;
+        z-index: 2147483647 !important;
+        width: 2.25rem !important;
+        height: 3.2rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 2px solid #5d0d39 !important;
+        border-right: 0 !important;
+        border-radius: 0 1rem 1rem 0 !important;
+        background: #8a1f66 !important;
+        color: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        box-shadow: 0 8px 18px rgb(0 0 0 / .22) !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed .apcf-panel-toggle {
+        right: -.98rem !important;
+        top: 0 !important;
+        width: 3.15rem !important;
+        height: 4.15rem !important;
+      }
+
+      #${PANEL_ID} .apcf-panel-toggle-icon {
+        display: none !important;
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+        object-fit: contain !important;
+        filter: none !important;
+        pointer-events: none !important;
+        flex: 0 0 auto !important;
+        background: transparent !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed .apcf-panel-toggle-icon {
+        display: block !important;
+        width: 1.55rem !important;
+        height: 1.55rem !important;
+        margin-right: .1rem !important;
+      }
+
+      #${PANEL_ID} .apcf-panel-toggle::after {
+        content: "" !important;
+        display: block !important;
+        width: .9rem !important;
+        height: .9rem !important;
+        border-top: .28rem solid #ffffff !important;
+        border-right: .28rem solid #ffffff !important;
+        transform: rotate(225deg) !important;
+        margin-left: .18rem !important;
+      }
+
+      #${PANEL_ID}.apcf-panel-collapsed .apcf-panel-toggle::after {
+        transform: rotate(45deg) !important;
+        margin-left: 0 !important;
+        opacity: 1 !important;
+      }
+
+      #${PANEL_ID} .apcf-header {
+        min-height: 4.8rem !important;
+        display: grid !important;
+        grid-template-rows: auto auto !important;
+        padding: .62rem .7rem .18rem !important;
+        background: #831451 !important;
+        color: #ffffff !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+      }
+
+      #${PANEL_ID} .apcf-window-bar {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: center !important;
+        gap: .35rem !important;
+        width: 100% !important;
+        justify-items: stretch !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+      }
+
+      #${PANEL_ID} .apcf-window-title {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        justify-self: start !important;
+        gap: .35rem !important;
+        margin-left: 0 !important;
+        margin-top: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        color: #ffffff !important;
+        font-size: 1.28rem !important;
+        line-height: .96 !important;
+        font-weight: 950 !important;
+        text-align: left !important;
+        white-space: normal !important;
+        transform: translateY(-.06rem) !important;
+      }
+
+      #${PANEL_ID} .apcf-title-icon {
+        display: block !important;
+        width: 1.95rem !important;
+        height: 1.95rem !important;
+        max-width: 1.95rem !important;
+        min-width: 1.95rem !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        object-fit: contain !important;
+        filter: none !important;
+        opacity: 1 !important;
+      }
+
+      #${PANEL_ID} .apcf-release-note {
+        display: block !important;
+        margin: .3rem -0.7rem 0 !important;
+        padding: .18rem .7rem .22rem !important;
+        background: #ffffff !important;
+        color: #171717 !important;
+        width: calc(100% + 1.4rem) !important;
+        font-size: .72rem !important;
+        font-weight: 850 !important;
+        line-height: 1.15 !important;
+        text-align: left !important;
+        white-space: nowrap !important;
+      }
+
+      #${PANEL_ID} .apcf-release-note a {
+        color: #315bdc !important;
+        font-weight: 900 !important;
+        text-decoration: underline !important;
+        text-underline-offset: .12em !important;
+      }
+
+      #${PANEL_ID} .apcf-udl-inline-logo {
+        display: inline-block !important;
+        width: 1rem !important;
+        height: 1rem !important;
+        object-fit: contain !important;
+        vertical-align: text-bottom !important;
+        margin: 0 .18rem 0 .08rem !important;
+        border: 0 !important;
+        background: transparent !important;
+      }
+
+      #${PANEL_ID} .apcf-profile-banner {
+        display: flex !important;
+        align-items: center !important;
+        gap: .5rem !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: .16rem .95rem .16rem .35rem !important;
+        background: #000000 !important;
+        color: #ffffff !important;
+        font-size: 1.15rem !important;
+        font-weight: 950 !important;
+      }
+
+      #${PANEL_ID} .apcf-status {
+        display: block !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: .38rem .95rem .38rem .35rem !important;
+        border: 0 !important;
+        border-bottom: 1px solid #dadad7 !important;
+        background: #fff8e7 !important;
+        color: #312200 !important;
+        font-size: 1.05rem !important;
+        line-height: 1.2 !important;
+        font-weight: 850 !important;
+      }
+
+      #${PANEL_ID} .apcf-list {
+        display: block !important;
+        overflow: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: .24rem .45rem .4rem !important;
+        background: transparent !important;
+      }
+
+      #${PANEL_ID} .apcf-group-title {
+        display: block !important;
+        margin: .85rem .08rem .18rem !important;
+        color: #831451 !important;
+        font-size: 1.45rem !important;
+        line-height: 1.08 !important;
+        font-weight: 1000 !important;
+        text-transform: uppercase !important;
+      }
+
+      #${PANEL_ID} .apcf-check {
+        width: 100% !important;
+        min-height: 5rem !important;
+        display: grid !important;
+        grid-template-columns: 2.25rem 1fr auto !important;
+        gap: .48rem !important;
+        align-items: center !important;
+        margin: 0 !important;
+        border: 2px solid #bdbdb8 !important;
+        border-radius: 1.4rem !important;
+        background: #fbfbf9 !important;
+        color: #171717 !important;
+        padding: .78rem .82rem !important;
+        text-align: left !important;
+        cursor: pointer !important;
+        box-shadow: 0 7px 18px rgb(0 0 0 / .09) !important;
+      }
+
+      #${PANEL_ID} .apcf-profiles {
+        display: grid !important;
+        grid-template-columns: repeat(5, 1fr) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-top: 1px solid #dadad7 !important;
+        background: #ffffff !important;
+        box-shadow: 0 -10px 24px rgb(0 0 0 / .1) !important;
+      }
+
+      #${PANEL_ID} .apcf-profile {
+        min-height: 82px !important;
+        display: grid !important;
+        grid-template-rows: 2.2rem auto !important;
+        align-items: center !important;
+        justify-items: center !important;
+        gap: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        border-right: 1px solid #e1e1de !important;
+        color: #4d4d4d !important;
+        background: transparent !important;
+        padding: .2rem .16rem .1rem !important;
+        font-size: .84rem !important;
+        line-height: 1.05 !important;
+        font-weight: 850 !important;
+        text-align: center !important;
+      }
+
+      #${PANEL_ID} .apcf-profile-icon {
+        display: block !important;
+        width: 2.2rem !important;
+        height: 2.2rem !important;
+        max-width: 2.2rem !important;
+        max-height: 2.2rem !important;
+        min-width: 2.2rem !important;
+        min-height: 2.2rem !important;
+        object-fit: contain !important;
       }
 
       .apcf-grayscale { filter: grayscale(1) !important; }
@@ -1504,6 +2047,7 @@
       el.classList.remove(MARK);
       el.removeAttribute("data-apcf-severity");
       el.removeAttribute("data-apcf-mark-id");
+      el.removeAttribute("data-apcf-mark-kind");
       el.removeAttribute("data-apcf-link-mark");
       el.removeAttribute("data-apcf-wand-order");
     });
@@ -1525,10 +2069,12 @@
     clearVisuals();
     state.hiddenPanels.clear();
     state.active.clear();
+    state.panelCollapsed = false;
     state.lastCheck = "";
     state.currentPanelId = "";
     state.lastSelectedElement = null;
     document.documentElement.classList.remove(PAGE_SHIFT);
+    syncPanelWidth();
     const panel = document.getElementById(PANEL_ID);
     if (panel) panel.remove();
   }
@@ -1537,12 +2083,13 @@
     document.documentElement.classList.toggle("apcf-grayscale", state.grayscale);
   }
 
-  function mark(el, text, severity = "warn") {
+  function mark(el, text, severity = "warn", kind = "") {
     if (!el) return null;
     const id = el.getAttribute("data-apcf-mark-id") || `apcf-${++markId}`;
     el.setAttribute("data-apcf-mark-id", id);
     el.classList.add(MARK);
     el.setAttribute("data-apcf-severity", severity);
+    if (kind) el.setAttribute("data-apcf-mark-kind", kind);
     const label = document.createElement("span");
     label.className = LABEL;
     label.dataset.apcfSeverity = severity;
@@ -1646,20 +2193,21 @@
   }
 
   function isLargePanel(id) {
-    return new Set(["images", "page-title", "headings", "landmarks", "contrast", "link-text", "skip-link", "language", "grayscale", "audio", "video", "focus-order", "focus-view", "form-labels", "form-required", "form-errors"]).has(id);
+    return new Set(["images", "page-title", "headings", "landmarks", "link-text", "skip-link", "language", "grayscale", "audio", "video", "focus-order", "focus-view", "form-labels", "form-required"]).has(id);
   }
 
-  function renderFloatingSummary(id, title, summary, summaryDetail = "", summaryResult = "") {
+  function renderFloatingSummary(id, title, summary, summaryDetail = "", summaryResult = "", summaryResultMarkup = "") {
     document.querySelectorAll(`.${FLOATING}.apcf-floating-summary`).forEach(el => el.remove());
     const box = document.createElement("aside");
     box.className = `${FLOATING} apcf-floating-summary`;
+    const severity = state.panelSummaries.get(id)?.severity || "";
     box.setAttribute("aria-label", `Panel minimizado: ${title}`);
     box.innerHTML = `
       <div class="apcf-floating-head" tabindex="0" aria-label="Mover panel minimizado ${escapeHtml(title)}. Usa las flechas para desplazarlo.">
         <div class="apcf-summary-text">
           <h2>${escapeHtml(summary)}</h2>
           ${summaryDetail ? `<p>${escapeHtml(summaryDetail)}</p>` : ""}
-          ${summaryResult ? `<p>${escapeHtml(summaryResult)}</p>` : ""}
+          ${summaryResult ? `<p class="${severity && !summaryResultMarkup ? "apcf-summary-alert" : ""}">${summaryResultMarkup || escapeHtml(summaryResult)}</p>` : ""}
         </div>
         <button class="apcf-floating-control apcf-floating-control-primary" type="button" data-apcf-open-panel>Ver panel</button>
         <button class="apcf-floating-control" type="button" data-apcf-close aria-label="Cerrar ${escapeHtml(title)}">×</button>
@@ -1690,8 +2238,9 @@
     const summary = options.summary || "";
     const summaryDetail = options.summaryDetail || "";
     const summaryResult = options.summaryResult || "";
+    const summarySeverity = options.summarySeverity || "";
     if (id && summary) {
-      state.panelSummaries.set(id, { title, summary, summaryDetail, summaryResult });
+      state.panelSummaries.set(id, { title, summary, summaryDetail, summaryResult, severity: summarySeverity });
     }
     if (id && state.hiddenPanels.has(id) && !summary) state.hiddenPanels.delete(id);
     if (id && summary && state.hiddenPanels.has(id)) {
@@ -1773,11 +2322,11 @@
   }
 
   function problemResult(message) {
-    return `<p class="apcf-explain">${escapeHtml("Comprueba este elemento en la página.")}</p><p class="apcf-problem"><span aria-hidden="true">⚠</span><span>${escapeHtml(message)}</span></p>`;
+    return `<p class="apcf-problem"><span aria-hidden="true">⚠</span><span>${escapeHtml(message)}</span></p>`;
   }
 
   function keepActiveWhenClosed(id) {
-    return new Set(["images", "headings", "landmarks", "contrast", "link-text", "skip-link", "audio", "video", "focus-order", "focus-view", "grayscale"]).has(id);
+    return new Set(["images", "headings", "landmarks", "link-text", "skip-link", "audio", "video", "focus-order", "focus-view", "grayscale"]).has(id);
   }
 
   function labelForField(field) {
@@ -1796,6 +2345,51 @@
       }).join(" ").trim();
     }
     return field.getAttribute("aria-label") || "";
+  }
+
+  function labelElementForField(field) {
+    const id = field.getAttribute("id");
+    if (id) {
+      const explicit = document.querySelector(`label[for="${CSS.escape(id)}"]`);
+      if (explicit) return explicit;
+    }
+    return field.closest("label");
+  }
+
+  function formLabelStatus(field) {
+    const id = field.getAttribute("id") || "";
+    const explicit = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+    const wrapped = field.closest("label");
+    const labelledBy = (field.getAttribute("aria-labelledby") || "").trim();
+    const labelledByIds = labelledBy ? labelledBy.split(/\s+/).filter(Boolean) : [];
+    const ariaLabel = (field.getAttribute("aria-label") || "").trim();
+    const name = accessibleName(field).trim();
+    const labelText = labelForField(field).trim();
+    const source = explicit
+      ? `label[for="${id}"]`
+      : wrapped
+        ? "label envolvente"
+        : labelledBy
+          ? `aria-labelledby: ${labelledByIds.join(" ")}`
+          : ariaLabel
+            ? `aria-label: ${ariaLabel}`
+            : "";
+    const hasLabel = !!(explicit || wrapped || labelledBy || ariaLabel);
+    const hasName = !!name;
+    const title = hasName
+      ? (labelText ? `Etiqueta: ${labelText}` : `Nombre accesible: ${name}`)
+      : (id
+          ? `Sin etiqueta (no se encontró label para el ID='${id}')`
+          : "Sin etiqueta");
+    const detail = [
+      explicit ? `Etiqueta asociada: ${labelText || "sin texto"}` : "",
+      wrapped ? `Etiqueta envolvente: ${labelText || "sin texto"}` : "",
+      labelledBy ? `Etiqueta por aria-labelledby: ${labelledByIds.join(" ")}` : "",
+      ariaLabel ? `Etiqueta ARIA: ${ariaLabel}` : "",
+      source ? `Origen: ${source}` : "",
+      hasName ? `Nombre accesible: ${name}` : "Sin nombre accesible"
+    ].filter(Boolean).join(" · ");
+    return { hasLabel, hasName, title, detail, labelText, name, explicit, wrapped, labelledByIds, ariaLabel };
   }
 
   function revealElement(el, label, severity = "warn", options = {}) {
@@ -1990,6 +2584,31 @@
     return "";
   }
 
+  function requiredVisualText(field) {
+    const pieces = [];
+    const label = labelForField(field);
+    if (label) pieces.push(label);
+    const labelEl = field.getAttribute("id")
+      ? document.querySelector(`label[for="${CSS.escape(field.getAttribute("id"))}"]`)
+      : field.closest("label");
+    if (labelEl) {
+      pieces.push(textValue(labelEl.parentElement || labelEl));
+      const requiredSpan = labelEl.querySelector(".required-span, [class*='required']");
+      if (requiredSpan) pieces.push(textValue(requiredSpan));
+    }
+    const parent = field.parentElement;
+    if (parent) {
+      pieces.push(textValue(parent));
+      const nearby = [...parent.querySelectorAll("span, small, em, strong, b")].map(textValue);
+      pieces.push(...nearby);
+    }
+    const prev = field.previousElementSibling;
+    const next = field.nextElementSibling;
+    if (prev) pieces.push(textValue(prev));
+    if (next) pieces.push(textValue(next));
+    return pieces.join(" ").replace(/\s+/g, " ").trim();
+  }
+
   function landmarkElements() {
     const selector = "aside,footer,header,main,nav,search,section[aria-label],section[aria-labelledby],[role='banner'],[role='navigation'],[role='main'],[role='contentinfo'],[role='complementary'],[role='search'],[role='region']";
     return pageElements(selector).filter(landmarkRole);
@@ -2047,21 +2666,99 @@
     `;
   }
 
-  function nearestBg(el) {
+  function parseColor(value) {
+    if (!value) return null;
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "transparent") return [0, 0, 0, 0];
+    if (normalized.startsWith("#")) {
+      const hex = normalized.slice(1);
+      if (hex.length === 3) {
+        return [
+          Number.parseInt(hex[0] + hex[0], 16),
+          Number.parseInt(hex[1] + hex[1], 16),
+          Number.parseInt(hex[2] + hex[2], 16),
+          1
+        ];
+      }
+      if (hex.length === 6) {
+        return [
+          Number.parseInt(hex.slice(0, 2), 16),
+          Number.parseInt(hex.slice(2, 4), 16),
+          Number.parseInt(hex.slice(4, 6), 16),
+          1
+        ];
+      }
+      return null;
+    }
+    const rgb = normalized.match(/^rgba?\((.+)\)$/);
+    if (!rgb) return null;
+    const body = rgb[1].trim();
+    if (body.includes(",")) {
+      const parts = body.split(",").map(part => Number.parseFloat(part.trim()));
+      if (parts.length >= 3) {
+        return [parts[0], parts[1], parts[2], parts.length >= 4 ? parts[3] : 1];
+      }
+      return null;
+    }
+    const pieces = body.split(/\s+/).filter(Boolean);
+    if (pieces.length >= 3) {
+      const [r, g, b] = pieces.slice(0, 3).map(part => Number.parseFloat(part));
+      const alphaToken = pieces.slice(3).join(" ");
+      let alpha = 1;
+      if (alphaToken) {
+        const cleaned = alphaToken.replace("/", "").trim();
+        alpha = Number.parseFloat(cleaned);
+        if (!Number.isFinite(alpha)) alpha = 1;
+      }
+      return [r, g, b, alpha];
+    }
+    return null;
+  }
+
+  function blendColors(top, bottom) {
+    const alpha = Math.max(0, Math.min(1, top[3] ?? 1));
+    const inv = 1 - alpha;
+    return [
+      Math.round((top[0] * alpha) + (bottom[0] * inv)),
+      Math.round((top[1] * alpha) + (bottom[1] * inv)),
+      Math.round((top[2] * alpha) + (bottom[2] * inv)),
+      1
+    ];
+  }
+
+  function rgbaToCss(rgba) {
+    return `rgb(${rgba[0]}, ${rgba[1]}, ${rgba[2]})`;
+  }
+
+  function effectiveBgInfo(el) {
     let node = el;
+    let effective = [255, 255, 255, 1];
+    let approximate = false;
     while (node && node.nodeType === 1) {
-      const bg = getComputedStyle(node).backgroundColor;
-      if (bg && bg !== "transparent" && !bg.endsWith(", 0)")) return bg;
+      const style = getComputedStyle(node);
+      const bg = parseColor(style.backgroundColor);
+      if (style.backgroundImage && style.backgroundImage !== "none") approximate = true;
+      if (bg) {
+        if (bg[3] === 0) {
+          node = node.parentElement;
+          continue;
+        }
+        effective = blendColors(bg, effective);
+        if (bg[3] >= 1) break;
+      }
       node = node.parentElement;
     }
-    return "rgb(255, 255, 255)";
+    return { color: rgbaToCss(effective), approximate };
+  }
+
+  function nearestBg(el) {
+    return effectiveBgInfo(el).color;
   }
 
   function parseRgb(value) {
-    const match = value.match(/rgba?\(([^)]+)\)/);
-    if (!match) return null;
-    const parts = match[1].split(",").map(part => Number.parseFloat(part));
-    return parts.length >= 3 ? parts.slice(0, 3) : null;
+    const parsed = parseColor(value);
+    if (!parsed) return null;
+    return parsed.slice(0, 3);
   }
 
   function luminance(rgb) {
@@ -2188,6 +2885,323 @@
     return visibleElements(selector).filter(el => isMediaPlayer(el, type));
   }
 
+  function htmlSourceText() {
+    return document.documentElement.outerHTML || "";
+  }
+
+  function sourceLineNumber(html, index) {
+    if (index < 0) return "";
+    return html.slice(0, index).split("\n").length;
+  }
+
+  function sourceFragment(html, index, length = 180) {
+    if (index < 0) return "";
+    const start = Math.max(0, index - 70);
+    const end = Math.min(html.length, index + Math.max(length, 120));
+    return html.slice(start, end).replace(/\s+/g, " ").trim();
+  }
+
+  function videoFileLink(href) {
+    return /\.(mp4|webm|ogg)(?:[?#]|$)/i.test(href || "");
+  }
+
+  function currentHtmlFileName() {
+    const segments = location.pathname.split("/").filter(Boolean);
+    return segments.length ? segments[segments.length - 1] : "HTML de la página";
+  }
+
+  function sourceInfoForElement(el, html) {
+    const raw = el?.outerHTML || "";
+    const index = raw ? html.indexOf(raw) : -1;
+    return {
+      line: sourceLineNumber(html, index),
+      fragment: sourceFragment(html, index, Math.min(raw.length + 60, 240))
+    };
+  }
+
+  function videoIssueText(item) {
+    switch (item.kind) {
+      case "video":
+        return item.hasControls
+          ? (item.hasCaptions ? "Vídeo nativo con controles y pista de subtítulos." : "Vídeo nativo con controles. Comprueba subtítulos o transcripción.")
+          : (item.hasCaptions ? "Vídeo nativo sin controles visibles. Comprueba controles accesibles." : "Vídeo nativo sin controles visibles ni pista de subtítulos.");
+      case "source":
+        return "Elemento <source> dentro de <video>. Comprueba que el vídeo conserve controles y subtítulos.";
+      case "track":
+        return item.trackKind === "captions" || item.trackKind === "subtitles"
+          ? "Pista de subtítulos o captions detectada."
+          : `Pista <track> tipo ${item.trackKind || "desconocido"}. Comprueba que exista una pista de subtítulos o captions.`;
+      case "poster":
+        return "Atributo poster detectado. No sustituye subtítulos ni transcripción.";
+      case "iframe":
+        return "Vídeo incrustado en iframe. Comprueba título accesible, controles y subtítulos del reproductor.";
+      case "embed":
+        return "Vídeo incrustado con embed. Comprueba título accesible, controles y alternativa textual.";
+      case "object":
+        return "Vídeo incrustado con object. Comprueba alternativa accesible, título y controles.";
+      case "link":
+        return "Enlace a archivo de vídeo. Comprueba que informe del formato y que el contenido tenga alternativa textual.";
+      default:
+        return "Posible vídeo detectado. Comprueba controles, subtítulos y alternativa textual.";
+    }
+  }
+
+  function videoCandidates() {
+    const html = htmlSourceText();
+    const file = currentHtmlFileName();
+    const rows = [];
+    const seen = new Set();
+    const pushRow = (item) => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const addElementRow = (el, kind, insertion, target = el, extra = {}) => {
+      const info = sourceInfoForElement(el, html);
+      const href = el.getAttribute && el.getAttribute("href");
+      const src = el.getAttribute && el.getAttribute("src");
+      const poster = el.getAttribute && el.getAttribute("poster");
+      const fragment = extra.fragment || sourceFragment(html, html.indexOf(el.outerHTML || ""), Math.min((el.outerHTML || "").length + 60, 240)) || (el.outerHTML || "").replace(/\s+/g, " ").trim();
+      const item = {
+        kind,
+        file,
+        line: info.line,
+        fragment,
+        insertion,
+        target,
+        element: el,
+        href,
+        src,
+        poster,
+        hasControls: kind === "video" ? el.hasAttribute("controls") : false,
+        hasCaptions: kind === "video" ? !!el.querySelector("track[kind='captions'],track[kind='subtitles']") : false,
+        trackKind: extra.trackKind || "",
+        severity: extra.severity || "warn"
+      };
+      item.problems = extra.problems || videoIssueText(item);
+      item.label = extra.label || `${kind} localizado`;
+      pushRow(item);
+    };
+
+    pageElements("video").forEach(video => {
+      addElementRow(video, "video", "<video>", video, {
+        severity: video.hasAttribute("controls") && video.querySelector("track[kind='captions'],track[kind='subtitles']") ? "warn" : "error"
+      });
+      if (video.hasAttribute("poster")) {
+        const poster = video.getAttribute("poster");
+        addElementRow(video, "poster", "Atributo poster en <video>", video, {
+          fragment: `poster="${poster}"`,
+          severity: "warn",
+          problems: `Poster: ${poster}. No sustituye subtítulos ni transcripción.`,
+          label: "Poster detectado"
+        });
+      }
+      video.querySelectorAll("source").forEach(source => {
+        addElementRow(source, "source", "Hijo <source> de <video>", video, {
+          severity: "warn"
+        });
+      });
+      video.querySelectorAll("track").forEach(track => {
+        addElementRow(track, "track", "Hijo <track> de <video>", video, {
+          severity: track.getAttribute("kind") === "captions" || track.getAttribute("kind") === "subtitles" ? "ok" : "warn",
+          trackKind: track.getAttribute("kind") || "",
+          problems: videoIssueText({
+            kind: "track",
+            trackKind: track.getAttribute("kind") || ""
+          })
+        });
+      });
+    });
+
+    pageElements("iframe").forEach(iframe => {
+      const src = iframe.getAttribute("src") || "";
+      const title = (iframe.getAttribute("title") || iframe.getAttribute("aria-label") || "").toLowerCase();
+      const text = `${src} ${title}`;
+      if (/youtube|youtu\.be|vimeo|dailymotion|twitch|loom|vidyard|jwplayer|kaltura|brightcove|facebook|tiktok|video/i.test(text)) {
+        addElementRow(iframe, "iframe", "iframe incrustado", iframe, {
+          severity: /youtube|youtu\.be|vimeo|dailymotion|twitch|loom|vidyard|jwplayer|kaltura|brightcove|facebook|tiktok|video/i.test(text) ? "warn" : "warn"
+        });
+      }
+    });
+
+    pageElements("embed").forEach(embed => {
+      const text = `${embed.getAttribute("src") || ""} ${embed.getAttribute("type") || ""} ${embed.getAttribute("title") || ""}`;
+      if (/video|mp4|webm|ogg|youtube|vimeo|jwplayer|kaltura|brightcove/i.test(text)) {
+        addElementRow(embed, "embed", "embed incrustado", embed, { severity: "warn" });
+      }
+    });
+
+    pageElements("object").forEach(object => {
+      const text = `${object.getAttribute("data") || ""} ${object.getAttribute("type") || ""} ${object.getAttribute("title") || ""}`;
+      if (/video|mp4|webm|ogg|youtube|vimeo|jwplayer|kaltura|brightcove/i.test(text)) {
+        addElementRow(object, "object", "object incrustado", object, { severity: "warn" });
+      }
+    });
+
+    pageElements("a[href]").forEach(link => {
+      const href = link.getAttribute("href") || "";
+      if (videoFileLink(href)) {
+        addElementRow(link, "link", "Enlace a archivo de vídeo", link, {
+          severity: /descargar|download/i.test(textValue(link)) ? "warn" : "warn",
+          fragment: sourceFragment(html, html.indexOf(link.outerHTML || ""), Math.min((link.outerHTML || "").length + 60, 240))
+        });
+      }
+    });
+
+    return rows;
+  }
+
+  function audioAttrText(el) {
+    const className = typeof el.className === "string" ? el.className : (el.getAttribute("class") || "");
+    return [
+      el.tagName,
+      el.id,
+      className,
+      el.getAttribute("src"),
+      el.getAttribute("href"),
+      el.getAttribute("type"),
+      el.getAttribute("controls"),
+      el.getAttribute("autoplay"),
+      el.getAttribute("muted"),
+      el.getAttribute("loop"),
+      el.getAttribute("preload"),
+      el.getAttribute("crossorigin"),
+      el.getAttribute("aria-label"),
+      el.getAttribute("aria-labelledby"),
+      el.getAttribute("title"),
+      el.getAttribute("data-player"),
+      textValue(el)
+    ].filter(Boolean).join(" ").toLowerCase();
+  }
+
+  function audioIssueText(item) {
+    switch (item.kind) {
+      case "audio":
+        return [
+          item.hasControls ? "Etiqueta <audio> con controls." : "Etiqueta <audio> sin controls visibles.",
+          item.hasAutoplay ? "autoplay detectado." : "",
+          item.hasMuted ? "muted detectado." : "",
+          item.hasLoop ? "loop detectado." : "",
+          item.hasPreload ? `preload="${item.preload}" detectado.` : "",
+          item.hasCrossorigin ? `crossorigin="${item.crossorigin}" detectado.` : "",
+          item.hasLabel ? "Nombre accesible detectado." : "Sin aria-label, aria-labelledby ni title accesible."
+        ].filter(Boolean).join(" ");
+      case "source":
+        return `Fuente de audio <source> detectada. src=${item.src || "sin src"}. type=${item.type || "sin type"}.`;
+      case "iframe":
+        return `Audio incrustado en iframe. Comprueba ${item.provider || "reproductor externo"}, título accesible, controles y transcripción.`;
+      case "embed":
+        return "Audio incrustado con <embed>. Comprueba alternativas accesibles y controles de teclado.";
+      case "object":
+        return "Audio incrustado con <object>. Comprueba alternativa textual, título y controles accesibles.";
+      case "link":
+        return "Enlace directo a audio. Comprueba texto descriptivo, formato de archivo y alternativa textual.";
+      case "button":
+        return "Control personalizado de audio detectado. Comprueba teclado, nombre accesible y estado play/pause/mute/volume.";
+      case "accessibility":
+        return "Pista de accesibilidad detectada: transcripción, transcript o descripción.";
+      default:
+        return "Posible audio detectado. Comprueba controles, formato, incrustación y alternativa textual.";
+    }
+  }
+
+  function audioCandidates() {
+    const html = htmlSourceText();
+    const file = currentHtmlFileName();
+    const rows = [];
+    const seen = new Set();
+    const pushRow = (item) => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const all = selector => [...document.querySelectorAll(selector)].filter(el => !el.closest(`#${PANEL_ID}`));
+    const addRow = (el, kind, insertion, extra = {}) => {
+      const raw = el.outerHTML || "";
+      const info = sourceInfoForElement(el, html);
+      const fragment = extra.fragment || sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 80, 260)) || raw.replace(/\s+/g, " ").trim();
+      const item = {
+        kind,
+        file,
+        line: info.line,
+        fragment,
+        insertion,
+        element: el,
+        target: el,
+        src: el.getAttribute ? el.getAttribute("src") : "",
+        type: el.getAttribute ? el.getAttribute("type") : "",
+        provider: extra.provider || "",
+        hasControls: el.hasAttribute ? el.hasAttribute("controls") : false,
+        hasAutoplay: el.hasAttribute ? el.hasAttribute("autoplay") : false,
+        hasMuted: el.hasAttribute ? el.hasAttribute("muted") : false,
+        hasLoop: el.hasAttribute ? el.hasAttribute("loop") : false,
+        hasPreload: el.hasAttribute ? el.hasAttribute("preload") : false,
+        preload: el.getAttribute ? (el.getAttribute("preload") || "") : "",
+        hasCrossorigin: el.hasAttribute ? el.hasAttribute("crossorigin") : false,
+        crossorigin: el.getAttribute ? (el.getAttribute("crossorigin") || "") : "",
+        hasLabel: !!(el.getAttribute && (el.getAttribute("aria-label") || el.getAttribute("aria-labelledby") || el.getAttribute("title"))),
+        severity: extra.severity || "warn"
+      };
+      item.problems = extra.problems || audioIssueText(item);
+      pushRow(item);
+    };
+
+    all("audio").forEach(audio => {
+      addRow(audio, "audio", "<audio>", {
+        severity: audio.hasAttribute("controls") ? "warn" : "error"
+      });
+      audio.querySelectorAll("source").forEach(source => {
+        const src = source.getAttribute("src") || "";
+        const type = source.getAttribute("type") || "";
+        const invalidType = type && !/^audio\//i.test(type);
+        addRow(source, "source", "Hijo <source> de <audio>", {
+          severity: invalidType || !src ? "error" : "warn",
+          problems: audioIssueText({ kind: "source", src, type }),
+          fragment: source.outerHTML.replace(/\s+/g, " ").trim()
+        });
+      });
+      const text = audioAttrText(audio);
+      if (/(transcrip|transcript|descripci[oó]n)/.test(text)) {
+        addRow(audio, "accessibility", "Referencia a accesibilidad en <audio>", {
+          severity: "warn",
+          problems: audioIssueText({ kind: "accessibility" }),
+          fragment: audio.outerHTML.replace(/\s+/g, " ").trim()
+        });
+      }
+    });
+
+    all("a[href]").forEach(link => {
+      const href = link.getAttribute("href") || "";
+      const visible = textValue(link);
+      if (videoFileLink(href) || /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus)(?:[?#]|$)/i.test(href)) {
+        addRow(link, "link", "Enlace directo a audio", {
+          severity: /download/i.test(audioAttrText(link)) ? "warn" : "warn",
+          fragment: link.outerHTML.replace(/\s+/g, " ").trim(),
+          problems: audioIssueText({ kind: "link" })
+        });
+      } else if ((/play|pause|reproducir|pausar|mute|silenciar|volume|volumen|audio-player|sound|player/.test(audioAttrText(link)) || /play|pause|reproducir|pausar|mute|silenciar|volume|volumen/i.test(visible)) && /audio|sound|player/.test(audioAttrText(link))) {
+        addRow(link, "button", "Control personalizado de audio", {
+          severity: "warn",
+          problems: audioIssueText({ kind: "button" })
+        });
+      }
+    });
+
+    all("button,[role='button'],[aria-label],[aria-labelledby],[title]").forEach(el => {
+      const text = audioAttrText(el);
+      if (/play|pause|reproducir|pausar|mute|silenciar|volume|volumen|audio-player|sound|player/.test(text)) {
+        addRow(el, "button", "Control personalizado de audio", {
+          severity: "warn",
+          problems: audioIssueText({ kind: "button" })
+        });
+      }
+    });
+
+    return rows;
+  }
+
   function cssPath(el) {
     if (el.id) return `#${el.id}`;
     const parts = [];
@@ -2207,36 +3221,39 @@
     switch (check.id) {
       case "images": {
         const imgs = visibleElements("img");
+        state.imagesVisible = true;
         let issues = 0;
+        let missingAlt = 0;
         const rows = imgs.map((img, index) => {
           const alt = img.getAttribute("alt");
           if (alt === null) {
             issues += 1;
-            if (state.imagesVisible) mark(img, "Sin atributo alt", "error");
-            return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>Sin atributo alt</span><span>Revisar imagen decorativa o informativa.</span></button>`;
+            missingAlt += 1;
+            if (state.imagesVisible) mark(img, "Sin atributo alt", "error", "media");
+            return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="error"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>Sin atributo alt</span><span>La imagen no tiene atributo alt.</span></button>`;
           }
           if (alt.trim() === "") {
-            if (state.imagesVisible) mark(img, "Alt vacío: decorativa", "warn");
-            return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>Alt vacío</span><span>Decorativa.</span></button>`;
+            if (state.imagesVisible) mark(img, "Alt vacío: decorativa", "warn", "media");
+            return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="warn"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>Alt vacío</span><span>Comprobar si es una imagen decorativa.</span></button>`;
           }
-          if (state.imagesVisible) mark(img, `alt: ${alt.slice(0, 80)}`, "ok");
-          return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>${escapeHtml(alt.slice(0, 140))}</span><span>Texto alternativo visible en la lista.</span></button>`;
+          if (state.imagesVisible) mark(img, `alt: ${alt.slice(0, 80)}`, "ok", "media");
+          return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="ok"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>${escapeHtml(alt.slice(0, 140))}</span><span>Observar si el texto alternativo corresponde a la imagen que se muestra.</span></button>`;
         });
         const box = floating("Texto alternativo de imágenes", `
           <p class="apcf-explain">Revisa el texto alternativo de cada imagen para comprobar que se ajusta a la información a transmitir.</p>
           <p class="apcf-result">${escapeHtml(`${imgs.length} imagen(es) visibles.`)}</p>
           ${rows.length ? listHead("apcf-list-head--image", ["Ver", "Id", "Texto alternativo", "Observación"]) : ""}
           <div class="apcf-media-list">${rows.length ? rows.join("") : "<p>No hay imagenes visibles.</p>"}</div>
-        `, { summary: "Texto alternativo", summaryDetail: "Revisa el texto alternativo de cada imagen para comprobar que se ajusta a la información a transmitir.", summaryResult: `${imgs.length} imagen(es) visibles.` });
+        `, { summary: "Texto alternativo de imágenes", summaryDetail: "Revisa el texto alternativo de cada imagen para comprobar que se ajusta a la información a transmitir.", summaryResult: `${imgs.length} imagen(es) visibles. ${missingAlt} sin atributo alt.`, summaryResultMarkup: missingAlt ? `${escapeHtml(`${imgs.length} imagen(es) visibles.`)}<span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${missingAlt} sin atributo alt.`)}</span>` : "" });
         box.querySelectorAll("[data-apcf-show-image]").forEach(button => {
           button.addEventListener("click", () => {
             const img = imgs[Number(button.dataset.apcfShowImage)];
             if (!img) return;
             const alt = img.getAttribute("alt");
             if (alt !== null && alt.trim() === "") {
-              revealElement(img, "Alt vacío: decorativa", "warn", { detail: "La imagen no necesita texto alternativo.", noLabel: true });
+              revealElement(img, "Alt vacío", "warn", { detail: "Comprobar si es una imagen decorativa.", noLabel: true });
             } else {
-              revealElement(img, alt ? `Imagen: ${alt.slice(0, 80)}` : "Imagen sin alt", alt && alt.trim() ? "warn" : "error", { detail: alt ? `Texto alternativo: ${alt.slice(0, 160)}` : "No se encontró texto alternativo.", noLabel: true });
+              revealElement(img, alt ? `Imagen: ${alt.slice(0, 80)}` : "Imagen sin atributo alt", alt && alt.trim() ? "warn" : "error", { detail: alt ? `Texto alternativo: ${alt.slice(0, 160)}\nObservar si el texto alternativo corresponde a la imagen que se muestra.` : "La imagen no tiene atributo alt.", noLabel: true });
             }
             hideCurrentFloatingPanel();
           });
@@ -2269,24 +3286,40 @@
         let issues = 0;
         let previous = 0;
         let h1Count = 0;
+        let hierarchySkips = 0;
         const items = headings.map((heading, index) => {
           const level = Number(heading.tagName.slice(1));
           const skipped = previous && level > previous + 1;
           previous = level;
           if (level === 1) h1Count += 1;
-          if (skipped) issues += 1;
+          if (skipped) {
+            hierarchySkips += 1;
+            issues += 1;
+          }
           if (state.headingsVisible) mark(heading, `H${level}`, skipped ? "error" : "warn");
           const indent = Math.max(0, level - 1) * 30;
           return `<li class="${skipped ? "apcf-tree-error" : ""}" style="--apcf-indent:${indent}px"><button class="apcf-tree-button" type="button" data-apcf-scroll-heading="${index}"><span class="apcf-heading-level">H${level}</span><span class="apcf-heading-text">${escapeHtml(textValue(heading).slice(0, 90) || "Sin texto")}${skipped ? " · salto de nivel" : ""}</span></button></li>`;
         }).join("");
         const h1Problem = h1Count !== 1;
         if (h1Problem) issues += 1;
+        const hierarchyProblem = hierarchySkips > 0;
+        const headingsStatus = headings.length
+          ? [
+              h1Problem ? `<p class="apcf-problem"><span aria-hidden="true">⚠</span><span>Error: se detectaron ${h1Count} encabezado(s) H1. Debe haber un H1 principal.</span></p>` : "",
+              hierarchyProblem ? `<p class="apcf-problem"><span aria-hidden="true">⚠</span><span>Error: la jerarquía de encabezados no sigue el orden. Hay ${hierarchySkips} salto(s) de nivel.</span></p>` : ""
+            ].join("")
+          : `<p class="apcf-problem"><span aria-hidden="true">⚠</span><span>Error: no se encontró ningún encabezado H1-H6.</span></p>`;
         const box = floating("Encabezados", `
           <p class="apcf-explain">Comprueba la jerarquía de los encabezados. H1 es el principal y los demás cuelgan de él.</p>
-          ${headings.length ? (h1Problem ? problemResult(`Problema: se detectaron ${h1Count} encabezado(s) H1.`) : `<p class="apcf-result">H1 principal detectado.</p>`) : problemResult("Problema: no se encontró este elemento.")}
+          ${headingsStatus}
           ${headings.length ? listHead("apcf-list-head--heading", ["Nivel", "Texto"]) : ""}
           <ul class="apcf-tree">${items || "<li>No se encontraron encabezados.</li>"}</ul>
-        `, { summary: "Encabezados", summaryDetail: "Comprueba la jerarquía de los encabezados.", summaryResult: headings.length ? `${headings.length} encabezado(s) visibles. H1 encontrados: ${h1Count}.` : "No se encontraron encabezados." });
+        `, {
+          summary: "Encabezados",
+          summaryDetail: "Comprueba la jerarquía de los encabezados.",
+          summaryResult: headings.length ? `${headings.length} encabezado(s) visibles. H1 encontrados: ${h1Count}. Saltos de jerarquía: ${hierarchySkips}.` : "No se encontraron encabezados.",
+          summarySeverity: h1Problem || hierarchyProblem ? "error" : ""
+        });
         box.querySelectorAll("[data-apcf-scroll-heading]").forEach(button => {
           button.addEventListener("click", () => {
             const heading = headings[Number(button.dataset.apcfScrollHeading)];
@@ -2317,12 +3350,16 @@
         const boxes = tree.map(node => renderLandmarkNode(node, landmarks)).join("");
         const mainProblem = mainCount !== 1;
         const issues = mainProblem ? 1 : 0;
+        const mainError = mainProblem
+          ? problemResult(mainCount === 0 ? "Error: no se encontró ninguna zona main." : `Error: se detectaron ${mainCount} zonas main. Debe haber una sola zona main.`)
+          : "";
         const box = floating("Puntos de referencia", `
           <p class="apcf-explain">Comprueba que las zonas estructuran la página y que cada una se reconoce por su tipo y su etiqueta visible.</p>
-          ${landmarks.length ? (mainProblem ? problemResult(`Problema: se detectaron ${mainCount} zonas main.`) : `<p class="apcf-result">${escapeHtml(`${landmarks.length} puntos marcados. Main encontrados: ${mainCount}.`)}</p>`) : problemResult("Problema: no se encontró este elemento.")}
+          ${mainError}
+          ${landmarks.length ? (!mainProblem ? `<p class="apcf-result">${escapeHtml(`${landmarks.length} puntos marcados. Main encontrados: ${mainCount}.`)}</p>` : "") : problemResult("Problema: no se encontró ningún punto de referencia.")}
           ${landmarks.length ? listHead("apcf-list-head--landmark", ["Tipo", "Etiqueta", "Título"]) : ""}
           <div class="apcf-landmark-map"><div class="apcf-landmark-tree">${boxes || "<p>No se encontraron puntos de referencia.</p>"}</div></div>
-        `, { summary: "Puntos de referencia", summaryDetail: "Comprueba que las zonas estructuran la página y que cada una se reconoce por su tipo y su etiqueta visible.", summaryResult: landmarks.length ? `${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.` : "No se encontraron puntos de referencia." });
+        `, { summary: "Puntos de referencia", summaryDetail: "Comprueba que las zonas estructuran la página y que cada una se reconoce por su tipo y su etiqueta visible.", summaryResult: landmarks.length ? `${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.` : "No se encontraron puntos de referencia.", summarySeverity: landmarks.length === 0 ? "error" : "" });
         box.querySelectorAll("[data-apcf-landmark]").forEach(button => {
           button.addEventListener("click", () => {
             const landmark = landmarks[Number(button.dataset.apcfLandmark)];
@@ -2351,29 +3388,43 @@
       case "contrast": {
         const candidates = visibleElements("p,li,a,button,label,h1,h2,h3,h4,h5,h6,span,td,th").filter(el => textValue(el).length);
         let issues = 0;
+        let approximateCount = 0;
+        let reviewCount = 0;
         const rows = [];
         candidates.forEach((el, index) => {
           const style = getComputedStyle(el);
-          const ratio = contrastRatio(style.color, nearestBg(el));
+          const bgInfo = effectiveBgInfo(el);
+          const bg = bgInfo.color;
+          const ratio = contrastRatio(style.color, bg);
           if (!ratio) return;
           const fontSize = Number.parseFloat(style.fontSize);
           const isBold = Number.parseInt(style.fontWeight, 10) >= 700;
           const large = fontSize >= 24 || (isBold && fontSize >= 18.66);
           const limit = large ? 3 : 4.5;
           const fails = ratio < limit;
-          const severity = !fails ? "ok" : (ratio < 3 ? "error" : "warn");
+          const severity = bgInfo.approximate ? "review" : (!fails ? "ok" : (ratio < 3 ? "error" : "warn"));
           const format = `${Math.round(fontSize)}px / ${style.fontWeight}`;
-          if (fails) {
+          if (bgInfo.approximate) {
+            approximateCount += 1;
+            reviewCount += 1;
+          } else if (fails) {
             issues += 1;
             if (state.contrastVisible) mark(el, `Contraste ${ratio.toFixed(1)}:1`, "error");
           }
           if (fails || rows.length < 18) {
-            rows.push(`<tr data-apcf-severity="${severity}"><td><button class="apcf-mini-button" type="button" data-apcf-show-contrast="${index}">Ver</button></td><td><span class="apcf-contrast-sample" style="color:${escapeHtml(style.color)};background:${escapeHtml(nearestBg(el))}">${escapeHtml(textValue(el).slice(0, 48))}</span></td><td><span class="apcf-color-chip" style="--apcf-chip:${escapeHtml(style.color)}"></span>${escapeHtml(style.color)}</td><td><span class="apcf-color-chip" style="--apcf-chip:${escapeHtml(nearestBg(el))}"></span>${escapeHtml(nearestBg(el))}</td><td>${escapeHtml(format)}</td><td>${ratio.toFixed(2)}:1</td><td>${limit}:1</td><td class="${severity === "ok" ? "apcf-contrast-pass" : "apcf-contrast-fail"}">${severity === "ok" ? "Pasa" : "Revisar"}</td></tr>`);
+            rows.push(`<tr data-apcf-severity="${severity}"><td><button class="apcf-mini-button" type="button" data-apcf-show-contrast="${index}">Ver</button></td><td><span class="apcf-contrast-sample" style="color:${escapeHtml(style.color)};background:${escapeHtml(bg)}">${escapeHtml(textValue(el).slice(0, 48))}</span></td><td><span class="apcf-color-chip" style="--apcf-chip:${escapeHtml(style.color)}"></span>${escapeHtml(style.color)}</td><td><span class="apcf-color-chip" style="--apcf-chip:${escapeHtml(bg)}"></span>${escapeHtml(bg)}${bgInfo.approximate ? " (aprox.)" : ""}</td><td>${escapeHtml(format)}</td><td>${ratio.toFixed(2)}:1</td><td>${limit}:1</td><td class="${severity === "ok" ? "apcf-contrast-pass" : "apcf-contrast-fail"}">${severity === "ok" ? "Pasa" : severity === "review" ? "Revisar" : "Revisar"}</td></tr>`);
           }
         });
+        const summaryText = issues
+          ? `${issues} posible(s) fallo(s) de contraste.`
+          : "No se detectaron fallos automáticos de contraste en la página. Revisa también hover, focus y texto sobre imagen.";
+        const summaryNote = approximateCount
+          ? `${approximateCount} fondo(s) calculado(s) de forma aproximada por capas transparentes o fondos complejos.`
+          : "";
+        const summaryTail = reviewCount ? `${reviewCount} elemento(s) requieren revisión manual.` : "";
         const box = floating("Contraste de color", `
           <p class="apcf-explain">Revisa el primer plano y el fondo de cada texto. La tabla muestra el mismo color detectado en la página.</p>
-          <p class="apcf-result">${escapeHtml(issues ? `${issues} posible(s) fallo(s) de contraste.` : "No se detectaron fallos automáticos en los primeros textos visibles. Revisa también hover, focus y texto sobre imagen.")}</p>
+          <p class="apcf-result">${escapeHtml(summaryText)}${summaryNote ? ` <span class="apcf-muted-note">${escapeHtml(summaryNote)}</span>` : ""}${summaryTail ? ` <span class="apcf-muted-note">${escapeHtml(summaryTail)}</span>` : ""}</p>
           <div class="apcf-table-scroll">
           <table class="apcf-contrast-table">
             <caption>Evaluador de contraste</caption>
@@ -2391,7 +3442,7 @@
             <tbody>${rows.join("") || "<tr><td colspan='8'>No se encontraron textos evaluables.</td></tr>"}</tbody>
           </table>
           </div>
-        `, { summary: "Contraste de color", summaryDetail: "Revisa el primer plano y el fondo de cada texto.", summaryResult: issues ? `${issues} posible(s) fallo(s) de contraste.` : `${rows.length} texto(s) revisado(s) sin fallos automáticos.` });
+        `, { summary: "Contraste de color", summaryDetail: "Revisa el primer plano y el fondo de cada texto.", summaryResult: `${summaryText}${summaryNote ? ` ${summaryNote}` : ""}${summaryTail ? ` ${summaryTail}` : ""}` });
         box.querySelector("[data-apcf-show-contrast-page]")?.addEventListener("change", event => {
           state.contrastVisible = event.currentTarget.checked;
           refreshVisuals();
@@ -2401,7 +3452,8 @@
             const el = candidates[Number(button.dataset.apcfShowContrast)];
             if (!el) return;
             const style = getComputedStyle(el);
-            const bg = nearestBg(el);
+            const bgInfo = effectiveBgInfo(el);
+            const bg = bgInfo.color;
             const ratio = contrastRatio(style.color, bg);
             const fontSize = Number.parseFloat(style.fontSize);
             const isBold = Number.parseInt(style.fontWeight, 10) >= 700;
@@ -2411,7 +3463,7 @@
             const severity = ratio
               ? (fails ? (ratio < 3 ? "error" : "warn") : "ok")
               : "warn";
-            revealElement(el, `Contraste ${ratio ? `${ratio.toFixed(1)}:1` : `${style.color} / ${bg}`}`, severity, { detail: `${textValue(el).slice(0, 90) || "Sin texto visible."}`, noLabel: true });
+            revealElement(el, `Contraste ${ratio ? `${ratio.toFixed(1)}:1` : `${style.color} / ${bg}`}`, severity, { detail: `${textValue(el).slice(0, 90) || "Sin texto visible."}${bgInfo.approximate ? "\nFondo aproximado por capas transparentes o fondos complejos." : ""}`, noLabel: true });
             hideCurrentFloatingPanel();
           });
         });
@@ -2425,26 +3477,17 @@
         const rows = links.map((link, index) => {
           const visibleText = textValue(link);
           const name = accessibleName(link);
-          const normalizedVisible = visibleText.replace(/\s+/g, " ").trim().toLowerCase();
-          const normalizedName = name.replace(/\s+/g, " ").trim().toLowerCase();
           let severity = "ok";
-          let note = "Sin incidencias automáticas.";
-          if (!visibleText) {
-            severity = !name || name === "Sin nombre" ? "error" : "warn";
-            note = name && name !== "Sin nombre"
-              ? `Sin texto visible! Nombre accesible: "${name.slice(0, 90)}".`
-              : "Sin texto visible! Comprobar que el destino se identifica con el nombre accesible.";
-            issues += 1;
-          } else if (!name) {
+          let note = visibleText
+            ? "Sin incidencias automáticas."
+            : "Sin texto visible.";
+          if ((!visibleText || visibleText.trim().toLowerCase() === "sin texto visible") && (!name || name.trim().toLowerCase() === "sin nombre")) {
             severity = "error";
-            note = "Sin nombre accesible. Comprobar que el destino se identifica con el nombre accesible.";
+            note = "Sin texto visible y sin nombre accesible.";
             issues += 1;
-          } else if (normalizedVisible !== normalizedName) {
-            severity = "warn";
-            note = `El texto visible no coincide con el nombre accesible. Texto visible: "${visibleText.slice(0, 90)}". Nombre accesible: "${(name || "Sin nombre").slice(0, 90)}". Revisa si el nombre accesible describe correctamente el destino del enlace.`;
-            if (normalizedName && !normalizedName.includes(normalizedVisible)) {
-              note += " El nombre accesible no contiene el texto visible.";
-            }
+          } else if (visibleText && !name) {
+            severity = "error";
+            note = "Texto visible presente y sin nombre accesible.";
             issues += 1;
           }
           return `
@@ -2457,12 +3500,14 @@
             </button>
           `;
         }).join("");
+        const linkProblem = issues > 0;
         const box = floating("Texto de enlaces", `
           <p class="apcf-explain">Revisa si el nombre accesible es correcto.</p>
-          <p class="apcf-result">${escapeHtml(`${links.length} enlace(s) visible(s). ${issues} incidencia(s) automática(s).`)}</p>
+          ${linkProblem ? problemResult(`Error: ${issues} enlace(s) con texto visible y sin nombre accesible.`) : ""}
+          <p class="apcf-result">${escapeHtml(issues ? `${issues} enlace(s) con texto visible y sin nombre accesible.` : "No se detectaron enlaces con texto visible y sin nombre accesible.")}</p>
           ${rows ? listHead("apcf-list-head--link", ["Ver", "Id", "Texto visible", "Nombre accesible", "Estado"]) : ""}
           <div class="apcf-media-list">${rows || "<p>No se encontraron enlaces.</p>"}</div>
-        `, { summary: "Texto de enlaces", summaryDetail: "Revisa si el nombre accesible es correcto.", summaryResult: `${links.length} enlace(s) visible(s). ${issues} incidencia(s) automática(s).` });
+        `, { summary: "Texto de enlaces", summaryDetail: "Revisa si el nombre accesible es correcto.", summaryResult: issues ? `${issues} enlace(s) con texto visible y sin nombre accesible.` : "No se detectaron enlaces con texto visible y sin nombre accesible.", summarySeverity: linkProblem || links.length === 0 ? "error" : "" });
         const showLink = index => {
           const link = links[index];
           if (!link) return;
@@ -2470,9 +3515,12 @@
           const name = accessibleName(link);
           const hasVisible = !!visibleText;
           const different = visibleText && visibleText.replace(/\s+/g, " ").trim().toLowerCase() !== name.replace(/\s+/g, " ").trim().toLowerCase();
-          const severity = !hasVisible
-            ? ((!name || name === "Sin nombre") ? "error" : "warn")
-            : (!name ? "error" : (different ? "warn" : "ok"));
+          const missingVisibleAndName = (!visibleText || visibleText.trim().toLowerCase() === "sin texto visible") && (!name || name.trim().toLowerCase() === "sin nombre");
+          const severity = missingVisibleAndName
+            ? "error"
+            : !hasVisible
+              ? ((!name || name === "Sin nombre") ? "error" : "warn")
+              : (!name ? "error" : (different ? "warn" : "ok"));
           revealElement(link, "Enlace", severity, {
             detail: name ? name.slice(0, 160) : "Sin nombre accesible.",
             noLabel: true
@@ -2488,6 +3536,7 @@
             el.classList.remove(MARK);
             el.removeAttribute("data-apcf-severity");
             el.removeAttribute("data-apcf-mark-id");
+            el.removeAttribute("data-apcf-mark-kind");
             el.removeAttribute("data-apcf-link-mark");
           });
           document.querySelectorAll(`.${LABEL}[data-apcf-link-label="true"]`).forEach(el => el.remove());
@@ -2495,13 +3544,11 @@
           links.forEach((link, index) => {
             const visibleText = textValue(link);
             const name = accessibleName(link);
-            const labelText = name
-              ? name.slice(0, 120)
-              : (visibleText ? "Sin nombre accesible!" : "Sin texto visible!");
-            const severity = !visibleText
-              ? ((!name || name === "Sin nombre") ? "error" : "warn")
-              : (!name ? "error" : "warn");
-            mark(link, labelText, severity);
+            const labelText = visibleText
+              ? (name ? name.slice(0, 120) : "Sin nombre accesible!")
+              : "Sin texto visible!";
+            const severity = visibleText && !name ? "error" : "ok";
+            mark(link, labelText, severity, "link");
             link.setAttribute("data-apcf-link-mark", "true");
             const label = document.querySelector(`.${LABEL}[data-apcf-target="${CSS.escape(link.getAttribute("data-apcf-mark-id"))}"]`);
             if (label) {
@@ -2515,13 +3562,11 @@
           links.forEach((link, index) => {
             const visibleText = textValue(link);
             const name = accessibleName(link);
-            const labelText = name
-              ? name.slice(0, 120)
-              : (visibleText ? "Sin nombre accesible!" : "Sin texto visible!");
-            const severity = !visibleText
-              ? ((!name || name === "Sin nombre") ? "error" : "warn")
-              : (!name ? "error" : "warn");
-            mark(link, labelText, severity);
+            const labelText = visibleText
+              ? (name ? name.slice(0, 120) : "Sin nombre accesible!")
+              : "Sin texto visible!";
+            const severity = visibleText && !name ? "error" : "ok";
+            mark(link, labelText, severity, "link");
             link.setAttribute("data-apcf-link-mark", "true");
             const label = document.querySelector(`.${LABEL}[data-apcf-target="${CSS.escape(link.getAttribute("data-apcf-mark-id"))}"]`);
             if (label) {
@@ -2544,10 +3589,10 @@
           window.scrollTo({ top: 0, behavior: "smooth" });
           document.body.setAttribute("tabindex", "-1");
           try { document.body.focus({ preventScroll: true }); } catch (_error) {}
-          floating("Enlace de salto", explainResult(
-            "Comprueba que exista un enlace de salto al contenido y que lleve a la zona correcta.",
-            "No se encontró enlace de salto al contenido."
-          ), { summary: "Enlace de salto", summaryDetail: "Comprueba que exista un enlace de salto al contenido.", summaryResult: "No se encontró enlace de salto al contenido." });
+          floating("Enlace de salto", `
+            ${problemResult("No se encontró enlace de salto al contenido.")}
+            <p class="apcf-explain">Comprueba que exista un enlace de salto al contenido y que lleve a la zona correcta.</p>
+          `, { summary: "Enlace de salto", summaryDetail: "Comprueba que exista un enlace de salto al contenido.", summaryResult: "No se encontró enlace de salto al contenido.", summarySeverity: "error" });
         } else {
           const targetId = first.getAttribute("href").slice(1);
           const target = document.getElementById(targetId);
@@ -2574,7 +3619,7 @@
           langProblem
             ? problemResult("Problema: no se encontró este elemento.")
             : `<strong>Idioma declarado:</strong> ${escapeHtml(lang)}`
-        ), { summary: "Idioma de la página", summaryDetail: "Comprueba que coincide con el idioma principal.", summaryResult: langProblem ? "No hay idioma declarado." : `Idioma declarado: ${lang}.` });
+        ), { summary: "Idioma de la página", summaryDetail: "Comprueba que coincide con el idioma principal.", summaryResult: langProblem ? "No hay idioma declarado." : `Idioma declarado: ${lang}.`, summarySeverity: langProblem ? "error" : "" });
         result(check, langProblem ? 1 : 0);
         break;
       }
@@ -2582,94 +3627,131 @@
       case "audio":
       case "video": {
         state[`${check.id}Visible`] = true;
-        const media = check.id === "video"
-          ? [...new Set([...pageElements("video"), ...mediaPlayers(check.id)])]
-          : [...new Set([...pageElements("audio"), ...mediaPlayers(check.id)])];
-        let issues = 0;
-        const items = media.map((el, index) => {
-          try {
-            if ((check.id === "audio" && el.matches("audio")) || (check.id === "video" && el.matches("video"))) {
-              el.setAttribute("controls", "");
-            }
-            const target = mediaMarkTarget(el);
-            const container = el.closest("figure,section,article,div") || el.parentElement || el;
-            const headingEl = container.querySelector ? container.querySelector("h1,h2,h3,h4,h5,h6") : null;
-            const heading = textValue(headingEl);
-            const mediaTitle = accessibleName(el) || heading || textValue(container).slice(0, 80) || `${check.id} ${index + 1}`;
-            const rect = el.getBoundingClientRect();
-            const hasVisibleBox = rect.width > 0 && rect.height > 0;
-            let label = hasVisibleBox ? "Audio localizado" : "Audio localizado sin controles visibles";
-            if (check.id === "video") {
-              const tag = el.tagName.toLowerCase();
-              const kind = tag === "video" ? "Vídeo" : (tag === "a" ? "Vídeo (enlace)" : (tag === "iframe" || tag === "embed" || tag === "object" ? "Vídeo (incrustado)" : "Reproductor de vídeo"));
-              label = hasVisibleBox ? `${kind} localizado` : `${kind} localizado sin caja visible`;
-            }
-            if (!hasVisibleBox) issues += 1;
-            if (state[`${check.id}Visible`]) {
-              const mediaSeverity = !hasVisibleBox ? "error" : "warn";
-              const mediaLabel = mark(el, label, mediaSeverity);
-              if (mediaLabel) {
-                mediaLabel.dataset.apcfMediaPlacement = "below";
-                positionLabel(mediaLabel);
+        if (check.id === "audio") {
+          const findings = audioCandidates();
+          let issues = 0;
+          const highlighted = new Set();
+          const items = findings.map((item, index) => {
+            if (item.severity === "error") issues += 1;
+            const target = item.target || item.element;
+            if (state.audioVisible && target && !highlighted.has(target)) {
+              const label = mark(target, `${item.kind} localizado`, item.severity === "error" ? "error" : "warn", "media");
+              if (label) {
+                label.dataset.apcfMediaPlacement = "below";
+                positionLabel(label);
               }
-              if (target !== el) {
-                const targetLabel = mark(target, label, mediaSeverity);
-                if (targetLabel) {
-                  targetLabel.dataset.apcfMediaPlacement = "below";
-                  positionLabel(targetLabel);
-                }
-              }
+              highlighted.add(target);
             }
-            return `
-              <button class="apcf-media-item" type="button" data-apcf-show-media="${index}" data-apcf-media-title="${escapeHtml(mediaTitle)}" data-apcf-media-label="${escapeHtml(label)}">
+          return `
+              <button class="apcf-media-item apcf-video-item" type="button" data-apcf-show-media="${index}" data-apcf-media-title="${escapeHtml(`AUDIO · ${item.file}`)}" data-apcf-media-label="${escapeHtml(item.insertion)}">
                 <span class="apcf-mini-button" aria-hidden="true">Ver</span>
-                <strong>${escapeHtml(el.tagName.toLowerCase())}</strong>
-                <span>${escapeHtml(mediaTitle)}</span>
-                <span>${escapeHtml(label)}</span>
+                <strong>${escapeHtml(item.file)}</strong>
+                <span>${escapeHtml(item.insertion)}</span>
+                <span>${escapeHtml(item.problems)}</span>
               </button>
             `;
-          } catch (_error) {
-            issues += 1;
-            return `
-              <button class="apcf-media-item" type="button" data-apcf-show-media="${index}" data-apcf-media-title="${escapeHtml(`${check.title} ${index + 1}`)}" data-apcf-media-label="${escapeHtml(check.id === "audio" ? "No se pudo analizar este elemento. Comprueba que hay una transcripción textual del audio" : "No se pudo analizar este elemento. Comprueba que el video contiene subtítulos y audiodescripción o transcripción")}">
-                <span class="apcf-mini-button" aria-hidden="true">Ver</span>
-                <strong>${escapeHtml(el.tagName ? el.tagName.toLowerCase() : check.id)}</strong>
-                <span>${escapeHtml(`${check.title} ${index + 1}`)}</span>
-                <span>${escapeHtml(check.id === "audio" ? "No se pudo analizar este elemento. Comprueba que hay una transcripción textual del audio" : "No se pudo analizar este elemento. Comprueba que el video contiene subtítulos y audiodescripción o transcripción")}</span>
-              </button>
-            `;
+          });
+          const summaryResult = findings.length
+            ? `${findings.length} coincidencia(s) detectada(s). ${issues} incidencia(s) automática(s).`
+            : "No se encontraron coincidencias de audio en el HTML.";
+          const box = floating("Audio", `
+            <p class="apcf-explain">Observa si en el audio hay una transcripción textual.</p>
+            <p class="apcf-result">${escapeHtml(summaryResult)}</p>
+            ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Problemas"]) : ""}
+            ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
+          `, { summary: "Audio", summaryDetail: "Observa si en el audio hay una transcripción textual.", summaryResult });
+          if (findings.length) {
+            const first = findings[0];
+            const focusTarget = first.target || first.element;
+            try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+            try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
           }
-        });
-        const box = floating(check.title, `
-          <p class="apcf-explain">${escapeHtml(check.id === "audio" ? "Debe incluir una transcripción textual del audio." : "Busca la etiqueta video y resalta el elemento.")}</p>
-          <p class="apcf-result">${escapeHtml(media.length ? `${media.length} reproductor(es) marcado(s).` : check.id === "audio" ? "No se encontraron elementos de audio." : "No se encontró video ni referencia a YouTube/Vimeo.")}</p>
-          ${items.length ? listHead("apcf-list-head--media", ["Ver", "Tipo", "Nombre", "Estado"]) : ""}
-          ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
-        `, { summary: check.title, summaryDetail: check.id === "audio" ? "Debe incluir una transcripción textual del audio." : "Busca la etiqueta video y resalta el elemento.", summaryResult: media.length ? `${media.length} reproductor(es) marcado(s).` : (check.id === "audio" ? "No se encontraron elementos de audio." : "No se encontró video ni referencia a YouTube/Vimeo.") });
-        if (media.length) {
-          const firstMedia = media[0];
-          const firstTarget = mediaMarkTarget(firstMedia);
-          try { firstTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
-          try { firstTarget.focus({ preventScroll: true }); } catch (_error) { try { firstTarget.focus(); } catch (_ignored) {} }
+          box.querySelectorAll("[data-apcf-show-media]").forEach(button => {
+            button.addEventListener("click", () => {
+              const item = findings[Number(button.dataset.apcfShowMedia)];
+              if (!item) return;
+              const target = item.target || item.element;
+              revealElement(target, `${item.kind} · línea ${item.line || "?"}`, item.severity === "error" ? "error" : "warn", {
+                detail: [
+                  `Archivo: ${item.file}`,
+                  `Línea: ${item.line || "?"}`,
+                  `Fragmento: ${item.fragment}`,
+                  `Inserción: ${item.insertion}`,
+                  `Problemas: ${item.problems}`
+                ].join("\n"),
+                noLabel: true
+              });
+              hideCurrentFloatingPanel();
+            });
+          });
+          result(check, issues, findings.length ? undefined : "manual");
+          break;
         }
-        box.querySelector("[data-apcf-show-media-page]")?.addEventListener("change", event => {
-          state[`${check.id}Visible`] = event.currentTarget.checked;
-          refreshVisuals();
+
+        state.videoVisible = true;
+        const findings = videoCandidates();
+        let issues = 0;
+        const highlighted = new Set();
+        const items = findings.map((item, index) => {
+          if (item.severity === "error") issues += 1;
+          const target = item.target || item.element;
+          if (state.videoVisible && target && !highlighted.has(target)) {
+            const label = mark(target, `${item.kind === "poster" ? "Poster" : "Vídeo"} localizado`, item.severity === "error" ? "error" : "warn", "media");
+            if (label) {
+              label.dataset.apcfMediaPlacement = "below";
+              positionLabel(label);
+            }
+            highlighted.add(target);
+          }
+          return `
+            <button class="apcf-media-item apcf-video-item" type="button" data-apcf-show-media="${index}" data-apcf-media-title="${escapeHtml(`${item.kind.toUpperCase()} · ${item.file}`)}" data-apcf-media-label="${escapeHtml(item.insertion)}">
+              <span class="apcf-mini-button" aria-hidden="true">Ver</span>
+              <strong>${escapeHtml(item.file)}</strong>
+              <span>${escapeHtml(item.insertion)}</span>
+              <span>${escapeHtml(item.problems)}</span>
+            </button>
+          `;
         });
+        const summaryResult = findings.length
+          ? (issues > 0
+              ? `${findings.length} coincidencia(s) detectada(s). ${issues} problema(s) claro(s).`
+              : `${findings.length} coincidencia(s) detectada(s). Revisión manual necesaria.`)
+          : "No se encontraron vídeos ni posibles vídeos.";
+        const box = floating("Vídeo", `
+          <p class="apcf-explain">Observa si el video tiene subtítulos y audiodescripción o transcripción.</p>
+          <p class="apcf-result">${escapeHtml(summaryResult)}</p>
+          ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Problemas"]) : ""}
+          ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
+        `, { summary: "Vídeo", summaryDetail: "Observa si el video tiene subtítulos y audiodescripción o transcripción.", summaryResult });
+        if (findings.length) {
+          requestAnimationFrame(() => {
+            const first = findings[0];
+            const focusTarget = first.target || first.element;
+            try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+            try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
+            updateLabels();
+          });
+        }
         box.querySelectorAll("[data-apcf-show-media]").forEach(button => {
           button.addEventListener("click", () => {
-            const el = media[Number(button.dataset.apcfShowMedia)];
-            if (!el) return;
-            if (el.matches("audio,video")) el.setAttribute("controls", "");
-            const mediaTitle = button.dataset.apcfMediaTitle || `${check.title} ${Number(button.dataset.apcfShowMedia) + 1}`;
-            const mediaLabel = button.dataset.apcfMediaLabel || (check.id === "audio" ? "Audio" : "Vídeo");
-            const visible = el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0;
-            const label = check.id === "video" ? (visible ? "Vídeo" : "Vídeo sin caja visible") : (visible ? "Audio" : "Audio sin controles visibles");
-            revealElement(el, `${label} ${Number(button.dataset.apcfShowMedia) + 1}`, !visible ? "error" : "warn", { detail: `${mediaTitle.slice(0, 160)}\n${mediaLabel.slice(0, 160)}`, noLabel: true });
+            const item = findings[Number(button.dataset.apcfShowMedia)];
+            if (!item) return;
+            const target = item.target || item.element;
+            const label = item.kind === "poster" ? "Poster" : `Vídeo ${item.kind}`;
+            revealElement(target, `${label} · línea ${item.line || "?"}`, item.severity === "error" ? "error" : "warn", {
+              detail: [
+                `Archivo: ${item.file}`,
+                `Línea: ${item.line || "?"}`,
+                `Fragmento: ${item.fragment}`,
+                `Inserción: ${item.insertion}`,
+                `Problemas: ${item.problems}`
+              ].join("\n"),
+              noLabel: true
+            });
             hideCurrentFloatingPanel();
           });
         });
-        result(check, issues, media.length ? undefined : "manual");
+        result(check, issues, findings.length ? undefined : "manual");
         break;
       }
 
@@ -2711,40 +3793,65 @@
           break;
         }
         const items = fields.map((field, index) => {
-          const label = labelForField(field);
-          const name = accessibleName(field);
-          const hasLabel = !!label;
-          if (!hasLabel) {
+          const status = formLabelStatus(field);
+          const labelEl = labelElementForField(field);
+          const hasLabel = status.hasLabel;
+          const hasName = status.hasName;
+          const severity = hasLabel && hasName ? "ok" : "error";
+          const labelNote = status.title;
+          if (!hasLabel || !hasName) {
             issues += 1;
-            mark(field, "Sin etiqueta o nombre", "error");
+            mark(field, hasLabel ? "Sin nombre accesible" : "Sin etiqueta", "error");
           } else {
-            mark(field, `Label: ${label.slice(0, 70)}`, "ok");
+            mark(field, status.labelText ? `Etiqueta: ${status.labelText.slice(0, 70)}` : `Nombre accesible: ${status.name.slice(0, 70)}`, "ok");
+            if (labelEl) {
+              mark(labelEl, field.id ? `Etiqueta del campo con ID='${field.id}'` : "Etiqueta del campo", "ok", "media");
+            }
+            if (status.labelledByIds.length) {
+              status.labelledByIds.forEach(id => {
+                const ref = document.getElementById(id);
+                if (ref) mark(ref, `Etiqueta para ID='${field.id || "campo"}'`, "ok", "media");
+              });
+            }
           }
           return `
-            <button class="apcf-media-item apcf-form-item" type="button" data-apcf-show-field="${index}" data-apcf-severity="${hasLabel ? "ok" : "error"}">
+            <button class="apcf-media-item apcf-form-item" type="button" data-apcf-show-field="${index}" data-apcf-severity="${severity}">
               <span class="apcf-mini-button" aria-hidden="true">Ver</span>
               <strong>${escapeHtml(field.tagName.toLowerCase())}</strong>
-              <span>${escapeHtml(label ? label.slice(0, 90) : "Sin etiqueta o nombre")}</span>
-              <span>${escapeHtml(name ? `Nombre accesible: ${name.slice(0, 90)}` : "Sin nombre accesible")}</span>
+              <span>${escapeHtml(labelNote.slice(0, 90))}</span>
+              <span>${escapeHtml(hasName ? `Nombre accesible: ${status.name.slice(0, 90)}` : "Sin nombre accesible")}</span>
             </button>
           `;
         }).join("");
+        document.querySelectorAll("label[for]").forEach(labelEl => {
+          const targetId = labelEl.getAttribute("for");
+          if (!targetId) return;
+          if (!document.getElementById(targetId)) {
+            mark(labelEl, `Etiqueta sin campo asociado con ID='${targetId}'`, "error", "media");
+          }
+        });
         const box = floating("Etiquetas", `
           <p class="apcf-explain">Observa si hay campos visibles y si están correctamente etiquetados.</p>
           <p class="apcf-result">${escapeHtml(`${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`)}</p>
           ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Nombre accesible"]) : ""}
           <div class="apcf-media-list">${items}</div>
-        `, { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: `${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).` });
+        `, { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: `${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`, summaryResultMarkup: issues ? `${escapeHtml(`${fields.length} campo(s) visible(s).`)}<span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${issues} incidencia(s) automática(s).`)}</span>` : "" });
+        const firstField = fields[0];
+        if (firstField) {
+          requestAnimationFrame(() => {
+            try { firstField.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+            try { firstField.focus({ preventScroll: true }); } catch (_error) { try { firstField.focus(); } catch (_ignored) {} }
+          });
+        }
         box.querySelectorAll("[data-apcf-show-field]").forEach(button => {
           button.addEventListener("click", () => {
             const field = fields[Number(button.dataset.apcfShowField)];
             if (!field) return;
-            const label = labelForField(field);
-            const name = accessibleName(field);
-            revealElement(field, label ? `Etiqueta: ${label.slice(0, 60)}` : (name ? `Nombre accesible: ${name.slice(0, 60)}` : "Sin etiqueta o nombre"), label ? "ok" : "error", {
+            const status = formLabelStatus(field);
+            revealElement(field, status.hasName ? (status.labelText ? `Etiqueta: ${status.labelText.slice(0, 60)}` : `Nombre accesible: ${status.name.slice(0, 60)}`) : "Sin nombre accesible", status.hasName ? "ok" : "error", {
               detail: [
-                label ? `Etiqueta: ${label.slice(0, 120)}` : "Sin etiqueta.",
-                name ? `Nombre accesible: ${name.slice(0, 120)}` : "Sin nombre accesible."
+                status.title,
+                status.detail || "Sin datos adicionales."
               ].join("\n"),
               noLabel: true
             });
@@ -2757,42 +3864,49 @@
 
       case "form-required": {
         const fields = visibleElements("input:not([type='hidden']),select,textarea");
-        let issues = 0;
         if (!fields.length) {
           floating("Campos obligatorios", explainResult("Observa si los campos obligatorios están señalados de forma clara.", "No hay formularios visibles en esta página."), { summary: "Campos obligatorios", summaryDetail: "Observa si los obligatorios están señalados.", summaryResult: "No hay formularios visibles." });
           result(check, 0, "manual");
           break;
         }
-        let requiredCount = 0;
-        const items = fields.map((field, index) => {
-          const required = field.required || field.getAttribute("aria-required") === "true";
+        const labels = Array.prototype.slice.call(document.querySelectorAll("label"));
+        const requiredItems = [];
+        const seen = new Set();
+        labels.forEach(labelEl => {
+          let field = labelEl.querySelector("input,select,textarea");
+          if (!field && labelEl.getAttribute("for")) field = document.getElementById(labelEl.getAttribute("for"));
+          if (!field) return;
+          const labelText = textValue(labelEl);
+          const required = field.required || field.getAttribute("aria-required") === "true" || /\*/.test(labelText) || /oblig|requer|required/i.test(labelText);
+          if (!required) return;
+          const key = field.getAttribute("data-apcf-required-key") || `${field.tagName.toLowerCase()}|${field.getAttribute("id") || labelText}`;
+          if (seen.has(key)) return;
+          seen.add(key);
+          requiredItems.push({ field, labelEl, labelText });
+        });
+        const items = requiredItems.map((item, index) => {
+          const { field, labelEl, labelText } = item;
           const label = labelForField(field);
-          const visibleRequired = /oblig|requer|required|\*/i.test(`${label} ${textValue(field.parentElement || field)}`);
-          const status = required ? (visibleRequired ? "Obligatorio" : "Obligatorio no visible") : "No obligatorio";
-          if (required) {
-            requiredCount += 1;
-            if (!visibleRequired) {
-              issues += 1;
-              mark(field, "Obligatorio no visible", "error");
-            } else {
-              mark(field, "Obligatorio", "warn");
-            }
-          } else {
-            mark(field, label ? `Etiqueta: ${label.slice(0, 70)}` : "No obligatorio", "ok");
-          }
+          const hasAsterisk = /\*/.test(labelText);
+          const keyword = (labelText.match(/\b(obligatorio|requerido|required)\b/i) || [])[0] || "";
+          const requiredText = hasAsterisk ? "*" : keyword;
+          const status = requiredText ? `Marcado correctamente con '${requiredText}'?` : "Campo obligatorio";
+          mark(field, status, "warn");
+          mark(labelEl, status, "warn", "media");
           return `
-            <button class="apcf-media-item apcf-form-item" type="button" data-apcf-show-required="${index}" data-apcf-severity="${required ? (visibleRequired ? "warn" : "error") : "ok"}">
+            <button class="apcf-media-item apcf-form-item" type="button" data-apcf-show-required="${index}" data-apcf-severity="warn">
               <span class="apcf-mini-button" aria-hidden="true">Ver</span>
               <strong>${escapeHtml(field.tagName.toLowerCase())}</strong>
-              <span>${escapeHtml(label ? label.slice(0, 90) : "Sin etiqueta")}</span>
+              <span>${escapeHtml(label || labelText || "Sin etiqueta")}</span>
               <span>${escapeHtml(status)}</span>
             </button>
           `;
         }).join("");
+        const requiredCount = requiredItems.length;
         const requiredSummary = requiredCount
-          ? `${requiredCount} campo(s) obligatorio(s). ${issues} incidencia(s) automática(s).`
+          ? `${requiredCount} campo(s) obligatorio(s) detectado(s).`
           : "No hay campos obligatorios visibles.";
-        floating("Campos obligatorios", `
+        const box = floating("Campos obligatorios", `
           <p class="apcf-explain">Observa si los campos obligatorios están señalados de forma clara.</p>
           <p class="apcf-result">${escapeHtml(requiredSummary)}</p>
           ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Estado"]) : ""}
@@ -2801,85 +3915,29 @@
         const requiredBox = document.querySelector(`.${FLOATING}`);
         requiredBox?.querySelectorAll("[data-apcf-show-required]").forEach(button => {
           button.addEventListener("click", () => {
-            const field = fields[Number(button.dataset.apcfShowRequired)];
-            if (!field) return;
-            const required = field.required || field.getAttribute("aria-required") === "true";
-            const label = labelForField(field);
-            const visibleRequired = /oblig|requer|required|\*/i.test(`${label} ${textValue(field.parentElement || field)}`);
-            revealElement(field, required ? (visibleRequired ? "Obligatorio" : "Obligatorio no visible") : (label ? `Etiqueta: ${label.slice(0, 60)}` : "No obligatorio"), required ? (visibleRequired ? "warn" : "error") : "ok", {
+            const item = requiredItems[Number(button.dataset.apcfShowRequired)];
+            if (!item) return;
+            const { field, labelEl, labelText } = item;
+            const label = labelForField(field) || labelText;
+            const hasAsterisk = /\*/.test(labelText);
+            const keyword = (labelText.match(/\b(obligatorio|requerido|required)\b/i) || [])[0] || "";
+            const requiredText = hasAsterisk ? "*" : keyword;
+            const status = requiredText ? `Marcado correctamente con '${requiredText}'?` : "Campo obligatorio";
+            revealElement(field, "Campo obligatorio", "warn", {
               detail: [
                 label ? `Etiqueta: ${label.slice(0, 120)}` : "Sin etiqueta.",
-                required ? (visibleRequired ? "Obligatorio visible." : "Obligatorio no visible.") : "No obligatorio."
+                status,
+                requiredVisualText(field) ? `Texto visible detectado: ${requiredVisualText(field).slice(0, 120)}` : "Sin texto visible detectado."
               ].join("\n"),
               noLabel: true
             });
+            if (labelEl) {
+              mark(labelEl, status, "warn", "media");
+            }
             hideCurrentFloatingPanel();
           });
         });
-        result(check, issues);
-        break;
-      }
-
-      case "form-errors": {
-        const invalid = visibleElements("[aria-invalid='true'], input:invalid, select:invalid, textarea:invalid");
-        let issues = 0;
-        const fields = visibleElements("input:not([type='hidden']),select,textarea");
-        if (!fields.length) {
-          floating("Errores", explainResult("Observa si aparecen errores claros cuando el formulario falla.", "No hay formularios visibles en esta página."), { summary: "Errores", summaryDetail: "Observa si aparecen errores claros.", summaryResult: "No hay formularios visibles." });
-          result(check, 0, "manual");
-          break;
-        }
-        const items = fields.map((field, index) => {
-          const label = labelForField(field);
-          const described = describedText(field);
-          const hasAlert = !!document.querySelector("[role='alert'],[aria-live]");
-          const invalidField = invalid.includes(field);
-          const note = invalidField
-            ? (described ? `Error: ${described.slice(0, 80)}` : "Error sin descripción asociada")
-            : "Sin error visible";
-          if (invalidField) {
-            if (!described) issues += 1;
-            mark(field, described ? `Error: ${described.slice(0, 80)}` : "Error sin descripción asociada", described ? "warn" : "error");
-            if (!hasAlert) issues += 1;
-          } else {
-            mark(field, label ? `Sin error visible · ${label.slice(0, 70)}` : "Sin error visible", "ok");
-          }
-          return `
-            <button class="apcf-media-item apcf-form-item" type="button" data-apcf-show-error="${index}" data-apcf-severity="${invalidField ? (described ? "warn" : "error") : "ok"}">
-              <span class="apcf-mini-button" aria-hidden="true">Ver</span>
-              <strong>${escapeHtml(field.tagName.toLowerCase())}</strong>
-              <span>${escapeHtml(label ? label.slice(0, 90) : "Sin etiqueta")}</span>
-              <span>${escapeHtml(note)}</span>
-            </button>
-          `;
-        }).join("");
-        const errorSummary = invalid.length
-          ? `${invalid.length} campo(s) con error visible. ${issues} incidencia(s) automática(s).`
-          : `No hay errores visibles ahora. ${fields.length} campo(s) visibles.`;
-        floating("Errores", `
-          <p class="apcf-explain">Observa si aparecen errores claros cuando el formulario falla.</p>
-          <p class="apcf-result">${escapeHtml(errorSummary)}</p>
-          ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Error"]) : ""}
-          <div class="apcf-media-list">${items}</div>
-        `, { summary: "Errores", summaryDetail: "Observa si aparecen errores claros.", summaryResult: errorSummary });
-        const errorBox = document.querySelector(`.${FLOATING}`);
-        errorBox?.querySelectorAll("[data-apcf-show-error]").forEach(button => {
-          button.addEventListener("click", () => {
-            const field = fields[Number(button.dataset.apcfShowError)];
-            if (!field) return;
-            const described = describedText(field);
-            const invalidField = invalid.includes(field);
-            revealElement(field, invalidField ? (described ? `Error: ${described.slice(0, 60)}` : "Error sin descripción asociada") : "Sin error visible", invalidField ? (described ? "warn" : "error") : "ok", {
-              detail: [
-                label ? `Etiqueta: ${label.slice(0, 120)}` : "Sin etiqueta.",
-                described ? `Descripción del error: ${described.slice(0, 140)}` : "Sin descripción asociada."
-              ].join("\n"),
-              noLabel: true
-            });
-            hideCurrentFloatingPanel();
-          });
-        });
-        result(check, issues);
+        result(check, 0, "manual");
         break;
       }
     }
@@ -2902,39 +3960,7 @@
   }
 
   function statusHtml() {
-    if (!state.active.size) {
-      return "<strong>Evaluar</strong><span>Activa una opción y observa las marcas en la página.</span><span aria-hidden=\"true\">&nbsp;</span>";
-    }
-    const last = checks.find(check => check.id === state.lastCheck);
-    const guidance = last ? {
-      "images": "Observa si la imagen es decorativa o si el texto alternativo es util.",
-      "page-title": "Comprueba que el título describa la página.",
-      "headings": "Observa saltos de nivel y orden lógico.",
-      "landmarks": "Comprueba que las zonas estructuren la página.",
-      "contrast": "Observa textos con contraste insuficiente.",
-      "link-text": "Comprueba que cada enlace se entienda solo.",
-      "skip-link": "Observa origen y destino del salto al contenido.",
-      "language": "Comprueba que el idioma declarado coincida con el texto.",
-      "grayscale": "Comprueba si la página sigue siendo legible en blanco y negro.",
-      "audio": "Comprueba que exista transcripción textual.",
-      "video": "Comprueba subtítulos y audiodescripción o transcripción.",
-      "focus-order": "Comprueba que el foco siga el orden visible.",
-      "focus-view": "Comprueba si el foco visible se aprecia claramente.",
-      "form-labels": "Observa campos sin etiqueta clara.",
-      "form-required": "Comprueba que obligatorio sea visible.",
-      "form-errors": "Provoca errores y revisa mensajes asociados."
-    }[last.id] : "";
-    if (guidance) return `<strong>Evaluar ${escapeHtml(last.title)}</strong><span>${escapeHtml(guidance)}</span><span aria-hidden=\"true\">&nbsp;</span>`;
-    const errors = state.results.filter(item => item.status !== "ok" && item.status !== "manual" && item.count > 0);
-    const manual = state.results.filter(item => item.status === "manual");
-    if (errors.length) {
-      const total = errors.reduce((sum, item) => sum + item.count, 0);
-      return `<strong>${total} posible(s) problema(s)</strong><span>${escapeHtml(errors.map(item => item.title).join(", "))}</span><span aria-hidden=\"true\">&nbsp;</span>`;
-    }
-    if (manual.length) {
-      return `<strong>Comprobación manual</strong><span>${escapeHtml(manual.map(item => item.title).join(", "))}</span><span aria-hidden=\"true\">&nbsp;</span>`;
-    }
-    return "<strong>Evaluar</strong><span>Observa las marcas y confirma manualmente.</span><span aria-hidden=\"true\">&nbsp;</span>";
+    return "<span>Activa una opción y observa</span>";
   }
 
   function groupedChecks(list) {
@@ -2953,6 +3979,7 @@
   function render(focusClose = true) {
     injectStyles();
     ensurePositionListeners();
+    syncPanelWidth();
     document.documentElement.classList.add(PAGE_SHIFT);
     const existing = document.getElementById(PANEL_ID);
     const previousListScroll = existing ? (existing.querySelector(".apcf-list")?.scrollTop || 0) : 0;
@@ -2964,15 +3991,17 @@
     panel.id = PANEL_ID;
     panel.setAttribute("role", "complementary");
     panel.setAttribute("aria-label", "A11yEvaluaBasico");
+    panel.classList.toggle("apcf-panel-collapsed", state.panelCollapsed);
     panel.innerHTML = `
+      <button class="apcf-panel-toggle" type="button" data-apcf-toggle-panel aria-label="${state.panelCollapsed ? "Expandir panel" : "Colapsar panel"}">
+        <img class="apcf-panel-toggle-icon" src="${escapeHtml(SCRIPT_BASE)}iconoA11yEB_blanco.png" alt="" aria-hidden="true">
+      </button>
       <header class="apcf-header">
         <div class="apcf-window-bar">
-          <span class="apcf-window-title">A11yAccesiBasico <span class="apcf-beta">Beta</span></span>
+          <span class="apcf-window-title"><img class="apcf-title-icon" src="${escapeHtml(SCRIPT_BASE)}iconoA11yEB_blanco.png" alt="">A11yEvaluaBasico <span class="apcf-beta">Beta</span></span>
           <button class="apcf-close" type="button" aria-label="Cerrar panel"></button>
         </div>
-        <div class="apcf-header-main">
-          <span class="apcf-release-note">versión 1.0 · build 112 · <a href="${INFO_URL}" target="_blank" rel="noopener noreferrer">información</a></span>
-        </div>
+        <span class="apcf-release-note">versión 1.0 · build ${BUILD} · <a href="${INFO_URL}" target="_blank" rel="noopener noreferrer">información</a> · <img class="apcf-udl-inline-logo" src="${escapeHtml(SCRIPT_BASE)}imgs/udl-blanco.jpeg" alt=""> Universitat de Lleida</span>
       </header>
       <div class="apcf-profile-banner">Discapacidad: ${escapeHtml(profile.label)}</div>
       <section class="apcf-status" role="status" aria-live="polite" aria-atomic="true">${statusHtml()}</section>
@@ -3027,6 +4056,16 @@
         if (next) next.focus({ preventScroll: true });
       });
     });
+    panel.querySelector("[data-apcf-toggle-panel]")?.addEventListener("click", () => {
+      state.panelCollapsed = !state.panelCollapsed;
+      syncPanelWidth();
+      panel.classList.toggle("apcf-panel-collapsed", state.panelCollapsed);
+      const toggle = panel.querySelector("[data-apcf-toggle-panel]");
+      if (toggle) {
+        toggle.setAttribute("aria-label", state.panelCollapsed ? "Expandir panel" : "Colapsar panel");
+      }
+      updateLabels();
+    });
     panel.querySelectorAll("input[name='apcf-profile']").forEach(input => {
       input.addEventListener("change", () => {
         state.profile = input.value;
@@ -3038,7 +4077,10 @@
         if (next) next.focus({ preventScroll: true });
       });
     });
-    if (focusClose) panel.querySelector(".apcf-close").focus();
+    if (focusClose) {
+      const target = state.panelCollapsed ? panel.querySelector("[data-apcf-toggle-panel]") : panel.querySelector(".apcf-close");
+      target?.focus();
+    }
   }
 
   function open() { render(); }
@@ -3048,13 +4090,15 @@
     else render();
   }
 
-  window.A11yProfileCheckerFunkify = {
+  const api = {
     open,
     close,
     toggle,
     checks,
     profiles
   };
+  window.A11yEvaluaBasico = api;
+  window.A11yProfileCheckerFunkify = api;
 
   open();
 })();
