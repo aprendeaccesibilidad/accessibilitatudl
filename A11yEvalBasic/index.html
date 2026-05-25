@@ -1,0 +1,1521 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A11yEvalBasic · Evaluación básica de accesibilidad</title>
+  <meta name="description" content="A11yEvalBasic es un bookmarklet educativo para realizar una primera evaluación básica de accesibilidad web sobre páginas reales, inspirado en W3C WAI Easy Checks.">
+  <link rel="icon" href="imgs/iconoA11yEB.png" type="image/png" sizes="1254x1254">
+  <link rel="shortcut icon" href="imgs/iconoA11yEB.png" type="image/png">
+  <link rel="apple-touch-icon" href="imgs/iconoA11yEB.png">
+  <style>
+    :root {
+      --color-bg: #f5e9ee;
+      --color-surface: #ffffff;
+      --color-ink: #171717;
+      --color-muted: #2f2f2f;
+      --color-brand: #8f0f57;
+      --color-brand-dark: #5f0738;
+      --color-accent: #fff0b8;
+      --color-border: #d8d1c8;
+      --color-focus: #005fcc;
+      --shadow: 0 1rem 2.5rem rgba(42, 30, 15, .14);
+      --radius: 1.35rem;
+      --max: 1160px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--color-ink);
+      background: var(--color-bg);
+    }
+    img { max-width: 100%; height: auto; }
+    a { color: var(--color-brand-dark); text-underline-offset: .2em; }
+    a:hover { text-decoration-thickness: .16em; }
+    :focus-visible {
+      outline: 3px solid #ffcd00;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px #005fcc;
+      border-radius: .35rem;
+    }
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: 1rem;
+      z-index: 20;
+      transform: translateY(-160%);
+      background: var(--color-surface);
+      color: var(--color-ink);
+      padding: .8rem 1rem;
+      border-radius: .75rem;
+      box-shadow: var(--shadow);
+    }
+    .skip-link:focus { transform: translateY(0); }
+    .container { width: min(var(--max), calc(100% - 2rem)); margin-inline: auto; }
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(0, 0, 0, .94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .85rem; }
+    .brand { display: inline-flex; align-items: center; gap: .7rem; font-weight: 900; text-decoration: none; color: #fff; font-size: 1.12rem; }
+    .brand-mark {
+      display: grid; place-items: center;
+      width: 3.35rem; height: 3.35rem;
+      border-radius: .75rem;
+      background: var(--color-brand);
+      color: #fff;
+      font-weight: 900;
+    }
+    .brand-mark img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .brand > span:last-child { font-size: 1.28em; }
+    .menu-toggle {
+      display: none;
+      align-items: center;
+      gap: .65rem;
+      min-height: 3rem;
+      padding: .7rem .95rem;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      background: var(--color-surface);
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .menu-toggle-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 1.4rem;
+      height: 1.4rem;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+    .nav-links { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+    .nav-links a { text-decoration: none; color: #fff; padding: .55rem .7rem; border-radius: .7rem; font-weight: 700; }
+    .nav-links a:focus-visible,
+    .nav-links a:hover {
+      text-decoration: underline;
+      text-decoration-thickness: .14em;
+      text-underline-offset: .18em;
+      background: rgba(255,255,255,.12);
+    }
+    .nav-links a[aria-current="location"] {
+      text-decoration: underline;
+      text-decoration-thickness: .14em;
+      text-underline-offset: .18em;
+      background: rgba(255,255,255,.12);
+    }
+    .button, .bookmarklet {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      min-height: 3rem;
+      padding: .8rem 1rem;
+      border-radius: 999px;
+      border: 2px solid transparent;
+      font-weight: 900;
+      line-height: 1.2;
+      text-decoration: none;
+      cursor: grab;
+    }
+    .button-primary, .bookmarklet { background: var(--color-brand); color: #fff; box-shadow: 0 .6rem 1.4rem rgba(143, 15, 87, .22); }
+    .button-secondary { background: var(--color-surface); color: var(--color-brand-dark); border-color: var(--color-brand); }
+    .button-small { min-height: 2.65rem; padding-inline: .9rem; }
+    .hero-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3rem;
+      padding: .8rem 1rem;
+      border: 2px solid var(--color-brand);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--color-brand-dark);
+      font-weight: 900;
+      line-height: 1.2;
+      text-decoration: none;
+    }
+    .hero-link:hover,
+    .hero-link:focus-visible {
+      background: transparent;
+      border-color: var(--color-brand-dark);
+      color: var(--color-brand-dark);
+    }
+    .hero-actions { display: flex; gap: .8rem; flex-wrap: nowrap; align-items: center; }
+    .hero-actions > .button,
+    .hero-actions > .hero-link {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+    .hero-actions > .button,
+    .hero-actions > .hero-link { white-space: nowrap; }
+    .hero { padding: clamp(3rem, 7vw, 6.5rem) 0 3rem; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(28rem, 1.28fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #111;
+      font-weight: 900;
+    }
+    h1, h2, h3 { line-height: 1.08; margin: 0; }
+    h1 { font-size: clamp(2.2rem, 5.8vw, 4.6rem); letter-spacing: -.055em; max-width: 10ch; }
+    h2 { font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: -.04em; margin-bottom: 1rem; }
+    h3 { font-size: 1.35rem; letter-spacing: -.02em; }
+    .lead { font-size: clamp(1.2rem, 2vw, 1.55rem); max-width: 42rem; color: #242424; margin: 1.3rem 0 1.6rem; }
+    .microcopy { color: var(--color-muted); margin: .85rem 0 0; font-size: 1.05rem; }
+    .visual-card {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      transform: none;
+      justify-self: end;
+      width: 100%;
+      max-width: 56rem;
+    }
+    .visual-card img { border-radius: 0; border: 0; display: block; width: 100%; height: auto; }
+    .section { padding: clamp(3rem, 7vw, 6rem) 0; }
+    .section-intro { max-width: 48rem; margin-bottom: 2rem; color: var(--color-muted); font-size: 1.24rem; line-height: 1.65; }
+    #publico-title { margin-bottom: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: clamp(1.15rem, 2vw, 1.6rem);
+      box-shadow: 0 .7rem 1.5rem rgba(42, 30, 15, .06);
+    }
+    .card p { color: var(--color-muted); margin-bottom: 0; font-size: 1.08rem; line-height: 1.65; }
+    .publico-context { margin-bottom: 1.75rem; }
+    .publico-cards {
+      margin-top: 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+    }
+    .icon {
+      width: 3rem; height: 3rem;
+      display: grid; place-items: center;
+      border-radius: 1rem;
+      background: #f5e2ee;
+      color: var(--color-brand-dark);
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+    .steps { counter-reset: step; display: grid; gap: .9rem; list-style: none; padding: 0; margin: 0; font-size: 1.06rem; line-height: 1.65; }
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: start;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+    }
+    .steps li::before {
+      content: counter(step);
+      display: grid; place-items: center;
+      width: 2.35rem; height: 2.35rem;
+      border-radius: 999px;
+      background: var(--color-brand);
+      color: #fff;
+      font-weight: 900;
+    }
+    .checks { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; }
+    .check-group { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1.2rem; }
+    .check-group ul { padding-left: 1.2rem; margin-bottom: 0; color: var(--color-muted); font-size: 1.08rem; line-height: 1.65; }
+
+    .disability-checks { align-items: stretch; }
+    .disability-card { display: flex; flex-direction: column; gap: .75rem; }
+    .disability-card p { color: var(--color-muted); margin: 0; font-size: 1.08rem; line-height: 1.65; }
+    .disability-icon {
+      width: 3.8rem;
+      height: 3.8rem;
+      object-fit: contain;
+      padding: .65rem;
+      border-radius: 1rem;
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .disability-visual {
+      background:
+        linear-gradient(180deg, rgba(143, 15, 87, .05), rgba(143, 15, 87, 0)),
+        var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: calc(var(--radius) + .1rem);
+      padding: clamp(1.15rem, 2vw, 1.7rem);
+      box-shadow: 0 .8rem 1.8rem rgba(42, 30, 15, .06);
+    }
+    .disability-visual-head {
+      display: grid;
+      gap: .4rem;
+      margin-bottom: 1rem;
+    }
+    .disability-visual-head p {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 1.08rem;
+      line-height: 1.6;
+    }
+    .disability-visual-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: .95rem;
+      align-items: stretch;
+    }
+    .disability-visual-card {
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+      padding: 1rem;
+      border-radius: 1.15rem;
+      border: 1px solid var(--color-border);
+      background: #fff;
+      min-height: 100%;
+    }
+    .disability-visual-card:nth-child(1) { background: #fff8fb; }
+    .disability-visual-card:nth-child(2) { background: #fffaf1; }
+    .disability-visual-card:nth-child(3) { background: #f8fbff; }
+    .disability-visual-card:nth-child(4) { background: #f7fbf7; }
+    .disability-visual-card:nth-child(5) { background: #faf8ff; }
+    .disability-visual-top {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+    .disability-visual-top .disability-icon {
+      width: 3.2rem;
+      height: 3.2rem;
+      padding: .45rem;
+      flex: 0 0 auto;
+    }
+    .disability-visual-kicker {
+      margin: 0;
+      font-size: .92rem;
+      font-weight: 900;
+      color: var(--color-brand-dark);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .disability-visual-card h3 {
+      font-size: 1.2rem;
+      line-height: 1.15;
+      margin: 0;
+    }
+    .disability-visual-card p {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 1.02rem;
+      line-height: 1.55;
+    }
+    .disability-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .disability-pills li {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2rem;
+      padding: .25rem .55rem;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid rgba(95, 7, 56, .14);
+      color: #331427;
+      font-size: .88rem;
+      font-weight: 750;
+      line-height: 1.1;
+    }
+    .disability-pills .disability-pill-heading {
+      display: inline-flex;
+      min-height: 2.25rem;
+      padding: .28rem .7rem;
+      background: #f1e7f7;
+      border-color: rgba(143, 15, 87, .22);
+      color: #5f0738;
+      font-size: .95rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+    .disability-neutral-panel {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: calc(var(--radius) + .1rem);
+      padding: clamp(1.15rem, 2vw, 1.7rem);
+      box-shadow: 0 .8rem 1.8rem rgba(42, 30, 15, .06);
+    }
+    .disability-neutral-head {
+      display: grid;
+      gap: .4rem;
+      margin-bottom: 1rem;
+    }
+    .disability-neutral-head p {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 1.08rem;
+      line-height: 1.6;
+    }
+    .disability-neutral-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .95rem;
+      align-items: stretch;
+    }
+    .disability-neutral-card {
+      position: relative;
+      display: grid;
+      gap: .55rem;
+      padding: .9rem;
+      border-radius: 1rem;
+      border: 1px solid #d9d9d4;
+      background: #fff;
+      height: 100%;
+      align-content: start;
+      overflow: hidden;
+    }
+    .disability-neutral-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: #821550;
+    }
+    .disability-neutral-top {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+    .disability-neutral-top .disability-icon {
+      width: 3rem;
+      height: 3rem;
+      padding: .3rem;
+      flex: 0 0 auto;
+      margin-top: .25rem;
+    }
+    .disability-neutral-top p {
+      margin: 0;
+      color: #545454;
+      font-size: .88rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .disability-neutral-top h3 {
+      margin: 0;
+      font-size: 1.18rem;
+      line-height: 1.15;
+    }
+    .disability-neutral-block {
+      display: grid;
+      gap: .32rem;
+      padding-top: .08rem;
+      border-top: 1px solid #ecebe6;
+    }
+    .disability-neutral-block h4 {
+      margin: 0;
+      color: #8f0f57;
+      font-size: .98rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .025em;
+    }
+    .disability-neutral-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .disability-neutral-badges li {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.95rem;
+      padding: .2rem .52rem;
+      border-radius: 999px;
+      border: 1px solid #d5d5cf;
+      background: #fff;
+      color: #2a2a2a;
+      font-size: .86rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .disability-neutral-card.compact-top {
+      gap: .35rem;
+    }
+    .disability-neutral-card.compact-top .disability-neutral-top {
+      align-items: flex-start;
+    }
+    .disability-neutral-card.compact-top .disability-neutral-top .disability-icon {
+      margin-top: .18rem;
+    }
+    .disability-neutral-card.compact-top .disability-neutral-top h3 {
+      font-size: 1.12rem;
+    }
+    .disability-neutral-card.compact-top .disability-neutral-block:first-of-type {
+      padding-top: 0;
+      border-top: 0;
+    }
+    .disability-neutral-card.compact-top .disability-neutral-block h4 {
+      font-size: .94rem;
+      color: #8f0f57;
+    }
+    .disability-neutral-card.compact-top .disability-neutral-top + .disability-neutral-block {
+      margin-top: -.08rem;
+    }
+    .disability-profile-panel {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .75), rgba(255, 255, 255, 0)),
+        #fdf8fb;
+      border: 1px solid var(--color-border);
+      border-radius: calc(var(--radius) + .1rem);
+      padding: clamp(1.15rem, 2vw, 1.7rem);
+      box-shadow: 0 .8rem 1.8rem rgba(42, 30, 15, .06);
+    }
+    .disability-profile-head {
+      display: grid;
+      gap: .4rem;
+      margin-bottom: 1rem;
+    }
+    .disability-profile-head p {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 1.08rem;
+      line-height: 1.6;
+    }
+    .disability-profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .95rem;
+    }
+    .disability-profile-card {
+      display: grid;
+      gap: .85rem;
+      padding: 1rem;
+      border-radius: 1.15rem;
+      border: 1px solid var(--color-border);
+      background: #fff;
+      box-shadow: 0 .65rem 1.15rem rgba(42, 30, 15, .05);
+    }
+    .disability-profile-card:nth-child(1) { background: #fff8fb; }
+    .disability-profile-card:nth-child(2) { background: #fffaf1; }
+    .disability-profile-card:nth-child(3) { background: #f8fbff; }
+    .disability-profile-card:nth-child(4) { background: #f7fbf7; }
+    .disability-profile-card:nth-child(5) { background: #faf8ff; }
+    .disability-profile-top {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+    .disability-profile-top .disability-icon {
+      width: 3.2rem;
+      height: 3.2rem;
+      padding: .45rem;
+      flex: 0 0 auto;
+    }
+    .disability-profile-top h3 {
+      margin: 0;
+      font-size: 1.22rem;
+      line-height: 1.12;
+    }
+    .disability-profile-top p {
+      margin: 0;
+      color: var(--color-brand-dark);
+      font-size: .92rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .disability-profile-block {
+      display: grid;
+      gap: .45rem;
+      padding-top: .15rem;
+      border-top: 1px solid rgba(143, 15, 87, .12);
+    }
+    .disability-profile-block h4 {
+      margin: 0;
+      color: #5f0738;
+      font-size: 1rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .disability-profile-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .disability-profile-badges li {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2rem;
+      padding: .22rem .55rem;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid rgba(95, 7, 56, .14);
+      color: #331427;
+      font-size: .88rem;
+      font-weight: 750;
+      line-height: 1.1;
+    }
+    .split { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: start; }
+    .notice { background: #fff4d3; border: 2px solid #826000; border-radius: var(--radius); padding: 1.25rem; }
+    .install-box { background: #fff; color: #171717; border-radius: calc(var(--radius) + .4rem); padding: clamp(1.3rem, 3vw, 2rem); box-shadow: var(--shadow); }
+    .install-box h2, .install-box h3 { color: #171717; }
+    .install-box h2 {
+      text-align: center;
+    }
+    .install-box p, .install-box li { color: #2b2b2b; font-size: 1.08rem; line-height: 1.65; }
+    .install-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      align-items: start;
+      margin-top: 1.25rem;
+      max-width: 46rem;
+      margin-inline: auto;
+    }
+    .install-copy {
+      min-width: 0;
+      width: 100%;
+      display: grid;
+      gap: 1rem;
+    }
+    .install-copy-grid {
+      display: grid;
+      grid-template-columns: minmax(18rem, .95fr) minmax(0, 1.05fr);
+      gap: 1rem;
+      align-items: start;
+    }
+    .install-copy-main,
+    .install-copy-steps {
+      display: grid;
+      gap: .4rem;
+      align-content: start;
+      min-width: 0;
+    }
+    .install-copy-main > p,
+    .install-copy-steps > p {
+      margin: 0;
+    }
+    .install-visual {
+      margin: 0;
+      display: grid;
+      gap: .65rem;
+      align-content: start;
+    }
+    .install-visual picture {
+      display: block;
+      overflow: hidden;
+      border: 1px solid rgba(95, 7, 56, .14);
+      border-radius: calc(var(--radius) + .2rem);
+      background: #fff;
+      box-shadow: 0 .75rem 1.65rem rgba(42, 30, 15, .08);
+    }
+    .install-visual img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 760 / 360;
+      object-fit: cover;
+      background: #fff;
+    }
+    .install-visual figcaption {
+      color: #2b2b2b;
+      font-size: .98rem;
+      line-height: 1.55;
+    }
+    .install-box .bookmarklet {
+      background: var(--color-brand);
+      color: #fff;
+      border-color: #f2c94c;
+      border-width: 3px;
+      outline: 2px solid #5f0738;
+      outline-offset: 2px;
+      box-shadow: 0 .8rem 1.8rem rgba(143, 15, 87, .3);
+      margin-block: .7rem 1rem;
+      min-height: 3.5rem;
+      padding-inline: 1.35rem;
+      letter-spacing: .01em;
+    }
+    .bookmarklet-icon {
+      flex: 0 0 auto;
+      width: 2.2rem;
+      height: 2.2rem;
+      padding: .18rem;
+      border-radius: .65rem;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(95, 7, 56, .18);
+      object-fit: contain;
+    }
+    .install-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      align-items: start;
+      margin-top: 1.15rem;
+      max-width: 46rem;
+      margin-inline: auto;
+    }
+    .install-visual {
+      margin: 0;
+      min-width: 0;
+      width: 100%;
+      display: grid;
+      gap: .65rem;
+      align-content: start;
+    }
+    .install-visual picture {
+      display: block;
+      overflow: hidden;
+      border: 1px solid rgba(95, 7, 56, .14);
+      border-radius: calc(var(--radius) + .2rem);
+      background: #fff;
+      box-shadow: 0 .75rem 1.65rem rgba(42, 30, 15, .08);
+    }
+    .install-visual img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 760 / 360;
+      object-fit: cover;
+      background: #fff;
+    }
+    .install-visual-controls {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      flex-wrap: wrap;
+    }
+    .install-visual-toggle {
+      display: inline;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #5f0738;
+      text-decoration: underline;
+      text-underline-offset: .16em;
+      font-weight: 800;
+      line-height: 1.3;
+      box-shadow: none;
+    }
+    .install-visual-toggle:hover,
+    .install-visual-toggle:focus-visible {
+      background: transparent;
+      color: #8f0f57;
+    }
+    .install-visual-note {
+      margin: 0;
+      color: #2b2b2b;
+      font-size: .98rem;
+      line-height: 1.5;
+    }
+    .install-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      margin: 0 0 .25rem;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #2f2f2f;
+      font-weight: 900;
+      width: fit-content;
+    }
+    .install-callout {
+      margin: .45rem 0 0;
+      color: #5a5a5a;
+      font-size: .95rem;
+      line-height: 1.45;
+    }
+    .install-version {
+      margin: .35rem 0 0;
+      color: #6a6a6a;
+      font-size: .9rem;
+      line-height: 1.3;
+      font-weight: 650;
+    }
+    .build-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: .35rem;
+      padding: .15rem .45rem;
+      border-radius: 999px;
+      background: #fff4d3;
+      color: #171717;
+      font-size: .84rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .install-manual {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,.14);
+    }
+    .install-manual-outside {
+      max-width: 46rem;
+      margin-top: 1.75rem;
+      padding: 1rem 1.15rem 1.15rem;
+      border: 1px solid rgba(95, 7, 56, .18);
+      border-radius: 1rem;
+      background: transparent;
+      box-shadow: none;
+      margin-inline: auto;
+      text-align: left;
+    }
+    .install-manual-outside h3 {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      margin: 0 0 .25rem;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #2f2f2f;
+      font-size: .98rem;
+      line-height: 1.3;
+      font-weight: 900;
+      width: fit-content;
+      text-align: left;
+    }
+    .install-manual-outside p {
+      margin: 0 0 .8rem;
+      color: #4a4a4a;
+      font-size: .98rem;
+      line-height: 1.55;
+    }
+    .install-manual-outside ol {
+      margin: 0 0 .8rem;
+      padding-left: 1.2rem;
+      color: #4a4a4a;
+      font-weight: 600;
+      font-size: .98rem;
+      line-height: 1.55;
+      display: inline-block;
+      text-align: left;
+    }
+    .install-manual-outside .install-code-wrap {
+      position: relative;
+      margin-top: .8rem;
+      text-align: left;
+    }
+    .install-manual-outside pre,
+    .install-manual-outside pre code {
+      color: #fff;
+    }
+    .install-manual h3 {
+      margin: 0 0 .6rem;
+      color: #171717;
+      font-size: 1.1rem;
+    }
+    .install-manual ol {
+      margin: 0 0 .8rem;
+      padding-left: 1.2rem;
+      color: #2b2b2b;
+      font-weight: 650;
+      font-size: 1.04rem;
+      line-height: 1.65;
+    }
+    .install-code-wrap {
+      position: relative;
+      margin-top: .8rem;
+    }
+    .install-manual pre {
+      position: relative;
+      margin: .8rem 0 0;
+      background: #11070c;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 1rem;
+      padding: 1rem;
+      overflow: auto;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    .install-copy-button {
+      position: absolute;
+      top: .75rem;
+      right: .75rem;
+      z-index: 1;
+      min-height: 2.2rem;
+      padding: .35rem .7rem;
+      border: 1px solid #fff;
+      border-radius: 999px;
+      background: #000;
+      color: #fff;
+      font-size: .9rem;
+      font-weight: 850;
+      line-height: 1;
+      opacity: 1;
+      transform: none;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .install-copy-button:hover,
+    .install-copy-button:focus-visible {
+      background: #171717;
+      border-color: #f7bd3d;
+      color: #fff;
+    }
+    .install-copy-status {
+      min-height: 1.4rem;
+      margin: .45rem 0 0;
+      color: #2b2b2b;
+      font-size: .95rem;
+      line-height: 1.4;
+    }
+    .install-manual pre code {
+      color: #fff;
+    }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    pre {
+      overflow: auto;
+      max-height: 18rem;
+      background: #080306;
+      color: #171717;
+      border-radius: 1rem;
+      padding: 1rem;
+      font-size: .86rem;
+      line-height: 1.5;
+      border: 1px solid #4d3142;
+    }
+    details { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 1rem; padding: 1rem 1.15rem; }
+    details + details { margin-top: .75rem; }
+    summary { cursor: pointer; font-weight: 900; }
+    .site-footer {
+      padding: 3rem 0 2rem;
+      border-top: 1px solid var(--color-border);
+      background: #f6f7fb;
+      color: #1f1f1f;
+    }
+    .footer-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .footer-copy {
+      max-width: 52rem;
+    }
+    .footer-copy p {
+      margin: 0 0 .9rem;
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+    .footer-copy p:last-child { margin-bottom: 0; }
+    .footer-copy a {
+      color: inherit;
+      text-decoration-thickness: .08em;
+      text-underline-offset: .12em;
+    }
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+    .footer-brand img {
+      display: block;
+      width: auto;
+      height: 4.3rem;
+      object-fit: contain;
+    }
+    .footer-brand img.logo-griho { height: 4.1rem; }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0, 0, 0, .08);
+      color: #111;
+      font-size: 1.03rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 980px) {
+      html.js-menu .nav {
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      html.js-menu .menu-toggle { display: inline-flex; }
+      html.js-menu .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: .15rem;
+        padding-top: .6rem;
+      }
+      html.js-menu .site-header.nav-open .nav-links { display: flex; }
+      html.js-menu .nav-links a { width: 100%; }
+      .hero-grid, .split { grid-template-columns: 1fr; }
+      .install-layout { grid-template-columns: 1fr; }
+      .install-copy-grid { grid-template-columns: 1fr; }
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .checks { grid-template-columns: repeat(2, 1fr); }
+      .disability-visual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .disability-profile-grid { grid-template-columns: 1fr; }
+      .disability-neutral-grid { grid-template-columns: 1fr; }
+      .visual-card { transform: none; max-width: 32rem; }
+    }
+    @media (max-width: 640px) {
+      .checks { grid-template-columns: 1fr; }
+      .disability-visual-grid { grid-template-columns: 1fr; }
+      .disability-profile-grid { grid-template-columns: 1fr; }
+      .disability-neutral-grid { grid-template-columns: 1fr; }
+      h1 { max-width: none; }
+      .button, .bookmarklet { width: 100%; }
+      .hero-actions { flex-wrap: wrap; }
+      .hero-actions { align-items: stretch; }
+      .install-layout { grid-template-columns: 1fr; }
+      .install-copy-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+  <header class="site-header">
+    <div class="container nav" aria-label="Navegación principal">
+      <a class="brand" href="#top" aria-label="A11yEvalBasic, inicio">
+        <span class="brand-mark" aria-hidden="true"><img src="imgs/iconoA11yEB.png" alt="" width="96" height="96"></span>
+        <span>A11yEvalBasic</span>
+      </a>
+      <button class="menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false">
+        <span class="menu-toggle-icon" aria-hidden="true">☰</span>
+        <span>Menú</span>
+      </button>
+      <nav class="nav-links" id="primary-menu" aria-label="Secciones">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#instalar">Instalar</a>
+        <a href="#comprueba">Perfiles de discapacidad</a>
+        <a href="#publico">Aprender</a>
+        <a href="#faq" aria-label="Preguntas frecuentes">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Bookmarklet educativo</p>
+          <h1 id="hero-title">Aprende a detectar barreras de accesibilidad</h1>
+          <p class="lead">Observación guiada de información accesible en páginas reales.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#instalar">Instalar bookmarklet</a>
+            <a class="hero-link" href="#comprueba">Perfiles de discapacidad</a>
+          </div>
+          <p class="microcopy">Uso educativo, creado por la <a href="https://www.udl.cat/" target="_blank" rel="noopener noreferrer">Universitat de Lleida</a> · Primera observación guiada · No sustituye una auditoría experta.</p>
+        </div>
+        <figure class="visual-card">
+          <img src="imgs/imagenhero.png?v=403" alt="Ilustración de A11yEvalBasic: panel lateral con la herramienta activada junto a una página web para observar barreras de accesibilidad de forma guiada." width="1366" height="768">
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="publico" aria-labelledby="publico-title">
+      <div class="container">
+        <h2 id="publico-title">Pensada para aprender y enseñar accesibilidad</h2>
+        <div class="grid-2 publico-context">
+          <article class="card">
+            <h3 id="wai-title">Inspirada en W3C WAI Easy Checks</h3>
+            <p>La herramienta toma como punto de partida la propuesta <a href="https://www.w3.org/WAI/test-evaluate/easy-checks/">Easy Checks</a>, una guía para realizar primeras comprobaciones de accesibilidad. A11yEvalBasic adapta ese enfoque a una experiencia visual e interactiva sobre la propia página web.</p>
+          </article>
+          <aside class="notice" aria-labelledby="limite-title">
+            <h3 id="limite-title">Qué es y qué no es</h3>
+            <p><strong>A11yEvalBasic no certifica conformidad WCAG ni sustituye una auditoría experta.</strong> Ayuda a realizar una primera observación guiada y educativa.</p>
+          </aside>
+        </div>
+        <div class="grid-3 publico-cards">
+          <article class="card">
+            <h3>Estudiantes</h3>
+            <p>Para practicar la detección de barreras en ejercicios, proyectos y páginas web reales.</p>
+          </article>
+          <article class="card">
+            <h3>Docentes</h3>
+            <p>Para explicar criterios básicos de accesibilidad con ejemplos visibles durante una clase o actividad.</p>
+          </article>
+          <article class="card">
+            <h3>Diseño y desarrollo web</h3>
+            <p>Para iniciar una revisión básica antes de abordar una evaluación más completa.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="beneficios-title">
+      <div class="container">
+        <h2 id="beneficios-title">Una herramienta para observar, activar y aprender</h2>
+        <p class="section-intro">El objetivo no es ofrecer una certificación automática, sino facilitar una primera mirada educativa sobre barreras habituales de accesibilidad.</p>
+        <div class="grid-3 publico-cards">
+          <article class="card">
+            <div class="icon" aria-hidden="true">☑</div>
+            <h3>Evalúa sobre páginas reales</h3>
+            <p>Activa el panel en una web y observa directamente los elementos que pueden generar barreras.</p>
+          </article>
+          <article class="card">
+            <div class="icon" aria-hidden="true">◉</div>
+            <h3>Una comprobación cada vez</h3>
+            <p>Centra la atención en un único aspecto para reducir ruido visual y favorecer el aprendizaje.</p>
+          </article>
+          <article class="card">
+            <div class="icon" aria-hidden="true">✦</div>
+            <h3>Distintas experiencias de uso</h3>
+            <p>Organiza las comprobaciones desde perfiles como sin visión total, baja visión, motriz, auditiva y cognitiva.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="instalar" aria-labelledby="instalar-title">
+      <div class="container install-box">
+        <h2 id="instalar-title">Instala el bookmarklet</h2>
+        <div class="install-layout">
+          <figure class="install-visual">
+            <div class="install-visual-controls">
+              <a class="install-visual-toggle" href="#install-demo-image" id="install-demo-toggle" aria-pressed="false">Reproducir animación</a>
+            </div>
+            <div class="install-visual-media">
+              <img id="install-demo-image" src="imgs/preview_instalar_bookmarklet2.jpg" alt="Demostración de cómo arrastrar el bookmarklet a la barra de marcadores" width="760" height="360" loading="lazy">
+            </div>
+          </figure>
+          <div class="install-copy">
+            <div class="install-copy-grid">
+              <div class="install-copy-main">
+                <p class="install-hint">Arrastra el botón al navegador</p>
+                <p><a class="bookmarklet" id="bookmarklet-button" data-build="403" href="javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement(&#x27;script&#x27;);s.charset=&#x27;utf-8&#x27;;s.src=&#x27;https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=403&#x27;;s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id=&#x27;apcf-load-error&#x27;;var old=document.getElementById(id);if(old)old.remove();var box=document.createElement(&#x27;aside&#x27;);box.id=id;box.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);box.setAttribute(&#x27;aria-live&#x27;,&#x27;assertive&#x27;);box.style.cssText=&#x27;position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system-BlinkMacSystemFont,&quot;Segoe UI&quot;,sans-serif&#x27;;box.innerHTML=&#x27;&lt;strong style=&quot;display:block;margin:0 0 .35rem&quot;&gt;No se pudo cargar Evaluación básica de accesibilidad.&lt;/strong&gt;&lt;span style=&quot;display:block&quot;&gt;Revisa que el archivo JS sea público y esté disponible por HTTPS.&lt;/span&gt;&#x27;;document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert(&#x27;No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.&#x27;);}catch(_e){}};document.body.appendChild(s);})();"><img class="bookmarklet-icon" src="imgs/iconoA11yEB_blanco.png" alt="" aria-hidden="true" width="32" height="32">A11yEvalBasic</a></p>
+                <p class="install-version">versión 1.0 · build 403</p>
+              </div>
+              <div class="install-copy-steps">
+                <p>Arrastra el botón a la barra de marcadores.</p>
+                <p>Después, abre cualquier página web y actívalo para mostrar el panel.</p>
+                <p class="install-callout">También puedes clicar y se abrirá en esta página.</p>
+              </div>
+            </div>
+            <div class="install-manual-outside">
+              <h3 id="instalacion-manual-title">Alternativa manual</h3>
+              <p>Si prefieres no arrastrar el botón, crea un marcador nuevo y pega este código en la URL.</p>
+              <ol>
+                <li>Crea un nuevo marcador en tu navegador.</li>
+                <li>Usa como nombre: <strong>A11yEvalBasic</strong>.</li>
+                <li>Copia el siguiente código en el campo URL del marcador.</li>
+              </ol>
+              <div class="install-code-wrap">
+                <button class="install-copy-button" type="button" id="bookmarklet-copy" aria-label="Copiar código manual">Copiar código</button>
+                <pre tabindex="0"><code id="bookmarklet-code">javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement(&#x27;script&#x27;);s.charset=&#x27;utf-8&#x27;;s.src=&#x27;https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=403&#x27;;s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id=&#x27;apcf-load-error&#x27;;var old=document.getElementById(id);if(old)old.remove();var box=document.createElement(&#x27;aside&#x27;);box.id=id;box.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);box.setAttribute(&#x27;aria-live&#x27;,&#x27;assertive&#x27;);box.style.cssText=&#x27;position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system-BlinkMacSystemFont,&quot;Segoe UI&quot;,sans-serif&#x27;;box.innerHTML=&#x27;&lt;strong style=&quot;display:block;margin:0 0 .35rem&quot;&gt;No se pudo cargar Evaluación básica de accesibilidad.&lt;/strong&gt;&lt;span style=&quot;display:block&quot;&gt;Revisa que el archivo JS sea público y esté disponible por HTTPS.&lt;/span&gt;&#x27;;document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert(&#x27;No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.&#x27;);}catch(_e){}};document.body.appendChild(s);})();</code></pre>
+                <p class="install-copy-status" id="bookmarklet-copy-status" aria-live="polite" aria-atomic="true"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="como-funciona" aria-labelledby="funciona-title">
+      <div class="container split">
+        <div>
+          <h2 id="funciona-title">Cómo funciona</h2>
+          <p class="section-intro">A11yEvalBasic se instala como un marcador del navegador. Después se activa sobre la página que quieres revisar.</p>
+        </div>
+        <ol class="steps">
+          <li><span>Añade el bookmarklet a la barra de marcadores.</span></li>
+          <li><span>Abre la página web que quieres observar.</span></li>
+          <li><span>Activa A11yEvalBasic desde tus marcadores.</span></li>
+          <li><span>Elige una discapacidad o un grupo de comprobaciones.</span></li>
+          <li><span>Activa una opción y observa las marcas en la página.</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="comprueba" aria-labelledby="comprueba-title">
+      <div class="container disability-neutral-panel">
+        <div class="disability-neutral-head">
+          <h2 id="comprueba-title">Perfiles de discapacidad</h2>
+          <p>La herramienta no solo lista comprobaciones: organiza la mirada. Cada filtro muestra las pruebas más relevantes para observar barreras desde una discapacidad concreta.</p>
+        </div>
+        <div class="disability-neutral-grid">
+          <article class="disability-neutral-card">
+            <div class="disability-neutral-top">
+              <img class="disability-icon" src="imgs/iconosDisc/visual_total.svg" alt="" aria-hidden="true" width="56" height="56">
+              <div>
+                <p>Perfil</p>
+                <h3>Sin visión total</h3>
+              </div>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Contenido</h4>
+              <ul class="disability-neutral-badges" aria-label="Contenido para sin visión total">
+                <li>Título de la página</li>
+                <li>Idioma de la página</li>
+                <li>Texto alternativo de imágenes</li>
+                <li>Texto de enlaces</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Estructura</h4>
+              <ul class="disability-neutral-badges" aria-label="Estructura para sin visión total">
+                <li>Encabezados</li>
+                <li>Puntos de referencia</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Interacción</h4>
+              <ul class="disability-neutral-badges" aria-label="Interacción para sin visión total">
+                <li>Enlace de salto</li>
+                <li>Orden de foco</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Multimedia</h4>
+              <ul class="disability-neutral-badges" aria-label="Multimedia para sin visión total">
+                <li>Audio</li>
+                <li>Video</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Formularios</h4>
+              <ul class="disability-neutral-badges" aria-label="Formularios para sin visión total">
+                <li>Etiquetas</li>
+                <li>Campos obligatorios</li>
+              </ul>
+            </div>
+          </article>
+          <article class="disability-neutral-card">
+            <div class="disability-neutral-top">
+              <img class="disability-icon" src="imgs/iconosDisc/baja_vision.svg" alt="" aria-hidden="true" width="56" height="56">
+              <div>
+                <p>Perfil</p>
+                <h3>Baja visión</h3>
+              </div>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Visual</h4>
+              <ul class="disability-neutral-badges" aria-label="Visual para baja visión">
+                <li>Blanco y negro</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Formularios</h4>
+              <ul class="disability-neutral-badges" aria-label="Formularios para baja visión">
+                <li>Campos obligatorios</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Interacción</h4>
+              <ul class="disability-neutral-badges" aria-label="Interacción para baja visión">
+                <li>Mostrar foco</li>
+              </ul>
+            </div>
+          </article>
+          <article class="disability-neutral-card">
+            <div class="disability-neutral-top">
+              <img class="disability-icon" src="imgs/iconosDisc/motriz.svg" alt="" aria-hidden="true" width="56" height="56">
+              <div>
+                <p>Perfil</p>
+                <h3>Motriz</h3>
+              </div>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Interacción</h4>
+              <ul class="disability-neutral-badges" aria-label="Interacción para motriz">
+                <li>Enlace de salto</li>
+                <li>Orden de foco</li>
+                <li>Mostrar foco</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Formularios</h4>
+              <ul class="disability-neutral-badges" aria-label="Formularios para motriz">
+                <li>Campos obligatorios</li>
+              </ul>
+            </div>
+          </article>
+          <article class="disability-neutral-card auditiva-tight">
+            <div class="disability-neutral-top">
+              <img class="disability-icon" src="imgs/iconosDisc/auditivo.svg" alt="" aria-hidden="true" width="56" height="56">
+              <div>
+                <p>Perfil</p>
+                <h3>Auditiva</h3>
+              </div>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Multimedia</h4>
+              <ul class="disability-neutral-badges" aria-label="Multimedia para auditiva">
+                <li>Audio</li>
+                <li>Video</li>
+              </ul>
+            </div>
+          </article>
+          <article class="disability-neutral-card">
+            <div class="disability-neutral-top">
+              <img class="disability-icon" src="imgs/iconosDisc/intelectual.svg" alt="" aria-hidden="true" width="56" height="56">
+              <div>
+                <p>Perfil</p>
+                <h3>Cognitiva</h3>
+              </div>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Contenido</h4>
+              <ul class="disability-neutral-badges" aria-label="Contenido para cognitiva">
+                <li>Título de la página</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Multimedia</h4>
+              <ul class="disability-neutral-badges" aria-label="Multimedia para cognitiva">
+                <li>Audio</li>
+                <li>Video</li>
+              </ul>
+            </div>
+            <div class="disability-neutral-block">
+              <h4>Formularios</h4>
+              <ul class="disability-neutral-badges" aria-label="Formularios para cognitiva">
+                <li>Campos obligatorios</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <h2 id="faq-title">Preguntas frecuentes</h2>
+        <details>
+          <summary>¿La herramienta sustituye una auditoría de accesibilidad?</summary>
+          <p>No. Es una herramienta educativa para una primera observación guiada. No certifica conformidad WCAG ni sustituye una revisión experta.</p>
+        </details>
+        <details>
+          <summary>¿Funciona como una extensión del navegador?</summary>
+          <p>No exactamente. Funciona como bookmarklet: un marcador que carga el panel de evaluación sobre la página que estás visitando.</p>
+        </details>
+        <details>
+          <summary>¿Qué necesito para usarla?</summary>
+          <p>Un navegador con barra de marcadores y una página web abierta. La herramienta carga el script desde la web de accessibilitat.udl.cat.</p>
+        </details>
+        <details>
+          <summary>¿Por qué las comprobaciones se organizan por discapacidad?</summary>
+          <p>Para facilitar el aprendizaje desde distintas experiencias de uso y conectar cada barrera con las personas a las que puede afectar.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <div class="footer-copy">
+        <p>Proyecto académico desarrollado por la <a href="https://www.udl.cat/ca/">Universitat de Lleida</a> y el grupo <a href="https://www.griho.udl.cat/en/">GRIHO</a>.</p>
+        <p>Responsable del proyecto: <a href="https://www.linkedin.com/in/afra-pascual-almenara">Afra Pascual Almenara</a></p>
+        <p>Proyecto inspirado en <a href="https://www.w3.org/WAI/test-evaluate/easy-checks/">W3C WAI Easy Checks</a>.</p>
+      </div>
+      <div class="footer-brand" aria-hidden="true">
+        <img src="imgs/logo-udl.png" alt="" width="240" height="120">
+        <img class="logo-griho" src="imgs/logo-griho.png" alt="" width="220" height="120">
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>© 2026 UdL — Grupo de investigación GRIHO</p>
+      <p><a href="#top">Volver arriba</a></p>
+    </div>
+  </footer>
+  <script>
+    document.documentElement.classList.add('js-menu');
+    (function () {
+      const bookmarklet = document.getElementById('bookmarklet-button');
+      const code = document.getElementById('bookmarklet-code');
+      const badge = document.getElementById('bookmarklet-build');
+      if (!bookmarklet || !code) return;
+
+      const build = (bookmarklet.dataset.build || '366').replace(/[^\w.-]/g, '') || '366';
+      const scriptUrl = `https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=${encodeURIComponent(build)}`;
+      const bookmarkletCode = `javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement('script');s.charset='utf-8';s.src='${scriptUrl}';s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id='apcf-load-error';var old=document.getElementById(id);if(old)old.remove();var box=document.createElement('aside');box.id=id;box.setAttribute('role','alert');box.setAttribute('aria-live','assertive');box.style.cssText='position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';box.innerHTML='<strong style="display:block;margin:0 0 .35rem">No se pudo cargar Evaluación básica de accesibilidad.</strong><span style="display:block">Revisa que el archivo JS sea público y esté disponible por HTTPS.</span>';document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert('No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.');}catch(_e){}};document.body.appendChild(s);})();`;
+
+      bookmarklet.href = bookmarkletCode;
+      code.textContent = bookmarkletCode;
+      if (badge) badge.textContent = `build ${build}`;
+    })();
+    (function () {
+      const copyButton = document.getElementById('bookmarklet-copy');
+      const code = document.getElementById('bookmarklet-code');
+      const status = document.getElementById('bookmarklet-copy-status');
+      if (!copyButton || !code || !status) return;
+
+      async function copyCode() {
+        const text = code.textContent || '';
+        try {
+          await navigator.clipboard.writeText(text);
+          status.textContent = 'Código JavaScript copiado al portapapeles.';
+          copyButton.textContent = 'Copiado';
+          copyButton.setAttribute('aria-pressed', 'true');
+        } catch (_error) {
+          const range = document.createRange();
+          range.selectNodeContents(code);
+          const selection = window.getSelection();
+          if (!selection) return;
+          selection.removeAllRanges();
+          selection.addRange(range);
+          status.textContent = 'No se pudo copiar automáticamente. El código quedó seleccionado para copiarlo con Ctrl+C o Cmd+C.';
+          copyButton.textContent = 'Seleccionado';
+        }
+        window.setTimeout(() => {
+          copyButton.textContent = 'Copiar código';
+          copyButton.setAttribute('aria-pressed', 'false');
+        }, 1200);
+      }
+
+      copyButton.addEventListener('click', copyCode);
+    })();
+    (function () {
+      const image = document.getElementById('install-demo-image');
+      const toggle = document.getElementById('install-demo-toggle');
+      if (!image || !toggle) return;
+
+      const gifSrc = 'imgs/gif_instalar_bookmarklet_desde_imagen.gif';
+      const staticSrc = 'imgs/preview_instalar_bookmarklet2.jpg';
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let playing = false;
+
+      function syncButton() {
+        toggle.textContent = playing ? 'Parar reproducción' : 'Reproducir animación';
+        toggle.setAttribute('aria-pressed', String(playing));
+        image.src = playing ? gifSrc : staticSrc;
+      }
+
+      syncButton();
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        playing = !playing;
+        syncButton();
+      });
+
+      reduceMotion.addEventListener('change', () => {
+        if (reduceMotion.matches && playing) {
+          playing = false;
+          syncButton();
+        }
+      });
+    })();
+    (function () {
+      const header = document.querySelector('.site-header');
+      const toggle = document.querySelector('.menu-toggle');
+      const menu = document.getElementById('primary-menu');
+      const navLinks = Array.from(menu.querySelectorAll('a[href^="#"]'));
+      const sections = navLinks
+        .map((link) => document.querySelector(link.getAttribute('href')))
+        .filter(Boolean);
+      if (!header || !toggle || !menu) return;
+
+      const mq = window.matchMedia('(max-width: 980px)');
+
+      function setActiveLink(hash) {
+        navLinks.forEach((link) => {
+          const active = link.getAttribute('href') === hash;
+          if (active) {
+            link.setAttribute('aria-current', 'location');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      }
+
+      function setOpen(open) {
+        header.classList.toggle('nav-open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+        menu.hidden = mq.matches ? !open : false;
+      }
+
+      function syncState() {
+        setActiveLink(window.location.hash || '#top');
+        if (mq.matches) {
+          setOpen(header.classList.contains('nav-open'));
+        } else {
+          header.classList.remove('nav-open');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-label', 'Abrir menú');
+          menu.hidden = false;
+        }
+      }
+
+      toggle.addEventListener('click', function () {
+        setOpen(!header.classList.contains('nav-open'));
+      });
+
+      menu.addEventListener('click', function (event) {
+        if (event.target.closest('a') && mq.matches) {
+          setOpen(false);
+        }
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && header.classList.contains('nav-open') && mq.matches) {
+          setOpen(false);
+          toggle.focus();
+        }
+      });
+
+      window.addEventListener('hashchange', function () {
+        setActiveLink(window.location.hash || '#top');
+      });
+
+      if ('IntersectionObserver' in window && sections.length) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible) setActiveLink('#' + visible.target.id);
+        }, {
+          rootMargin: '-35% 0px -55% 0px',
+          threshold: [0.1, 0.25, 0.5, 0.75]
+        });
+        sections.forEach((section) => observer.observe(section));
+      }
+
+      mq.addEventListener('change', syncState);
+      syncState();
+    })();
+  </script>
+</body>
+</html>
