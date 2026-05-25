@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "403";
+  const BUILD = "419";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -239,7 +239,9 @@
       }
 
       #${PANEL_ID}.apcf-panel-collapsed {
-        overflow: visible !important;
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        scrollbar-gutter: stable !important;
         background: transparent !important;
         border-right: 0 !important;
         box-shadow: none !important;
@@ -595,8 +597,8 @@
         align-content: start;
         gap: .06rem;
         width: 100%;
-        min-height: 5.05rem;
-        padding: .26rem .95rem .24rem .3rem;
+        min-height: 4.45rem;
+        padding: .16rem .95rem .12rem .3rem;
         margin: 0 !important;
         border: 0;
         border-bottom: 1px solid #dadad7;
@@ -612,9 +614,11 @@
       #${PANEL_ID} .apcf-status span { display: block; margin: 0; color: #5b4712; font-weight: 850; font-size: 1.08rem; line-height: 1.02; }
 
       #${PANEL_ID} .apcf-list {
-        overflow: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-gutter: stable;
         min-height: 0;
-        align-self: start;
+        align-self: stretch;
         padding: 0 .38rem .35rem;
       }
 
@@ -1349,7 +1353,7 @@
       .${FLOATING} .apcf-landmark-map {
         margin-top: 0 !important;
         max-height: none !important;
-        overflow: visible !important;
+        overflow: hidden !important;
         border: 1px solid #747474 !important;
         border-top: 0 !important;
         border-radius: 0 0 .65rem .65rem !important;
@@ -1810,7 +1814,7 @@
       }
 
       #${PANEL_ID}.apcf-panel-collapsed {
-        overflow: visible !important;
+        overflow: hidden !important;
         background: transparent !important;
         border-right: 0 !important;
         box-shadow: none !important;
@@ -2015,8 +2019,8 @@
         align-content: start !important;
         gap: .06rem !important;
         width: 100% !important;
-        min-height: 5.05rem !important;
-        padding: .26rem .95rem .24rem .3rem !important;
+        min-height: 4.45rem !important;
+        padding: .16rem .95rem .12rem .3rem !important;
         margin: 0 !important;
         border: 0 !important;
         border-bottom: 1px solid #dadad7 !important;
@@ -2030,9 +2034,11 @@
 
       #${PANEL_ID} .apcf-list {
         display: block !important;
-        overflow: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-gutter: stable !important;
         min-height: 0 !important;
-        align-self: start !important;
+        align-self: stretch !important;
         margin: 0 !important;
         padding: 0 .45rem .4rem !important;
         background: transparent !important;

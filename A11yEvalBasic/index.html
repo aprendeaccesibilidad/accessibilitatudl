@@ -88,10 +88,10 @@
       gap: .65rem;
       min-height: 3rem;
       padding: .7rem .95rem;
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(255,255,255,.2);
       border-radius: 999px;
-      background: var(--color-surface);
-      color: #fff;
+      background: #fff;
+      color: #171717;
       font: inherit;
       font-weight: 900;
       cursor: pointer;
@@ -103,6 +103,7 @@
       height: 1.4rem;
       font-size: 1.4rem;
       line-height: 1;
+      color: inherit;
     }
     .nav-links { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
     .nav-links a { text-decoration: none; color: #fff; padding: .55rem .7rem; border-radius: .7rem; font-weight: 700; }
@@ -594,7 +595,8 @@
     .install-box { background: #fff; color: #171717; border-radius: calc(var(--radius) + .4rem); padding: clamp(1.3rem, 3vw, 2rem); box-shadow: var(--shadow); }
     .install-box h2, .install-box h3 { color: #171717; }
     .install-box h2 {
-      text-align: center;
+      text-align: left;
+      margin-bottom: 1.1rem;
     }
     .install-box p, .install-box li { color: #2b2b2b; font-size: 1.08rem; line-height: 1.65; }
     .install-layout {
@@ -614,8 +616,8 @@
     }
     .install-copy-grid {
       display: grid;
-      grid-template-columns: minmax(18rem, .95fr) minmax(0, 1.05fr);
-      gap: 1rem;
+      grid-template-columns: 1fr;
+      gap: .75rem;
       align-items: start;
     }
     .install-copy-main,
@@ -742,15 +744,15 @@
       line-height: 1.5;
     }
     .install-hint {
-      display: inline-flex;
-      align-items: center;
-      gap: .55rem;
-      margin: 0 0 .25rem;
+      display: block;
+      margin: 0 0 .35rem;
       padding: 0;
       border-radius: 0;
       background: transparent;
       color: #2f2f2f;
-      font-weight: 900;
+      font-size: 1.18rem;
+      line-height: 1.2;
+      font-weight: 950;
       width: fit-content;
     }
     .install-callout {
@@ -784,6 +786,7 @@
       border-top: 1px solid rgba(255,255,255,.14);
     }
     .install-manual-outside {
+      width: 100%;
       max-width: 46rem;
       margin-top: 1.75rem;
       padding: 1rem 1.15rem 1.15rem;
@@ -793,19 +796,20 @@
       box-shadow: none;
       margin-inline: auto;
       text-align: left;
+      overflow: hidden;
     }
     .install-manual-outside h3 {
       display: inline-flex;
       align-items: center;
       gap: .55rem;
-      margin: 0 0 .25rem;
+      margin: 0 0 .4rem;
       padding: 0;
       border-radius: 0;
       background: transparent;
       color: #2f2f2f;
-      font-size: .98rem;
-      line-height: 1.3;
-      font-weight: 900;
+      font-size: 1.18rem;
+      line-height: 1.2;
+      font-weight: 950;
       width: fit-content;
       text-align: left;
     }
@@ -822,17 +826,23 @@
       font-weight: 600;
       font-size: .98rem;
       line-height: 1.55;
-      display: inline-block;
+      display: block;
+      max-width: 100%;
       text-align: left;
     }
     .install-manual-outside .install-code-wrap {
       position: relative;
       margin-top: .8rem;
       text-align: left;
+      max-width: 100%;
     }
     .install-manual-outside pre,
     .install-manual-outside pre code {
       color: #fff;
+      max-width: 100%;
+      white-space: pre;
+      overflow-wrap: normal;
+      word-break: normal;
     }
     .install-manual h3 {
       margin: 0 0 .6rem;
@@ -860,6 +870,7 @@
       border-radius: 1rem;
       padding: 1rem;
       overflow: auto;
+      max-width: 100%;
       font-size: .9rem;
       line-height: 1.5;
     }
@@ -896,6 +907,10 @@
     }
     .install-manual pre code {
       color: #fff;
+      display: block;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     pre {
@@ -993,7 +1008,19 @@
       .disability-visual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .disability-profile-grid { grid-template-columns: 1fr; }
       .disability-neutral-grid { grid-template-columns: 1fr; }
-      .visual-card { transform: none; max-width: 32rem; }
+      .site-header { position: static; }
+      .visual-card { transform: none; justify-self: center; width: min(100%, 32rem); max-width: 32rem; margin-inline: auto; }
+      .install-manual pre,
+      .install-manual pre code,
+      .install-manual-outside pre,
+      .install-manual-outside pre code {
+        white-space: pre;
+        overflow-wrap: normal;
+        word-break: normal;
+      }
+      .install-manual-outside {
+        padding-inline: .9rem;
+      }
     }
     @media (max-width: 640px) {
       .checks { grid-template-columns: 1fr; }
@@ -1001,9 +1028,12 @@
       .disability-profile-grid { grid-template-columns: 1fr; }
       .disability-neutral-grid { grid-template-columns: 1fr; }
       h1 { max-width: none; }
-      .button, .bookmarklet { width: 100%; }
-      .hero-actions { flex-wrap: wrap; }
-      .hero-actions { align-items: stretch; }
+      html, body { overflow-x: clip; }
+      .button, .bookmarklet { width: auto; }
+      .install-box .bookmarklet { min-height: 2.55rem; padding: .62rem .82rem; font-size: .97rem; }
+      .install-box .bookmarklet { max-width: 100%; }
+      .install-box .bookmarklet .bookmarklet-icon { width: 1.2rem; height: 1.2rem; }
+      .hero-actions { flex-wrap: wrap; align-items: stretch; }
       .install-layout { grid-template-columns: 1fr; }
       .install-copy-grid { grid-template-columns: 1fr; }
     }
@@ -1050,7 +1080,7 @@
           <p class="microcopy">Uso educativo, creado por la <a href="https://www.udl.cat/" target="_blank" rel="noopener noreferrer">Universitat de Lleida</a> · Primera observación guiada · No sustituye una auditoría experta.</p>
         </div>
         <figure class="visual-card">
-          <img src="imgs/imagenhero.png?v=403" alt="Ilustración de A11yEvalBasic: panel lateral con la herramienta activada junto a una página web para observar barreras de accesibilidad de forma guiada." width="1366" height="768">
+          <img src="imgs/imagenhero.png?v=419" alt="Ilustración de A11yEvalBasic: panel lateral con la herramienta activada junto a una página web para observar barreras de accesibilidad de forma guiada." width="1366" height="768">
         </figure>
       </div>
     </section>
@@ -1124,14 +1154,14 @@
           <div class="install-copy">
             <div class="install-copy-grid">
               <div class="install-copy-main">
-                <p class="install-hint">Arrastra el botón al navegador</p>
-                <p><a class="bookmarklet" id="bookmarklet-button" data-build="403" href="javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement(&#x27;script&#x27;);s.charset=&#x27;utf-8&#x27;;s.src=&#x27;https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=403&#x27;;s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id=&#x27;apcf-load-error&#x27;;var old=document.getElementById(id);if(old)old.remove();var box=document.createElement(&#x27;aside&#x27;);box.id=id;box.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);box.setAttribute(&#x27;aria-live&#x27;,&#x27;assertive&#x27;);box.style.cssText=&#x27;position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system-BlinkMacSystemFont,&quot;Segoe UI&quot;,sans-serif&#x27;;box.innerHTML=&#x27;&lt;strong style=&quot;display:block;margin:0 0 .35rem&quot;&gt;No se pudo cargar Evaluación básica de accesibilidad.&lt;/strong&gt;&lt;span style=&quot;display:block&quot;&gt;Revisa que el archivo JS sea público y esté disponible por HTTPS.&lt;/span&gt;&#x27;;document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert(&#x27;No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.&#x27;);}catch(_e){}};document.body.appendChild(s);})();"><img class="bookmarklet-icon" src="imgs/iconoA11yEB_blanco.png" alt="" aria-hidden="true" width="32" height="32">A11yEvalBasic</a></p>
-                <p class="install-version">versión 1.0 · build 403</p>
-              </div>
-              <div class="install-copy-steps">
-                <p>Arrastra el botón a la barra de marcadores.</p>
-                <p>Después, abre cualquier página web y actívalo para mostrar el panel.</p>
-                <p class="install-callout">También puedes clicar y se abrirá en esta página.</p>
+                <h3 class="install-hint">Arrastra el botón al navegador</h3>
+                <p><a class="bookmarklet" id="bookmarklet-button" data-build="419" href="javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement(&#x27;script&#x27;);s.charset=&#x27;utf-8&#x27;;s.src=&#x27;https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=419&#x27;;s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id=&#x27;apcf-load-error&#x27;;var old=document.getElementById(id);if(old)old.remove();var box=document.createElement(&#x27;aside&#x27;);box.id=id;box.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);box.setAttribute(&#x27;aria-live&#x27;,&#x27;assertive&#x27;);box.style.cssText=&#x27;position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system-BlinkMacSystemFont,&quot;Segoe UI&quot;,sans-serif&#x27;;box.innerHTML=&#x27;&lt;strong style=&quot;display:block;margin:0 0 .35rem&quot;&gt;No se pudo cargar Evaluación básica de accesibilidad.&lt;/strong&gt;&lt;span style=&quot;display:block&quot;&gt;Revisa que el archivo JS sea público y esté disponible por HTTPS.&lt;/span&gt;&#x27;;document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert(&#x27;No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.&#x27;);}catch(_e){}};document.body.appendChild(s);})();"><img class="bookmarklet-icon" src="imgs/iconoA11yEB_blanco.png" alt="" aria-hidden="true" width="32" height="32">A11yEvalBasic</a></p>
+                <p class="install-version">versión 1.0 · build 419</p>
+                <div class="install-copy-steps">
+                  <p>Arrastra el botón a la barra de marcadores.</p>
+                  <p>Después, abre cualquier página web y actívalo para mostrar el panel.</p>
+                  <p class="install-callout">También puedes clicar y se abrirá en esta página.</p>
+                </div>
               </div>
             </div>
             <div class="install-manual-outside">
@@ -1144,7 +1174,7 @@
               </ol>
               <div class="install-code-wrap">
                 <button class="install-copy-button" type="button" id="bookmarklet-copy" aria-label="Copiar código manual">Copiar código</button>
-                <pre tabindex="0"><code id="bookmarklet-code">javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement(&#x27;script&#x27;);s.charset=&#x27;utf-8&#x27;;s.src=&#x27;https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=403&#x27;;s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id=&#x27;apcf-load-error&#x27;;var old=document.getElementById(id);if(old)old.remove();var box=document.createElement(&#x27;aside&#x27;);box.id=id;box.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);box.setAttribute(&#x27;aria-live&#x27;,&#x27;assertive&#x27;);box.style.cssText=&#x27;position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system-BlinkMacSystemFont,&quot;Segoe UI&quot;,sans-serif&#x27;;box.innerHTML=&#x27;&lt;strong style=&quot;display:block;margin:0 0 .35rem&quot;&gt;No se pudo cargar Evaluación básica de accesibilidad.&lt;/strong&gt;&lt;span style=&quot;display:block&quot;&gt;Revisa que el archivo JS sea público y esté disponible por HTTPS.&lt;/span&gt;&#x27;;document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert(&#x27;No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.&#x27;);}catch(_e){}};document.body.appendChild(s);})();</code></pre>
+                <pre tabindex="0"><code id="bookmarklet-code">javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement(&#x27;script&#x27;);s.charset=&#x27;utf-8&#x27;;s.src=&#x27;https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=419&#x27;;s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id=&#x27;apcf-load-error&#x27;;var old=document.getElementById(id);if(old)old.remove();var box=document.createElement(&#x27;aside&#x27;);box.id=id;box.setAttribute(&#x27;role&#x27;,&#x27;alert&#x27;);box.setAttribute(&#x27;aria-live&#x27;,&#x27;assertive&#x27;);box.style.cssText=&#x27;position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system-BlinkMacSystemFont,&quot;Segoe UI&quot;,sans-serif&#x27;;box.innerHTML=&#x27;&lt;strong style=&quot;display:block;margin:0 0 .35rem&quot;&gt;No se pudo cargar Evaluación básica de accesibilidad.&lt;/strong&gt;&lt;span style=&quot;display:block&quot;&gt;Revisa que el archivo JS sea público y esté disponible por HTTPS.&lt;/span&gt;&#x27;;document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert(&#x27;No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.&#x27;);}catch(_e){}};document.body.appendChild(s);})();</code></pre>
                 <p class="install-copy-status" id="bookmarklet-copy-status" aria-live="polite" aria-atomic="true"></p>
               </div>
             </div>
@@ -1333,7 +1363,7 @@
         </details>
         <details>
           <summary>¿Qué necesito para usarla?</summary>
-          <p>Un navegador con barra de marcadores y una página web abierta. La herramienta carga el script desde la web de accessibilitat.udl.cat.</p>
+          <p>Un navegador con barra de marcadores y una página web abierta. La herramienta carga el script desde el servidor local en https://accessibilitat.udl.cat/A11yEvalBasic/.</p>
         </details>
         <details>
           <summary>¿Por qué las comprobaciones se organizan por discapacidad?</summary>
@@ -1368,7 +1398,7 @@
       const badge = document.getElementById('bookmarklet-build');
       if (!bookmarklet || !code) return;
 
-      const build = (bookmarklet.dataset.build || '366').replace(/[^\w.-]/g, '') || '366';
+      const build = (bookmarklet.dataset.build || '407').replace(/[^\w.-]/g, '') || '407';
       const scriptUrl = `https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=${encodeURIComponent(build)}`;
       const bookmarkletCode = `javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement('script');s.charset='utf-8';s.src='${scriptUrl}';s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id='apcf-load-error';var old=document.getElementById(id);if(old)old.remove();var box=document.createElement('aside');box.id=id;box.setAttribute('role','alert');box.setAttribute('aria-live','assertive');box.style.cssText='position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';box.innerHTML='<strong style="display:block;margin:0 0 .35rem">No se pudo cargar Evaluación básica de accesibilidad.</strong><span style="display:block">Revisa que el archivo JS sea público y esté disponible por HTTPS.</span>';document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert('No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.');}catch(_e){}};document.body.appendChild(s);})();`;
 
