@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "439";
+  const BUILD = "443";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -24,6 +24,8 @@
   })();
   let markId = 0;
   let listenersReady = false;
+  let mediaRescanObserver = null;
+  let mediaRescanTimer = null;
 
   const profiles = [
     { id: "visual-total", short: "Sin visión", label: "Sin visión total", icon: "visual_total.svg" },
@@ -2228,6 +2230,7 @@
 
   function closePanel() {
     clearVisuals();
+    stopMediaRescan();
     state.hiddenPanels.clear();
     state.active.clear();
     state.panelCollapsed = false;
@@ -2996,8 +2999,17 @@
     return /\.(mp4|webm|ogg|m3u8|mpd)(?:[?#]|$)/i.test(href || "");
   }
 
+  function audioFileLink(href) {
+    return /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mid|midi)(?:[?#]|$)/i.test(href || "");
+  }
+
   function iframeHasMedia(iframe, selector) {
     try {
+      const srcdoc = iframe.getAttribute ? (iframe.getAttribute("srcdoc") || "") : "";
+      if (srcdoc) {
+        if (selector === "video" && /<(video|video-cover)\b/i.test(srcdoc)) return true;
+        if (selector === "audio" && /<audio\b/i.test(srcdoc)) return true;
+      }
       const doc = iframe.contentDocument || iframe.contentWindow?.document;
       return !!doc && !!doc.querySelector(selector);
     } catch (_err) {
@@ -3214,6 +3226,43 @@
       });
     });
 
+    pageElements('source').forEach(source => {
+      if (source.closest('audio')) return;
+      const src = source.getAttribute('src') || '';
+      const type = source.getAttribute('type') || '';
+      const raw = source.outerHTML || '';
+      const looksVideo = videoFileLink(src) || /^video\//i.test(type) || /<(video|video-cover)\b/i.test(raw);
+      if (!looksVideo) return;
+      addRow(source, source.closest('video,video-cover') ? 'source' : 'video', source.closest('video,video-cover') ? 'Hijo <source> de <video>' : 'Posible <source> de vídeo', {
+        severity: source.closest('video,video-cover') ? 'warn' : 'error',
+        problems: source.closest('video,video-cover')
+          ? 'Elemento <source> dentro de vídeo. Comprueba formato y subtítulos.'
+          : 'Elemento <source> que apunta a vídeo. Comprueba que pertenezca a un reproductor de vídeo.'
+      });
+    });
+
+    pageElements('[src],[data-src],[data-video],[data-url],[data-player],[poster]').forEach(el => {
+      if (el.closest('audio')) return;
+      if (el.matches('video,video-cover,source,track,iframe,embed,object')) return;
+      const raw = el.outerHTML || '';
+      const attrText = mediaAttrText(el);
+      const src = [
+        el.getAttribute('src'),
+        el.getAttribute('data-src'),
+        el.getAttribute('data-video'),
+        el.getAttribute('data-url'),
+        el.getAttribute('data-player')
+      ].filter(Boolean).join(' ');
+      const looksVideo = videoFileLink(src) || /<(video|video-cover)\b/i.test(raw) || /^video\//i.test(attrText) || /videoobject/i.test(attrText);
+      if (!looksVideo) return;
+      addRow(el, el.hasAttribute('poster') ? 'poster' : 'video', el.hasAttribute('poster') ? 'Atributo poster en contenedor de vídeo' : 'Posible vídeo en atributos', {
+        severity: 'warn',
+        problems: el.hasAttribute('poster')
+          ? 'Poster detectado junto a atributos de vídeo. No sustituye subtítulos ni transcripción.'
+          : 'Atributos detectados que apuntan a vídeo. Comprueba controles, subtítulos y alternativa textual.'
+      });
+    });
+
     if (!rows.some(item => item.kind === 'video') && /<(video|video-cover)\b/i.test(html)) {
       rawVideoTagCandidates(html).forEach(pushRow);
     }
@@ -3371,6 +3420,43 @@
             fragment: source.outerHTML.replace(/\s+/g, ' ').trim()
           });
         }
+      });
+    });
+
+    pageElements('source').forEach(source => {
+      if (source.closest('video') || source.closest('video-cover')) return;
+      const src = source.getAttribute('src') || '';
+      const type = source.getAttribute('type') || '';
+      if (!audioFileLink(src) && !/^audio\//i.test(type)) return;
+      addRow(source, source.closest('audio') ? 'source' : 'audio', source.closest('audio') ? 'Hijo <source> de <audio>' : 'Posible <source> de audio', {
+        severity: source.closest('audio') ? 'warn' : 'error',
+        problems: source.closest('audio')
+          ? 'Elemento <source> dentro de audio. Comprueba formato y controles.'
+          : 'Elemento <source> que apunta a audio. Comprueba que pertenezca a un reproductor de audio.'
+      });
+    });
+
+    pageElements('[src],[href],[data-src],[data-audio],[data-url],[data-file],[data-media],[data-track],[data-player]').forEach(el => {
+      if (el.closest('video,video-cover')) return;
+      if (el.matches('audio,source,track,iframe,embed,object')) return;
+      const raw = el.outerHTML || '';
+      const attrText = audioAttrText(el);
+      const src = [
+        el.getAttribute('src'),
+        el.getAttribute('href'),
+        el.getAttribute('data-src'),
+        el.getAttribute('data-audio'),
+        el.getAttribute('data-url'),
+        el.getAttribute('data-file'),
+        el.getAttribute('data-media'),
+        el.getAttribute('data-track'),
+        el.getAttribute('data-player')
+      ].filter(Boolean).join(' ');
+      const looksAudio = audioFileLink(src) || /^audio\//i.test(attrText) || /audioobject|podcastepisode|musicrecording|musicalbum|radioepisode/i.test(attrText) || /<audio\b/i.test(raw);
+      if (!looksAudio) return;
+      addRow(el, 'audio', 'Posible audio en atributos', {
+        severity: 'warn',
+        problems: 'Atributos detectados que apuntan a audio. Comprueba controles, formato y alternativa textual.'
       });
     });
 
@@ -4129,6 +4215,48 @@
     updateLabels();
   }
 
+  function stopMediaRescan() {
+    if (mediaRescanObserver) {
+      mediaRescanObserver.disconnect();
+      mediaRescanObserver = null;
+    }
+    if (mediaRescanTimer) {
+      window.clearTimeout(mediaRescanTimer);
+      mediaRescanTimer = null;
+    }
+  }
+
+  function scheduleMediaRescan() {
+    stopMediaRescan();
+    if (!state.active.has("video") && !state.active.has("audio")) return;
+    const run = () => {
+      if (!document.getElementById(PANEL_ID)) return;
+      if (!state.active.has("video") && !state.active.has("audio")) return;
+      refreshVisuals();
+    };
+    [600, 1800, 3500, 6000].forEach(delay => {
+      window.setTimeout(run, delay);
+    });
+    if (window.MutationObserver) {
+      let pending = false;
+      mediaRescanObserver = new MutationObserver(() => {
+        if (pending) return;
+        pending = true;
+        window.setTimeout(() => {
+          pending = false;
+          run();
+        }, 250);
+      });
+      mediaRescanObserver.observe(document.documentElement, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        characterData: true
+      });
+      mediaRescanTimer = window.setTimeout(stopMediaRescan, 8000);
+    }
+  }
+
   function checksForProfile() {
     return checks.filter(check => check.profiles.includes(state.profile));
   }
@@ -4264,13 +4392,7 @@
   function open() {
     state.panelCollapsed = false;
     render();
-    if (state.active.has("video") || state.active.has("audio")) {
-      window.setTimeout(() => {
-        if (document.getElementById(PANEL_ID) && (state.active.has("video") || state.active.has("audio"))) {
-          refreshVisuals();
-        }
-      }, 600);
-    }
+    scheduleMediaRescan();
   }
   function close() { closePanel(); }
   function toggle() {
