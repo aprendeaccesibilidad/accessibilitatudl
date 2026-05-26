@@ -2228,4 +2228,11 @@ button:focus-visible {
     width: 100%;
     max-width: 100%;
   }
+
+  .task-card-img {
+  width: 32px;
+  height: auto;
+  display: block;
+  margin-bottom: 0.75rem;
+}
 }
