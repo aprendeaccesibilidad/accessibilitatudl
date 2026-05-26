@@ -2230,9 +2230,9 @@ button:focus-visible {
   }
 
   .task-card-img {
-  width: 32px;
-  height: auto;
-  display: block;
-  margin-bottom: 0.75rem;
-}
+    width: 32px;
+    height: auto;
+    display: block;
+    margin-bottom: 0.75rem;
+  }
 }
