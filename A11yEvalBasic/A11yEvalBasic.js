@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "443";
+  const BUILD = "446";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -158,7 +158,8 @@
     floatingPosition: null,
     summaryFloatingPosition: null,
     grayscale: false,
-    panelCollapsed: false
+    panelCollapsed: false,
+    pageSourceHtml: ""
   };
 
   function syncPanelWidth() {
@@ -2231,6 +2232,7 @@
   function closePanel() {
     clearVisuals();
     stopMediaRescan();
+    state.pageSourceHtml = "";
     state.hiddenPanels.clear();
     state.active.clear();
     state.panelCollapsed = false;
@@ -2980,7 +2982,17 @@
   }
 
   function htmlSourceText() {
-    return document.documentElement.outerHTML || "";
+    return state.pageSourceHtml || document.documentElement.outerHTML || "";
+  }
+
+  async function loadPageSourceHtml() {
+    try {
+      const response = await fetch(location.href, { credentials: "same-origin", cache: "no-store" });
+      if (!response.ok) return "";
+      return await response.text();
+    } catch (_error) {
+      return "";
+    }
   }
 
   function sourceLineNumber(html, index) {
@@ -4236,6 +4248,13 @@
     };
     [600, 1800, 3500, 6000].forEach(delay => {
       window.setTimeout(run, delay);
+    });
+    loadPageSourceHtml().then(html => {
+      if (!html) return;
+      state.pageSourceHtml = html;
+      if (document.getElementById(PANEL_ID) && (state.active.has("video") || state.active.has("audio"))) {
+        refreshVisuals();
+      }
     });
     if (window.MutationObserver) {
       let pending = false;
