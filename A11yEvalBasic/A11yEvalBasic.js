@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "435";
+  const BUILD = "438";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -3130,157 +3130,32 @@
     return rows;
   }
 
-  function videoDirectAttributeCandidates(html) {
-    const rows = [];
-    const seen = new Set();
-    const pushRow = item => {
-      const key = `${item.kind}|${item.line}|${item.fragment}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push(item);
-    };
-    const candidates = [...document.querySelectorAll("video[src],source[src],script[src],script[data-src],script[data-video],script[data-url],script[data-player],iframe,embed[src],object[data],[data-src],[data-video],[data-url],[data-player],[data-video-src],a[href]")]
-      .filter(el => !el.closest(`#${PANEL_ID}`));
-    candidates.forEach(el => {
-      const tag = el.tagName.toLowerCase();
-      if (tag === "iframe" && !iframeHasMedia(el, "video")) return;
-      if (tag === "embed" || tag === "object") return;
-      const attrNames = ["src", "href", "data-src", "data-video", "data-url", "data-player", "data-media", "data-video-src"];
-      const values = attrNames.map(name => ({ name, value: el.getAttribute && el.getAttribute(name) || "" })).filter(item => item.value);
-      if (!values.length) return;
-      const matches = values.filter(item => videoFileLink(item.value) || /^video\//i.test(item.value));
-      if (!matches.length) return;
-      const best = matches[0];
-      const kind = tag === "iframe" ? "iframe" : tag === "source" ? "link" : "link";
-      const info = sourceInfoForElement(el, html);
-      const fragment = sourceFragment(html, html.indexOf(el.outerHTML || ""), Math.min((el.outerHTML || "").length + 60, 240)) || (el.outerHTML || "").replace(/\s+/g, " ").trim();
-      pushRow({
-        kind,
-        file: currentHtmlFileName(),
-        line: info.line,
-        fragment,
-        insertion: `Atributo ${best.name} en <${tag}>`,
-        target: el,
-        element: el,
-        href: el.getAttribute ? el.getAttribute("href") : "",
-        src: el.getAttribute ? el.getAttribute("src") : "",
-        poster: el.getAttribute ? el.getAttribute("poster") : "",
-        severity: "warn",
-        problems: `Atributo ${best.name} relacionado con vídeo (${best.value}). Comprueba que el recurso tenga controles, subtítulos y alternativa textual.`,
-        label: "Posible vídeo detectado"
-      });
-    });
-    return rows;
-  }
-
-  function videoStructuredDataCandidates(html) {
-    const rows = [];
-    const seen = new Set();
-    const pushRow = item => {
-      const key = `${item.kind}|${item.line}|${item.fragment}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push(item);
-    };
-    const scripts = [...document.querySelectorAll("script[type='application/ld+json']")].filter(el => !el.closest(`#${PANEL_ID}`));
-    const emit = (script, obj, index) => {
-      const fields = {
-        name: obj.name || obj.headline || obj.caption || "",
-        description: obj.description || "",
-        contentUrl: obj.contentUrl || obj.url || obj.embedUrl || "",
-        embedUrl: obj.embedUrl || "",
-        thumbnailUrl: obj.thumbnailUrl || "",
-        uploadDate: obj.uploadDate || "",
-        duration: obj.duration || ""
-      };
-      const summary = [
-        fields.name ? `name=${fields.name}` : "",
-        fields.contentUrl ? `contentUrl=${fields.contentUrl}` : "",
-        fields.embedUrl ? `embedUrl=${fields.embedUrl}` : "",
-        fields.thumbnailUrl ? `thumbnailUrl=${fields.thumbnailUrl}` : "",
-        fields.uploadDate ? `uploadDate=${fields.uploadDate}` : "",
-        fields.duration ? `duration=${fields.duration}` : ""
-      ].filter(Boolean).join(" · ");
-      const info = sourceInfoForElement(script, html);
-      pushRow({
-        kind: "schema",
-        file: currentHtmlFileName(),
-        line: info.line,
-        fragment: summary || sourceFragment(html, html.indexOf(script.outerHTML || ""), 240) || (script.outerHTML || "").replace(/\s+/g, " ").trim(),
-        insertion: "Metadatos estructurados JSON-LD VideoObject",
-        target: script,
-        element: script,
-        severity: "warn",
-        name: fields.name,
-        description: fields.description,
-        contentUrl: fields.contentUrl,
-        embedUrl: fields.embedUrl,
-        thumbnailUrl: fields.thumbnailUrl,
-        uploadDate: fields.uploadDate,
-        duration: fields.duration,
-        problems: `VideoObject${summary ? ` · ${summary}` : ""}`,
-        label: "VideoObject detectado"
-      });
-    };
-    const visit = (node, script) => {
-      if (!node) return;
-      if (Array.isArray(node)) {
-        node.forEach(child => visit(child, script));
-        return;
-      }
-      if (typeof node !== "object") return;
-      const type = node["@type"];
-      const types = Array.isArray(type) ? type : [type].filter(Boolean);
-      if (types.some(value => String(value).toLowerCase().includes("videoobject"))) {
-        emit(script, node, rows.length);
-      }
-      if (node["@graph"]) visit(node["@graph"], script);
-      Object.keys(node).forEach(key => {
-        if (key === "@context" || key === "@type" || key === "@graph") return;
-        const value = node[key];
-        if (value && typeof value === "object") visit(value, script);
-      });
-    };
-    scripts.forEach(script => {
-      const text = (script.textContent || script.innerText || "").trim();
-      if (!text) return;
-      try {
-        visit(JSON.parse(text), script);
-      } catch (_error) {
-        // Ignore invalid JSON-LD.
-      }
-    });
-    return rows;
-  }
-
   function videoCandidates() {
     const html = htmlSourceText();
     const file = currentHtmlFileName();
     const rows = [];
     const seen = new Set();
-    const pushRow = (item) => {
+    const pushRow = item => {
       const key = `${item.kind}|${item.line}|${item.fragment}`;
       if (seen.has(key)) return;
       seen.add(key);
       rows.push(item);
     };
-    const addElementRow = (el, kind, insertion, target = el, extra = {}) => {
+    const addRow = (el, kind, insertion, extra = {}) => {
       const info = sourceInfoForElement(el, html);
-      const href = el.getAttribute && el.getAttribute('href');
-      const src = el.getAttribute && el.getAttribute('src');
-      const poster = el.getAttribute && el.getAttribute('poster');
-      const fragment = extra.fragment || sourceFragment(html, html.indexOf(el.outerHTML || ''), Math.min((el.outerHTML || '').length + 60, 240)) || (el.outerHTML || '').replace(/\s+/g, ' ').trim();
+      const raw = el.outerHTML || '';
+      const fragment = extra.fragment || sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 80, 260)) || raw.replace(/\s+/g, ' ').trim();
       const item = {
         kind,
         file,
         line: info.line,
         fragment,
         insertion,
-        target,
         element: el,
-        href,
-        src,
-        poster,
+        target: el,
+        href: el.getAttribute ? el.getAttribute('href') : '',
+        src: el.getAttribute ? el.getAttribute('src') : '',
+        poster: el.getAttribute ? el.getAttribute('poster') : '',
         hasControls: kind === 'video' ? el.hasAttribute('controls') : false,
         hasAutoplay: kind === 'video' ? el.hasAttribute('autoplay') : false,
         hasMuted: kind === 'video' ? el.hasAttribute('muted') : false,
@@ -3295,12 +3170,12 @@
     };
 
     pageElements('video,video-cover').forEach(video => {
-      addElementRow(video, 'video', '<video>', video, {
+      addRow(video, 'video', '<video>', {
         severity: video.hasAttribute('controls') && video.querySelector("track[kind='captions'],track[kind='subtitles']") ? 'warn' : 'error'
       });
       if (video.hasAttribute('poster')) {
         const poster = video.getAttribute('poster');
-        addElementRow(video, 'poster', 'Atributo poster en <video>', video, {
+        addRow(video, 'poster', 'Atributo poster en <video>', {
           fragment: `poster="${poster}"`,
           severity: 'warn',
           problems: `Poster: ${poster}. No sustituye subtítulos ni transcripción.`,
@@ -3308,18 +3183,15 @@
         });
       }
       video.querySelectorAll('source').forEach(source => {
-        addElementRow(source, 'source', 'Hijo <source> de <video>', video, {
+        addRow(source, 'source', 'Hijo <source> de <video>', {
           severity: 'warn'
         });
       });
       video.querySelectorAll('track').forEach(track => {
-        addElementRow(track, 'track', 'Hijo <track> de <video>', video, {
+        addRow(track, 'track', 'Hijo <track> de <video>', {
           severity: track.getAttribute('kind') === 'captions' || track.getAttribute('kind') === 'subtitles' ? 'ok' : 'warn',
           trackKind: track.getAttribute('kind') || '',
-          problems: videoIssueText({
-            kind: 'track',
-            trackKind: track.getAttribute('kind') || ''
-          })
+          problems: videoIssueText({ kind: 'track', trackKind: track.getAttribute('kind') || '' })
         });
       });
     });
@@ -3328,22 +3200,26 @@
       rawVideoTagCandidates(html).forEach(pushRow);
     }
 
-    videoDirectAttributeCandidates(html).forEach(pushRow);
-    videoStructuredDataCandidates(html).forEach(pushRow);
-
-    pageElements('a[href]').forEach(link => {
-      const href = link.getAttribute('href') || '';
-      if (videoFileLink(href)) {
-        addElementRow(link, 'link', 'Enlace a archivo de vídeo', link, {
-          severity: /descargar|download/i.test(textValue(link)) ? 'warn' : 'warn',
-          fragment: sourceFragment(html, html.indexOf(link.outerHTML || ''), Math.min((link.outerHTML || '').length + 60, 240))
-        });
+    pageElements('iframe,embed,object').forEach(el => {
+      if (el.closest(`#${PANEL_ID}`)) return;
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'iframe') {
+        if (!iframeHasMedia(el, 'video')) return;
+        addRow(el, 'iframe', 'iframe con vídeo', { severity: 'warn', problems: 'Vídeo incrustado en iframe. Comprueba título accesible, controles y subtítulos del reproductor.' });
+        return;
       }
+      const attrText = mediaAttrText(el);
+      if (!videoFileLink(attrText) && !/^video\//i.test(attrText) && !/<video\b/i.test(attrText)) return;
+      addRow(el, tag === 'embed' ? 'embed' : 'object', `Contenedor <${tag}> con vídeo`, {
+        severity: 'warn',
+        problems: tag === 'embed'
+          ? 'Vídeo incrustado con embed. Comprueba título accesible, controles y alternativa textual.'
+          : 'Vídeo incrustado con object. Comprueba alternativa accesible, título y controles.'
+      });
     });
 
     return rows;
   }
-
 
   function isVideoLike(el, html = htmlSourceText()) {
     if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
@@ -3364,135 +3240,6 @@
     return !!el.closest('[data-video-detected], [data-detected-type="video"], [data-media-type="video"], .video-detected, .detected-video');
   }
 
-
-  function audioDirectAttributeCandidates(html) {
-    const rows = [];
-    const seen = new Set();
-    const pushRow = item => {
-      const key = `${item.kind}|${item.line}|${item.fragment}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push(item);
-    };
-    const audioPattern = /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mid|midi)(?:[?#]|$)/i;
-    const candidates = [...document.querySelectorAll("audio[src],source[src],script[src],script[data-src],script[data-audio],script[data-url],script[data-file],script[data-media],script[data-track],script[data-player],iframe,[data-src],[data-audio],[data-url],[data-file],[data-media],[data-track],[data-player],a[href]")]
-      .filter(el => !el.closest(`#${PANEL_ID}`));
-    candidates.forEach(el => {
-      const tag = el.tagName.toLowerCase();
-      if (tag === "iframe" && !iframeHasMedia(el, "audio")) return;
-      if (tag === "iframe" || tag === "embed" || tag === "object") {
-        if (!iframeHasMedia(el, "audio")) return;
-      }
-      if (isVideoLike(el, html)) return;
-      const attrs = ["src", "href", "data-src", "data-audio", "data-url", "data-file", "data-media", "data-track", "data-player"];
-      const values = attrs.map(name => ({ name, value: el.getAttribute && el.getAttribute(name) || "" })).filter(item => item.value);
-      if (!values.length) return;
-      const matches = values.filter(item => audioPattern.test(item.value) || /^audio\//i.test(item.value));
-      if (!matches.length) return;
-      const best = matches[0];
-      const kind = tag === "source" ? "source" : tag === "audio" ? "audio" : tag === "script" ? "link" : "link";
-      const info = sourceInfoForElement(el, html);
-      const raw = el.outerHTML || "";
-      const fragment = sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 60, 240)) || raw.replace(/\s+/g, " ").trim();
-      pushRow({
-        kind,
-        file: currentHtmlFileName(),
-        line: info.line,
-        fragment,
-        insertion: `Atributo ${best.name} en <${tag}>`,
-        target: el,
-        element: el,
-        href: el.getAttribute ? el.getAttribute("href") : "",
-        src: el.getAttribute ? el.getAttribute("src") : "",
-        severity: "warn",
-        problems: `Atributo ${best.name} relacionado con audio (${best.value}). Comprueba controles, formato y alternativa textual.`,
-        label: "Posible audio detectado"
-      });
-    });
-    return rows;
-  }
-
-  function audioStructuredDataCandidates(html) {
-    const rows = [];
-    const seen = new Set();
-    const pushRow = item => {
-      const key = `${item.kind}|${item.line}|${item.fragment}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push(item);
-    };
-    const scripts = [...document.querySelectorAll("script[type='application/ld+json']")].filter(el => !el.closest(`#${PANEL_ID}`));
-    const audioTypes = new Set(["audioobject", "podcastepisode", "musicrecording", "musicalbum", "radioepisode"]);
-    const emit = (script, obj) => {
-      const fields = {
-        name: obj.name || obj.headline || obj.caption || "",
-        description: obj.description || "",
-        contentUrl: obj.contentUrl || obj.url || "",
-        embedUrl: obj.embedUrl || "",
-        encodingFormat: obj.encodingFormat || "",
-        duration: obj.duration || "",
-        transcript: obj.transcript || ""
-      };
-      const summary = [
-        fields.name ? `name=${fields.name}` : "",
-        fields.contentUrl ? `contentUrl=${fields.contentUrl}` : "",
-        fields.embedUrl ? `embedUrl=${fields.embedUrl}` : "",
-        fields.encodingFormat ? `encodingFormat=${fields.encodingFormat}` : "",
-        fields.duration ? `duration=${fields.duration}` : "",
-        fields.transcript ? `transcript=${fields.transcript}` : ""
-      ].filter(Boolean).join(" · ");
-      const info = sourceInfoForElement(script, html);
-      pushRow({
-        kind: "schema",
-        file: currentHtmlFileName(),
-        line: info.line,
-        fragment: summary || sourceFragment(html, html.indexOf(script.outerHTML || ""), 240) || (script.outerHTML || "").replace(/\s+/g, " ").trim(),
-        insertion: "Metadatos estructurados JSON-LD AudioObject",
-        target: script,
-        element: script,
-        severity: "warn",
-        name: fields.name,
-        description: fields.description,
-        contentUrl: fields.contentUrl,
-        embedUrl: fields.embedUrl,
-        encodingFormat: fields.encodingFormat,
-        duration: fields.duration,
-        transcript: fields.transcript,
-        problems: `AudioObject${summary ? ` · ${summary}` : ""}`,
-        label: "AudioObject detectado"
-      });
-    };
-    const visit = (node, script) => {
-      if (!node) return;
-      if (Array.isArray(node)) {
-        node.forEach(child => visit(child, script));
-        return;
-      }
-      if (typeof node !== "object") return;
-      const type = node["@type"];
-      const types = Array.isArray(type) ? type : [type].filter(Boolean);
-      if (types.some(value => audioTypes.has(String(value).toLowerCase()))) {
-        emit(script, node);
-      }
-      if (String(type || "").toLowerCase().includes("videoobject")) return;
-      if (node["@graph"]) visit(node["@graph"], script);
-      Object.keys(node).forEach(key => {
-        if (key === "@context" || key === "@type" || key === "@graph") return;
-        const value = node[key];
-        if (value && typeof value === "object") visit(value, script);
-      });
-    };
-    scripts.forEach(script => {
-      const text = (script.textContent || script.innerText || "").trim();
-      if (!text) return;
-      try {
-        visit(JSON.parse(text), script);
-      } catch (_error) {
-        // Ignore invalid JSON-LD.
-      }
-    });
-    return rows;
-  }
 
   function audioAttrText(el) {
     const className = typeof el.className === "string" ? el.className : (el.getAttribute("class") || "");
@@ -3553,18 +3300,17 @@
     const file = currentHtmlFileName();
     const rows = [];
     const seen = new Set();
-    const pushRow = (item) => {
+    const pushRow = item => {
       const key = `${item.kind}|${item.line}|${item.fragment}`;
       if (seen.has(key)) return;
       seen.add(key);
       rows.push(item);
     };
-    const all = selector => [...document.querySelectorAll(selector)].filter(el => !el.closest(`#${PANEL_ID}`));
     const addRow = (el, kind, insertion, extra = {}) => {
       if (isVideoLike(el, html) || isAlreadyMarkedAsVideo(el)) return;
-      const raw = el.outerHTML || "";
+      const raw = el.outerHTML || '';
       const info = sourceInfoForElement(el, html);
-      const fragment = extra.fragment || sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 80, 260)) || raw.replace(/\s+/g, " ").trim();
+      const fragment = extra.fragment || sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 80, 260)) || raw.replace(/\s+/g, ' ').trim();
       const item = {
         kind,
         file,
@@ -3573,66 +3319,46 @@
         insertion,
         element: el,
         target: el,
-        src: el.getAttribute ? el.getAttribute("src") : "",
-        type: el.getAttribute ? el.getAttribute("type") : "",
-        provider: extra.provider || "",
-        hasControls: el.hasAttribute ? el.hasAttribute("controls") : false,
-        hasAutoplay: el.hasAttribute ? el.hasAttribute("autoplay") : false,
-        hasMuted: el.hasAttribute ? el.hasAttribute("muted") : false,
-        hasLoop: el.hasAttribute ? el.hasAttribute("loop") : false,
-        hasPreload: el.hasAttribute ? el.hasAttribute("preload") : false,
-        preload: el.getAttribute ? (el.getAttribute("preload") || "") : "",
-        hasCrossorigin: el.hasAttribute ? el.hasAttribute("crossorigin") : false,
-        crossorigin: el.getAttribute ? (el.getAttribute("crossorigin") || "") : "",
-        hasLabel: !!(el.getAttribute && (el.getAttribute("aria-label") || el.getAttribute("aria-labelledby") || el.getAttribute("title"))),
-        severity: extra.severity || "warn"
+        src: el.getAttribute ? el.getAttribute('src') : '',
+        type: el.getAttribute ? el.getAttribute('type') : '',
+        provider: extra.provider || '',
+        hasControls: el.hasAttribute ? el.hasAttribute('controls') : false,
+        hasAutoplay: el.hasAttribute ? el.hasAttribute('autoplay') : false,
+        hasMuted: el.hasAttribute ? el.hasAttribute('muted') : false,
+        hasLoop: el.hasAttribute ? el.hasAttribute('loop') : false,
+        hasPreload: el.hasAttribute ? el.hasAttribute('preload') : false,
+        preload: el.getAttribute ? (el.getAttribute('preload') || '') : '',
+        hasCrossorigin: el.hasAttribute ? el.hasAttribute('crossorigin') : false,
+        crossorigin: el.getAttribute ? (el.getAttribute('crossorigin') || '') : '',
+        hasLabel: !!(el.getAttribute && (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.getAttribute('title'))),
+        severity: extra.severity || 'warn'
       };
       item.problems = extra.problems || audioIssueText(item);
       pushRow(item);
     };
 
-    all("audio").forEach(audio => {
+    all('audio').forEach(audio => {
       if (isVideoLike(audio, html) || isAlreadyMarkedAsVideo(audio)) return;
-      addRow(audio, "audio", "<audio>", {
-        severity: audio.hasAttribute("controls") ? "warn" : "error"
+      addRow(audio, 'audio', '<audio>', {
+        severity: audio.hasAttribute('controls') ? 'warn' : 'error'
       });
-      audio.querySelectorAll("source").forEach(source => {
-        const src = source.getAttribute("src") || "";
-        const type = source.getAttribute("type") || "";
+      audio.querySelectorAll('source').forEach(source => {
+        const src = source.getAttribute('src') || '';
+        const type = source.getAttribute('type') || '';
         const invalidType = type && !/^audio\//i.test(type);
-        addRow(source, "source", "Hijo <source> de <audio>", {
-          severity: invalidType || !src ? "error" : "warn",
-          problems: audioIssueText({ kind: "source", src, type }),
-          fragment: source.outerHTML.replace(/\s+/g, " ").trim()
-        });
+        if (invalidType || src) {
+          addRow(source, 'source', 'Hijo <source> de <audio>', {
+            severity: invalidType || !src ? 'error' : 'warn',
+            problems: audioIssueText({ kind: 'source', src, type }),
+            fragment: source.outerHTML.replace(/\s+/g, ' ').trim()
+          });
+        }
       });
-      const text = audioAttrText(audio);
-      if (/(transcrip|transcript|descripci[oó]n)/.test(text)) {
-        addRow(audio, "accessibility", "Referencia a accesibilidad en <audio>", {
-          severity: "warn",
-          problems: audioIssueText({ kind: "accessibility" }),
-          fragment: audio.outerHTML.replace(/\s+/g, " ").trim()
-        });
-      }
     });
 
     if (!rows.some(item => item.kind === 'audio') && /<audio\b/i.test(html)) {
       rawAudioTagCandidates(html).forEach(pushRow);
     }
-
-    audioDirectAttributeCandidates(html).forEach(pushRow);
-    audioStructuredDataCandidates(html).forEach(pushRow);
-
-    all("a[href]").forEach(link => {
-      const href = link.getAttribute("href") || "";
-      if (!isVideoLike(link, html) && /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mid|midi)(?:[?#]|$)/i.test(href)) {
-        addRow(link, "link", "Enlace directo a audio", {
-          severity: /download/i.test(audioAttrText(link)) ? "warn" : "warn",
-          fragment: link.outerHTML.replace(/\s+/g, " ").trim(),
-          problems: audioIssueText({ kind: "link" })
-        });
-      }
-    });
 
     return rows;
   }
