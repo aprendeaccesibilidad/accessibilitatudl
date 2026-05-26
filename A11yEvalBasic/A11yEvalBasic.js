@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "432";
+  const BUILD = "434";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -3049,7 +3049,7 @@
       seen.add(key);
       rows.push(item);
     };
-    const regex = /<video\b/gi;
+    const regex = /<(video|video-cover)\b/gi;
     let match;
     while ((match = regex.exec(html))) {
       const index = match.index;
@@ -3062,7 +3062,7 @@
         file: currentHtmlFileName(),
         line: sourceLineNumber(html, index),
         fragment: sourceFragment(html, index, Math.min(snippet.length + 60, 240)) || snippet,
-        insertion: 'Etiqueta <video> detectada en el HTML fuente bruto',
+        insertion: 'Etiqueta <video> o <video-cover> detectada en el HTML fuente bruto',
         target: null,
         element: null,
         href: '',
@@ -3072,7 +3072,7 @@
         hasCaptions: /<track\b[^>]*\bkind\s*=\s*["']?(captions|subtitles)["']?/i.test(html.slice(index, Math.min(html.length, index + 1200))),
         trackKind: '',
         severity: /\bcontrols\b/i.test(fragment) ? 'warn' : 'error',
-        problems: 'Etiqueta <video> detectada en el HTML fuente bruto. Comprueba controles, subtítulos y transcripción.',
+        problems: 'Etiqueta <video> o <video-cover> detectada en el HTML fuente bruto. Comprueba controles, subtítulos y transcripción.',
         label: 'Vídeo detectado en HTML bruto',
         rawFallback: true
       });
@@ -3290,7 +3290,7 @@
       pushRow(item);
     };
 
-    pageElements('video').forEach(video => {
+    pageElements('video,video-cover').forEach(video => {
       addElementRow(video, 'video', '<video>', video, {
         severity: video.hasAttribute('controls') && video.querySelector("track[kind='captions'],track[kind='subtitles']") ? 'warn' : 'error'
       });
@@ -3320,7 +3320,7 @@
       });
     });
 
-    if (!rows.some(item => item.kind === 'video') && /<video\b/i.test(html)) {
+    if (!rows.some(item => item.kind === 'video') && /<(video|video-cover)\b/i.test(html)) {
       rawVideoTagCandidates(html).forEach(pushRow);
     }
 
@@ -3350,8 +3350,8 @@
     if (tag === "iframe" && iframeHasMedia(el, "video")) return true;
     if (/\.(mp4|webm|ogv|m3u8|mpd)(?:[?#]|$)/i.test(mediaAttrText(el))) return true;
     if (/videoobject/i.test(mediaAttrText(el))) return true;
-    if (/<video/i.test(raw)) return true;
-    if (html && /<video/i.test(html) && html.indexOf(raw) >= 0) return true;
+    if (/<(video|video-cover)\b/i.test(raw)) return true;
+    if (html && /<(video|video-cover)\b/i.test(html) && html.indexOf(raw) >= 0) return true;
     return false;
   }
 
@@ -4130,7 +4130,7 @@
           if (item.severity === "error") issues += 1;
           const target = item.target || item.element;
           if (state.videoVisible && target && !highlighted.has(target)) {
-            const label = mark(target, `${item.kind === "poster" ? "Poster" : "Vídeo"} localizado`, item.severity === "error" ? "error" : "warn", "media");
+            const label = mark(target, `${item.kind === "poster" ? "Poster" : "Vídeo"} localizado`, "warn", "media");
             if (label) {
               label.dataset.apcfMediaPlacement = "below";
               positionLabel(label);
@@ -4171,7 +4171,7 @@
             const target = item.target || item.element;
             if (!target) return;
             const label = item.kind === "poster" ? "Poster" : `Vídeo ${item.kind}`;
-            revealElement(target, `${label} · línea ${item.line || "?"}`, item.severity === "error" ? "error" : "warn", {
+            revealElement(target, `${label} · línea ${item.line || "?"}`, "warn", {
               detail: [
                 `Archivo: ${item.file}`,
                 `Línea: ${item.line || "?"}`,
