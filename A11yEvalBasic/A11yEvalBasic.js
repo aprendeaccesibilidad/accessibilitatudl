@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "446";
+  const BUILD = "448";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -159,7 +159,8 @@
     summaryFloatingPosition: null,
     grayscale: false,
     panelCollapsed: false,
-    pageSourceHtml: ""
+    pageSourceHtml: "",
+    mediaSourceHtmlCache: new Map()
   };
 
   function syncPanelWidth() {
@@ -2995,6 +2996,33 @@
     }
   }
 
+  async function prefetchIframeSourceHtml() {
+    const iframes = pageElements("iframe");
+    const tasks = iframes.map(async iframe => {
+      const srcdoc = iframe.getAttribute ? (iframe.getAttribute("srcdoc") || "") : "";
+      if (srcdoc) return;
+      const src = iframe.getAttribute ? (iframe.getAttribute("src") || "") : "";
+      if (!src) return;
+      let abs;
+      try {
+        abs = new URL(src, location.href).href;
+      } catch (_error) {
+        return;
+      }
+      if (new URL(abs).origin !== location.origin) return;
+      if (state.mediaSourceHtmlCache.has(abs)) return;
+      try {
+        const response = await fetch(abs, { credentials: "same-origin", cache: "no-store" });
+        if (!response.ok) return;
+        const html = await response.text();
+        if (html) state.mediaSourceHtmlCache.set(abs, html);
+      } catch (_error) {
+        /* ignore */
+      }
+    });
+    await Promise.allSettled(tasks);
+  }
+
   function sourceLineNumber(html, index) {
     if (index < 0) return "";
     return html.slice(0, index).split("\n").length;
@@ -3464,7 +3492,7 @@
         el.getAttribute('data-track'),
         el.getAttribute('data-player')
       ].filter(Boolean).join(' ');
-      const looksAudio = audioFileLink(src) || /^audio\//i.test(attrText) || /audioobject|podcastepisode|musicrecording|musicalbum|radioepisode/i.test(attrText) || /<audio\b/i.test(raw);
+      const looksAudio = audioFileLink(src) || /^audio\//i.test(attrText) || /audioobject|podcastepisode|musicrecording|musicalbum|radioepisode/i.test(attrText) || /<audio/i.test(raw);
       if (!looksAudio) return;
       addRow(el, 'audio', 'Posible audio en atributos', {
         severity: 'warn',
@@ -3472,7 +3500,25 @@
       });
     });
 
-    if (!rows.some(item => item.kind === 'audio') && /<audio\b/i.test(html)) {
+    pageElements('iframe,embed,object').forEach(el => {
+      if (el.closest('video,video-cover')) return;
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'iframe') {
+        if (!iframeHasMedia(el, 'audio')) return;
+        addRow(el, 'iframe', 'iframe con audio', { severity: 'warn', problems: 'Audio incrustado en iframe. Comprueba título accesible, controles y transcripción.' });
+        return;
+      }
+      const attrText = audioAttrText(el);
+      if (!audioFileLink(attrText) && !/^audio\//i.test(attrText) && !/<audio/i.test(attrText)) return;
+      addRow(el, tag === 'embed' ? 'embed' : 'object', `Contenedor <${tag}> con audio`, {
+        severity: 'warn',
+        problems: tag === 'embed'
+          ? 'Audio incrustado con embed. Comprueba título accesible, controles y alternativa textual.'
+          : 'Audio incrustado con object. Comprueba alternativa accesible, título y controles.'
+      });
+    });
+
+    if (!rows.some(item => item.kind === 'audio') && /<audio/i.test(html)) {
       rawAudioTagCandidates(html).forEach(pushRow);
     }
 
@@ -3935,16 +3981,6 @@
             ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Problemas"]) : ""}
             ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
           `, { summary: "Audio", summaryDetail: "Observa si en el audio hay una transcripción textual.", summaryResult });
-          if (findings.length) {
-            requestAnimationFrame(() => {
-              const first = findings[0];
-              const focusTarget = first.target || first.element;
-              if (focusTarget) {
-                try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
-                try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
-              }
-            });
-          }
           box.querySelectorAll("[data-apcf-show-media]").forEach(button => {
             button.addEventListener("click", () => {
               const item = findings[Number(button.dataset.apcfShowMedia)];
@@ -4253,6 +4289,11 @@
       if (!html) return;
       state.pageSourceHtml = html;
       if (document.getElementById(PANEL_ID) && (state.active.has("video") || state.active.has("audio"))) {
+        refreshVisuals();
+      }
+    });
+    prefetchIframeSourceHtml().then(() => {
+      if (document.getElementById(PANEL_ID) && state.active.has("video")) {
         refreshVisuals();
       }
     });
