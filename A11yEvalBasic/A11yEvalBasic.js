@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "423";
+  const BUILD = "427";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -2931,6 +2931,11 @@
       el.getAttribute("title"),
       el.getAttribute("aria-label"),
       el.getAttribute("role"),
+      el.getAttribute("poster"),
+      el.getAttribute("playsinline"),
+      el.getAttribute("data-src"),
+      el.getAttribute("data-video"),
+      el.getAttribute("data-url"),
       el.getAttribute("data-player"),
       el.getAttribute("data-testid")
     ].filter(Boolean).join(" ").toLowerCase();
@@ -3045,7 +3050,7 @@
   }
 
   function videoFileLink(href) {
-    return /\.(mp4|webm|ogg)(?:[?#]|$)/i.test(href || "");
+    return /\.(mp4|webm|ogg|m3u8|mpd)(?:[?#]|$)/i.test(href || "");
   }
 
   function iframeHasMedia(iframe, selector) {
@@ -3073,10 +3078,18 @@
 
   function videoIssueText(item) {
     switch (item.kind) {
-      case "video":
-        return item.hasControls
-          ? (item.hasCaptions ? "Vídeo nativo con controles y pista de subtítulos." : "Vídeo nativo con controles. Comprueba subtítulos o transcripción.")
-          : (item.hasCaptions ? "Vídeo nativo sin controles visibles. Comprueba controles accesibles." : "Vídeo nativo sin controles visibles ni pista de subtítulos.");
+      case "video": {
+        const parts = [
+          item.hasControls ? "Vídeo nativo con controls." : "Vídeo nativo sin controls visibles.",
+          item.hasAutoplay ? "autoplay detectado." : "",
+          item.hasMuted ? "muted detectado." : "",
+          item.hasPlaysinline ? "playsinline detectado." : "",
+          item.hasCaptions ? "Pista de subtítulos o captions detectada." : "Comprueba subtítulos o transcripción.",
+          item.src ? `src=${item.src}` : "",
+          item.poster ? `poster=${item.poster}` : ""
+        ].filter(Boolean);
+        return parts.join(" ");
+      }
       case "source":
         return "Elemento <source> dentro de <video>. Comprueba que el vídeo conserve controles y subtítulos.";
       case "track":
@@ -3093,6 +3106,10 @@
         return "Vídeo incrustado con object. Comprueba alternativa accesible, título y controles.";
       case "link":
         return "Enlace a archivo de vídeo. Comprueba que informe del formato y que el contenido tenga alternativa textual.";
+      case "schema":
+        return `VideoObject detectado${item.name ? `: ${item.name}` : ""}${item.contentUrl ? ` · contentUrl=${item.contentUrl}` : ""}${item.embedUrl ? ` · embedUrl=${item.embedUrl}` : ""}`;
+      case "clue":
+        return `Possible video clue${item.cluePhrase ? `: ${item.cluePhrase}` : ""}. Trata esta coincidencia como pista textual de prioridad baja.`;
       default:
         return "Posible vídeo detectado. Comprueba controles, subtítulos y alternativa textual.";
     }
@@ -3184,6 +3201,185 @@
     return rows;
   }
 
+  function videoDirectAttributeCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const providerPattern = /youtube|youtu\.be|vimeo|wistia|brightcove|panopto|loom|player|embed|video/i;
+    const candidates = [...document.querySelectorAll("a[href],source[src],script[src],script[data-src],script[data-video],script[data-url],script[data-player],iframe[src],iframe[title],iframe[aria-label],iframe[class],iframe[id],embed[src],object[data],[data-src],[data-video],[data-url],[data-player]")]
+      .filter(el => !el.closest(`#${PANEL_ID}`));
+    candidates.forEach(el => {
+      const tag = el.tagName.toLowerCase();
+      const attrNames = ["src", "href", "data-src", "data-video", "data-url", "data-player", "data-media", "data-video-src"];
+      const values = attrNames.map(name => ({ name, value: el.getAttribute && el.getAttribute(name) || "" })).filter(item => item.value);
+      if (!values.length) return;
+      const matches = values.filter(item => videoFileLink(item.value) || providerPattern.test(item.value));
+      const text = mediaAttrText(el);
+      const isIframeClue = tag === "iframe" && providerPattern.test(text);
+      if (!matches.length && !isIframeClue) return;
+      const best = matches[0] || values[0];
+      const kind = tag === "iframe" ? "iframe" : tag === "embed" ? "embed" : tag === "object" ? "object" : tag === "source" ? "link" : "link";
+      const info = sourceInfoForElement(el, html);
+      const fragment = sourceFragment(html, html.indexOf(el.outerHTML || ""), Math.min((el.outerHTML || "").length + 60, 240)) || (el.outerHTML || "").replace(/\s+/g, " ").trim();
+      pushRow({
+        kind,
+        file: currentHtmlFileName(),
+        line: info.line,
+        fragment,
+        insertion: isIframeClue ? "iframe con señales de vídeo" : `Atributo ${best.name} en <${tag}>`,
+        target: el,
+        element: el,
+        href: el.getAttribute ? el.getAttribute("href") : "",
+        src: el.getAttribute ? el.getAttribute("src") : "",
+        poster: el.getAttribute ? el.getAttribute("poster") : "",
+        severity: "warn",
+        problems: isIframeClue
+          ? `Pista de iframe relacionada con vídeo (${best.name}: ${best.value}). Comprueba controles, subtítulos y título accesible.`
+          : `Atributo ${best.name} relacionado con vídeo (${best.value}). Comprueba que el recurso tenga controles, subtítulos y alternativa textual.`,
+        label: "Posible vídeo detectado"
+      });
+    });
+    return rows;
+  }
+
+  function videoStructuredDataCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const scripts = [...document.querySelectorAll("script[type='application/ld+json']")].filter(el => !el.closest(`#${PANEL_ID}`));
+    const emit = (script, obj, index) => {
+      const fields = {
+        name: obj.name || obj.headline || obj.caption || "",
+        description: obj.description || "",
+        contentUrl: obj.contentUrl || obj.url || obj.embedUrl || "",
+        embedUrl: obj.embedUrl || "",
+        thumbnailUrl: obj.thumbnailUrl || "",
+        uploadDate: obj.uploadDate || "",
+        duration: obj.duration || ""
+      };
+      const summary = [
+        fields.name ? `name=${fields.name}` : "",
+        fields.contentUrl ? `contentUrl=${fields.contentUrl}` : "",
+        fields.embedUrl ? `embedUrl=${fields.embedUrl}` : "",
+        fields.thumbnailUrl ? `thumbnailUrl=${fields.thumbnailUrl}` : "",
+        fields.uploadDate ? `uploadDate=${fields.uploadDate}` : "",
+        fields.duration ? `duration=${fields.duration}` : ""
+      ].filter(Boolean).join(" · ");
+      const info = sourceInfoForElement(script, html);
+      pushRow({
+        kind: "schema",
+        file: currentHtmlFileName(),
+        line: info.line,
+        fragment: summary || sourceFragment(html, html.indexOf(script.outerHTML || ""), 240) || (script.outerHTML || "").replace(/\s+/g, " ").trim(),
+        insertion: "Metadatos estructurados JSON-LD VideoObject",
+        target: script,
+        element: script,
+        severity: "warn",
+        name: fields.name,
+        description: fields.description,
+        contentUrl: fields.contentUrl,
+        embedUrl: fields.embedUrl,
+        thumbnailUrl: fields.thumbnailUrl,
+        uploadDate: fields.uploadDate,
+        duration: fields.duration,
+        problems: `VideoObject${summary ? ` · ${summary}` : ""}`,
+        label: "VideoObject detectado"
+      });
+    };
+    const visit = (node, script) => {
+      if (!node) return;
+      if (Array.isArray(node)) {
+        node.forEach(child => visit(child, script));
+        return;
+      }
+      if (typeof node !== "object") return;
+      const type = node["@type"];
+      const types = Array.isArray(type) ? type : [type].filter(Boolean);
+      if (types.some(value => String(value).toLowerCase().includes("videoobject"))) {
+        emit(script, node, rows.length);
+      }
+      if (node["@graph"]) visit(node["@graph"], script);
+      Object.keys(node).forEach(key => {
+        if (key === "@context" || key === "@type" || key === "@graph") return;
+        const value = node[key];
+        if (value && typeof value === "object") visit(value, script);
+      });
+    };
+    scripts.forEach(script => {
+      const text = (script.textContent || script.innerText || "").trim();
+      if (!text) return;
+      try {
+        visit(JSON.parse(text), script);
+      } catch (_error) {
+        // Ignore invalid JSON-LD.
+      }
+    });
+    return rows;
+  }
+
+  function videoTextClueCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const clues = [
+      { label: "subtitles", regex: /subtitles?/i },
+      { label: "captions", regex: /captions?/i },
+      { label: "transcript", regex: /transcript/i },
+      { label: "watch the video", regex: /watch the video/i },
+      { label: "tap to unmute", regex: /tap to unmute/i },
+      { label: "your browser can't play this video", regex: /your browser can'?t play this video/i },
+      { label: "recording", regex: /recording/i },
+      { label: "webinar", regex: /webinar/i },
+      { label: "video", regex: /videos?/i }
+    ];
+    const candidates = visibleElements("p,li,a,button,figcaption,span,div,section,article,h1,h2,h3,h4,h5,h6,td,th,strong,em")
+      .filter(el => !el.closest("nav,footer,header,aside,[role='navigation']"))
+      .filter(el => textValue(el).length > 0);
+    const used = new Set();
+    clues.forEach(clue => {
+      const matches = candidates.filter(el => clue.regex.test(textValue(el)));
+      if (!matches.length) return;
+      const scored = matches.map(el => {
+        const rect = el.getBoundingClientRect();
+        return { el, area: Math.max(1, Math.round(rect.width * rect.height)), len: textValue(el).length };
+      }).sort((a, b) => a.area - b.area || a.len - b.len);
+      const chosen = scored.find(item => !used.has(item.el));
+      if (!chosen) return;
+      used.add(chosen.el);
+      const info = sourceInfoForElement(chosen.el, html);
+      const snippet = sourceFragment(html, html.indexOf(chosen.el.outerHTML || ""), Math.min((chosen.el.outerHTML || "").length + 60, 240)) || textValue(chosen.el).slice(0, 240);
+      pushRow({
+        kind: "clue",
+        file: currentHtmlFileName(),
+        line: info.line,
+        fragment: snippet,
+        insertion: "Pista textual de vídeo",
+        target: chosen.el,
+        element: chosen.el,
+        severity: "warn",
+        cluePhrase: clue.label,
+        problems: `Possible video clue: ${clue.label}. Prioridad baja; comprueba si realmente refiere a un vídeo.`,
+        label: "Possible video clue"
+      });
+    });
+    return rows;
+  }
+
   function videoCandidates() {
     const html = htmlSourceText();
     const file = currentHtmlFileName();
@@ -3213,6 +3409,9 @@
         src,
         poster,
         hasControls: kind === 'video' ? el.hasAttribute('controls') : false,
+        hasAutoplay: kind === 'video' ? el.hasAttribute('autoplay') : false,
+        hasMuted: kind === 'video' ? el.hasAttribute('muted') : false,
+        hasPlaysinline: kind === 'video' ? el.hasAttribute('playsinline') : false,
         hasCaptions: kind === 'video' ? !!el.querySelector("track[kind='captions'],track[kind='subtitles']") : false,
         trackKind: extra.trackKind || '',
         severity: extra.severity || 'warn'
@@ -3279,6 +3478,10 @@
       rawVideoTagCandidates(html).forEach(pushRow);
     }
 
+    videoDirectAttributeCandidates(html).forEach(pushRow);
+    videoStructuredDataCandidates(html).forEach(pushRow);
+    videoTextClueCandidates(html).forEach(pushRow);
+
     pageElements('a[href]').forEach(link => {
       const href = link.getAttribute('href') || '';
       if (videoFileLink(href)) {
@@ -3290,6 +3493,31 @@
     });
 
     return rows;
+  }
+
+
+  function isVideoLike(el, html = htmlSourceText()) {
+    if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
+    if (el.closest(`#${PANEL_ID}`)) return false;
+    const tag = el.tagName.toLowerCase();
+    const text = mediaAttrText(el);
+    const raw = el.outerHTML || "";
+    const iframePattern = /youtube|youtu\.be|vimeo|wistia|brightcove|panopto|loom|player\.vimeo\.com|youtube\.com\/embed|embed|video/i;
+    if (tag === "video") return true;
+    if (tag === "iframe" || tag === "embed" || tag === "object") {
+      if (iframePattern.test(text)) return true;
+    }
+    if (/\.(mp4|webm|ogv|m3u8|mpd)(?:[?#]|$)/i.test(text)) return true;
+    if (/videoobject/i.test(text)) return true;
+    if (/\bvideo\b|\bwebinar\b|\bvideo player\b/i.test(text)) return true;
+    if (/<video\b/i.test(raw)) return true;
+    if (html && /<video\b/i.test(html) && html.indexOf(raw) >= 0) return true;
+    return false;
+  }
+
+  function isAlreadyMarkedAsVideo(el) {
+    if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
+    return !!el.closest('[data-video-detected], [data-detected-type="video"], [data-media-type="video"], .video-detected, .detected-video');
   }
 
   function audioAttrText(el) {
@@ -3359,6 +3587,7 @@
     };
     const all = selector => [...document.querySelectorAll(selector)].filter(el => !el.closest(`#${PANEL_ID}`));
     const addRow = (el, kind, insertion, extra = {}) => {
+      if (isVideoLike(el, html) || isAlreadyMarkedAsVideo(el)) return;
       const raw = el.outerHTML || "";
       const info = sourceInfoForElement(el, html);
       const fragment = extra.fragment || sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 80, 260)) || raw.replace(/\s+/g, " ").trim();
@@ -3389,6 +3618,7 @@
     };
 
     all("audio").forEach(audio => {
+      if (isVideoLike(audio, html) || isAlreadyMarkedAsVideo(audio)) return;
       addRow(audio, "audio", "<audio>", {
         severity: audio.hasAttribute("controls") ? "warn" : "error"
       });
@@ -3413,7 +3643,7 @@
     });
 
     pageElements("iframe").forEach(iframe => {
-      if (iframeHasMedia(iframe, "audio")) {
+      if (iframeHasMedia(iframe, "audio") && !iframeHasMedia(iframe, "video") && !isVideoLike(iframe, html)) {
         addRow(iframe, "iframe", "iframe con audio dentro", {
           severity: "warn",
           problems: "Iframe con contenido real de audio detectado. Comprueba controles, transcripción, título accesible y alternativa textual."
@@ -3425,16 +3655,20 @@
       rawAudioTagCandidates(html).forEach(pushRow);
     }
 
+    audioDirectAttributeCandidates(html).forEach(pushRow);
+    audioStructuredDataCandidates(html).forEach(pushRow);
+    audioTextClueCandidates(html).forEach(pushRow);
+
     all("a[href]").forEach(link => {
       const href = link.getAttribute("href") || "";
       const visible = textValue(link);
-      if (videoFileLink(href) || /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus)(?:[?#]|$)/i.test(href)) {
+      if (!isVideoLike(link, html) && /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mid|midi)(?:[?#]|$)/i.test(href)) {
         addRow(link, "link", "Enlace directo a audio", {
           severity: /download/i.test(audioAttrText(link)) ? "warn" : "warn",
           fragment: link.outerHTML.replace(/\s+/g, " ").trim(),
           problems: audioIssueText({ kind: "link" })
         });
-      } else if ((/play|pause|reproducir|pausar|mute|silenciar|volume|volumen|audio-player|sound|player/.test(audioAttrText(link)) || /play|pause|reproducir|pausar|mute|silenciar|volume|volumen/i.test(visible)) && /audio|sound|player/.test(audioAttrText(link))) {
+      } else if (!isVideoLike(link, html) && ((/play|pause|reproducir|pausar|mute|silenciar|volume|volumen|audio-player|sound|player/.test(audioAttrText(link)) || /play|pause|reproducir|pausar|mute|silenciar|volume|volumen/i.test(visible)) && /audio|sound|player/.test(audioAttrText(link)))) {
         addRow(link, "button", "Control personalizado de audio", {
           severity: "warn",
           problems: audioIssueText({ kind: "button" })
@@ -3443,6 +3677,7 @@
     });
 
     all("button,[role='button'],[aria-label],[aria-labelledby],[title]").forEach(el => {
+      if (isVideoLike(el, html) || isAlreadyMarkedAsVideo(el)) return;
       const text = audioAttrText(el);
       if (/play|pause|reproducir|pausar|mute|silenciar|volume|volumen|audio-player|sound|player/.test(text)) {
         addRow(el, "button", "Control personalizado de audio", {
@@ -3911,14 +4146,6 @@
             ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Problemas"]) : ""}
             ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
           `, { summary: "Audio", summaryDetail: "Observa si en el audio hay una transcripción textual.", summaryResult });
-          if (findings.length) {
-            const first = findings[0];
-            const focusTarget = first.target || first.element;
-            if (focusTarget) {
-              try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
-              try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
-            }
-          }
           box.querySelectorAll("[data-apcf-show-media]").forEach(button => {
             button.addEventListener("click", () => {
               const item = findings[Number(button.dataset.apcfShowMedia)];
@@ -3975,12 +4202,6 @@
         `, { summary: "Vídeo", summaryDetail: "Observa si el video tiene subtítulos y audiodescripción o transcripción.", summaryResult });
         if (findings.length) {
           requestAnimationFrame(() => {
-            const first = findings[0];
-            const focusTarget = first.target || first.element;
-            if (focusTarget) {
-              try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
-              try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
-            }
             updateLabels();
           });
         }
@@ -4089,13 +4310,6 @@
           ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Nombre accesible"]) : ""}
           <div class="apcf-media-list">${items}</div>
         `, { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: `${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`, summaryResultMarkup: issues ? `${escapeHtml(`${fields.length} campo(s) visible(s).`)}<span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${issues} incidencia(s) automática(s).`)}</span>` : "" });
-        const firstField = fields[0];
-        if (firstField) {
-          requestAnimationFrame(() => {
-            try { firstField.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
-            try { firstField.focus({ preventScroll: true }); } catch (_error) { try { firstField.focus(); } catch (_ignored) {} }
-          });
-        }
         box.querySelectorAll("[data-apcf-show-field]").forEach(button => {
           button.addEventListener("click", () => {
             const field = fields[Number(button.dataset.apcfShowField)];
@@ -4235,6 +4449,7 @@
     syncPanelWidth();
     document.documentElement.classList.add(PAGE_SHIFT);
     const existing = document.getElementById(PANEL_ID);
+    const priorScrollTop = existing?.querySelector(".apcf-list")?.scrollTop || 0;
     if (existing) existing.remove();
 
     const profile = currentProfile();
@@ -4297,7 +4512,7 @@
 
     document.body.appendChild(panel);
     const listEl = panel.querySelector(".apcf-list");
-    if (listEl) listEl.scrollTop = 0;
+    if (listEl) listEl.scrollTop = priorScrollTop;
     panel.querySelector(".apcf-close").addEventListener("click", closePanel);
     panel.querySelectorAll("[data-check]").forEach(button => {
       button.addEventListener("click", () => {
