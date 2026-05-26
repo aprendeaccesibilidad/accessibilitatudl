@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "448";
+  const BUILD = "492";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -160,7 +160,8 @@
     grayscale: false,
     panelCollapsed: false,
     pageSourceHtml: "",
-    mediaSourceHtmlCache: new Map()
+    mediaSourceHtmlCache: new Map(),
+    mediaSourcePending: new Set()
   };
 
   function syncPanelWidth() {
@@ -644,7 +645,7 @@
         width: 100%;
         min-height: 4.15rem;
         display: grid;
-        grid-template-columns: 1.95rem 1fr auto;
+        grid-template-columns: 2.05rem 1fr auto;
         gap: .34rem;
         align-items: center;
         margin: 0;
@@ -662,6 +663,16 @@
         min-width: 0;
       }
 
+      #${PANEL_ID} .apcf-option-dot {
+        width: 1.45rem;
+        height: 1.45rem;
+        border: 3px solid #8a8a84;
+        border-radius: 999px;
+        background: #ffffff;
+        justify-self: start;
+        margin-left: .02rem;
+      }
+
       #${PANEL_ID} .apcf-check[aria-pressed="true"] {
         border-color: #171717;
         background: #fff4cc;
@@ -670,17 +681,9 @@
         outline-offset: -2px;
       }
 
-      #${PANEL_ID} .apcf-option-dot {
-        width: 1.35rem;
-        height: 1.35rem;
-        border: 3px solid #8a8a84;
-        border-radius: 999px;
-        background: white;
-      }
-
       #${PANEL_ID} .apcf-check[aria-pressed="true"] .apcf-option-dot {
         border: 5px solid #171717;
-        background: #f7bd3d;
+        background: #ffffff;
       }
 
       #${PANEL_ID} .apcf-check-title {
@@ -761,9 +764,14 @@
         margin: -1px;
         padding: 0;
         border: 0;
+        opacity: 0;
+        appearance: none !important;
+        -webkit-appearance: none !important;
         overflow: hidden;
         clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
         white-space: nowrap;
+        pointer-events: none;
       }
 
       #${PANEL_ID} .apcf-profile {
@@ -812,28 +820,21 @@
       }
 
       .${MARK} {
-        outline: 2px solid #171717 !important;
-        outline-offset: 3px !important;
-        box-shadow: 0 0 0 6px rgb(247 189 61 / .36) !important;
+        outline: 2px solid #ECB63A !important;
+        outline-offset: 0 !important;
+        box-shadow: inset 0 0 0 2px #171717 !important;
+        border-radius: .25rem !important;
       }
 
-      .${MARK}[data-apcf-severity="error"] {
-        box-shadow: 0 0 0 6px rgb(155 28 43 / .28) !important;
-      }
-
-      .${MARK}[data-apcf-skip-link="true"] {
-        box-shadow: 0 0 0 6px rgb(247 189 61 / .36) !important;
-      }
-
+      .${MARK}[data-apcf-severity="error"],
+      .${MARK}[data-apcf-skip-link="true"],
       .${MARK}[data-apcf-mark-kind="media"],
-      .${MARK}[data-apcf-mark-kind="link"] {
-        outline: 2px solid #171717 !important;
-        outline-offset: 3px !important;
-        box-shadow: 0 0 0 6px rgb(247 189 61 / .36) !important;
-      }
-
+      .${MARK}[data-apcf-mark-kind="link"],
       .${MARK}[data-apcf-severity="ok"] {
-        box-shadow: 0 0 0 6px rgb(247 189 61 / .28) !important;
+        outline: 2px solid #ECB63A !important;
+        outline-offset: 0 !important;
+        box-shadow: inset 0 0 0 2px #171717 !important;
+        border-radius: .25rem !important;
       }
 
       .${LABEL} {
@@ -1577,6 +1578,10 @@
         accent-color: #f7bd3d !important;
       }
 
+      .${FLOATING} .apcf-status-title {
+        font-weight: 700;
+      }
+
       .${FLOATING} .apcf-panel-option + .apcf-explain {
         margin-top: .1rem !important;
       }
@@ -2215,8 +2220,22 @@
       el.removeAttribute("data-apcf-mark-kind");
       el.removeAttribute("data-apcf-link-mark");
       el.removeAttribute("data-apcf-wand-order");
+      el.removeAttribute("data-a11y-video-detected");
+      el.removeAttribute("data-a11y-video-detector-label");
+      el.removeAttribute("data-a11y-audio-detected");
+      el.removeAttribute("data-a11y-audio-label");
     });
     document.querySelectorAll(`.${LABEL}`).forEach(el => el.remove());
+    document.querySelectorAll("[data-apcf-image-alt-annotated]").forEach(img => {
+      const prev = img.getAttribute("data-apcf-image-prev-border") || "";
+      if (prev) img.style.border = prev;
+      else img.style.removeProperty("border");
+      img.style.removeProperty("outline");
+      img.style.removeProperty("outline-offset");
+      img.style.removeProperty("box-shadow");
+      img.removeAttribute("data-apcf-image-prev-border");
+      img.removeAttribute("data-apcf-image-alt-annotated");
+    });
   }
 
   function clearFocusView() {
@@ -2264,6 +2283,37 @@
     label.textContent = text;
     document.body.appendChild(label);
     positionLabel(label);
+    return label;
+  }
+
+  function annotateImageAlt(img, altText) {
+    if (!img) return null;
+    const alt = altText == null ? "" : String(altText);
+    const hasAlt = alt.trim().length > 0;
+    if (!img.hasAttribute("data-apcf-image-prev-border")) {
+      img.setAttribute("data-apcf-image-prev-border", img.style.border || "");
+    }
+    img.setAttribute("data-apcf-image-alt-annotated", "true");
+    img.style.outline = "2px solid #ECB63A";
+    img.style.outlineOffset = "0";
+    img.style.boxShadow = "inset 0 0 0 2px #171717";
+    const label = document.createElement("div");
+    label.className = LABEL;
+    label.dataset.apcfImageAltLabel = "true";
+    label.textContent = `[ALT: ${hasAlt ? alt : "Sin texto alternativo"}]`;
+    label.style.position = "absolute";
+    label.style.background = "yellow";
+    label.style.color = "black";
+    label.style.padding = "5px";
+    label.style.border = "1px solid black";
+    label.style.fontSize = "12px";
+    label.style.zIndex = "1000";
+    label.style.whiteSpace = "nowrap";
+    label.style.pointerEvents = "none";
+    const rect = img.getBoundingClientRect();
+    label.style.top = `${window.scrollY + rect.top - 20}px`;
+    label.style.left = `${window.scrollX + rect.left}px`;
+    document.body.appendChild(label);
     return label;
   }
 
@@ -2407,11 +2457,11 @@
     const summaryResult = options.summaryResult || "";
     const summarySeverity = options.summarySeverity || "";
     if (id && summary) {
-      state.panelSummaries.set(id, { title, summary, summaryDetail, summaryResult, severity: summarySeverity });
+      state.panelSummaries.set(id, { title, summary, summaryDetail, summaryResult, summaryResultMarkup: options.summaryResultMarkup || "", severity: summarySeverity });
     }
     if (id && state.hiddenPanels.has(id) && !summary) state.hiddenPanels.delete(id);
     if (id && summary && state.hiddenPanels.has(id)) {
-      return renderFloatingSummary(id, title, summary, summaryDetail, summaryResult);
+      return renderFloatingSummary(id, title, summary, summaryDetail, summaryResult, options.summaryResultMarkup || "");
     }
 
     const box = document.createElement("aside");
@@ -2575,9 +2625,27 @@
     } catch (_error) {
       try { el.focus(); } catch (_ignored) {}
     }
-    const detail = options.detail ? `\n${options.detail}` : "";
+    const detail = options.detail ? `
+${options.detail}` : "";
     const revealLabel = mark(el, `${label}${detail}`, severity);
     if (revealLabel && options.noLabel) revealLabel.dataset.apcfSubtle = "true";
+    if (cleanup) window.setTimeout(cleanup, 1500);
+  }
+
+  function focusMarkedElement(el) {
+    if (!el || el.nodeType !== Node.ELEMENT_NODE) return;
+    const needsTempFocus = !el.matches("a,button,input,select,textarea,[tabindex],summary");
+    let cleanup = null;
+    if (needsTempFocus) {
+      el.setAttribute("tabindex", "-1");
+      cleanup = () => el.removeAttribute("tabindex");
+    }
+    try { el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+    try {
+      el.focus({ preventScroll: true });
+    } catch (_error) {
+      try { el.focus(); } catch (_ignored) {}
+    }
     if (cleanup) window.setTimeout(cleanup, 1500);
   }
 
@@ -2669,7 +2737,7 @@
     state.hiddenPanels.add(id);
     const summary = state.panelSummaries.get(id);
     if (summary) {
-      renderFloatingSummary(id, summary.title, summary.summary, summary.summaryDetail, summary.summaryResult);
+      renderFloatingSummary(id, summary.title, summary.summary, summary.summaryDetail, summary.summaryResult, summary.summaryResultMarkup || "");
     }
     render(false);
     if (target) {
@@ -2996,28 +3064,97 @@
     }
   }
 
-  async function prefetchIframeSourceHtml() {
-    const iframes = pageElements("iframe");
-    const tasks = iframes.map(async iframe => {
-      const srcdoc = iframe.getAttribute ? (iframe.getAttribute("srcdoc") || "") : "";
-      if (srcdoc) return;
-      const src = iframe.getAttribute ? (iframe.getAttribute("src") || "") : "";
-      if (!src) return;
+  function collectIframeSrcsFromHtml(html) {
+    const srcs = [];
+    if (!html) return srcs;
+    const regex = /<iframe\b[^>]*\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi;
+    let match;
+    while ((match = regex.exec(html))) {
+      const src = match[1] || match[2] || match[3] || "";
+      if (src) srcs.push(src);
+    }
+    return srcs;
+  }
+
+  function decodeHtmlEntities(value) {
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = value || "";
+    return textarea.value;
+  }
+
+  function htmlContainsMedia(html, selector, baseUrl = location.href, depth = 0, visited = new Set()) {
+    if (!html || depth > 3) return false;
+    const mediaRegex = selector === "video" ? /<(video|video-cover)\b/i : /<audio\b/i;
+    const looseRegex = selector === "video" ? /<(video|video-cover)(?:\s|>|$)/i : /<audio(?:\s|>|$)/i;
+    if (mediaRegex.test(html) || looseRegex.test(html)) return true;
+
+    const srcdocRegex = /srcdoc\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+    let srcdocMatch;
+    while ((srcdocMatch = srcdocRegex.exec(html))) {
+      const decoded = decodeHtmlEntities(srcdocMatch[1] || srcdocMatch[2] || "");
+      if (decoded && mediaRegex.test(decoded)) return true;
+    }
+
+    const iframeSrcs = collectIframeSrcsFromHtml(html);
+    for (const src of iframeSrcs) {
       let abs;
       try {
-        abs = new URL(src, location.href).href;
+        abs = new URL(src, baseUrl).href;
+      } catch (_error) {
+        continue;
+      }
+      if (new URL(abs).origin !== location.origin) continue;
+      if (visited.has(abs)) continue;
+      visited.add(abs);
+      const cached = state.mediaSourceHtmlCache.get(abs);
+      if (cached && htmlContainsMedia(cached, selector, abs, depth + 1, visited)) return true;
+    }
+
+    return false;
+  }
+
+  async function prefetchIframeSourceHtml(html = "", depth = 0, baseUrl = location.href, visited = new Set()) {
+    if (depth > 3) return;
+    const sourceHtml = html || htmlSourceText();
+    if (!sourceHtml) return;
+    const iframeSrcs = new Set();
+
+    if (depth === 0) {
+      pageElements("iframe").forEach(iframe => {
+        const srcdoc = iframe.getAttribute ? (iframe.getAttribute("srcdoc") || "") : "";
+        if (srcdoc) {
+          const htmlKey = `srcdoc:${srcdoc.slice(0, 160)}`;
+          if (!state.mediaSourceHtmlCache.has(htmlKey)) state.mediaSourceHtmlCache.set(htmlKey, srcdoc);
+        }
+        const src = iframe.getAttribute ? (iframe.getAttribute("src") || "") : "";
+        if (src) iframeSrcs.add(src);
+      });
+    }
+
+    collectIframeSrcsFromHtml(sourceHtml).forEach(src => iframeSrcs.add(src));
+
+    const tasks = [...iframeSrcs].map(async src => {
+      let abs;
+      try {
+        abs = new URL(src, baseUrl).href;
       } catch (_error) {
         return;
       }
       if (new URL(abs).origin !== location.origin) return;
-      if (state.mediaSourceHtmlCache.has(abs)) return;
+      if (visited.has(abs)) return;
+      if (state.mediaSourcePending.has(abs) || state.mediaSourceHtmlCache.has(abs)) return;
+      state.mediaSourcePending.add(abs);
       try {
         const response = await fetch(abs, { credentials: "same-origin", cache: "no-store" });
         if (!response.ok) return;
-        const html = await response.text();
-        if (html) state.mediaSourceHtmlCache.set(abs, html);
+        const childHtml = await response.text();
+        if (!childHtml) return;
+        state.mediaSourceHtmlCache.set(abs, childHtml);
+        await prefetchIframeSourceHtml(childHtml, depth + 1, abs, new Set([...visited, abs]));
       } catch (_error) {
         /* ignore */
+      } finally {
+        state.mediaSourcePending.delete(abs);
       }
     });
     await Promise.allSettled(tasks);
@@ -3046,12 +3183,20 @@
   function iframeHasMedia(iframe, selector) {
     try {
       const srcdoc = iframe.getAttribute ? (iframe.getAttribute("srcdoc") || "") : "";
-      if (srcdoc) {
-        if (selector === "video" && /<(video|video-cover)\b/i.test(srcdoc)) return true;
-        if (selector === "audio" && /<audio\b/i.test(srcdoc)) return true;
-      }
+      if (srcdoc && htmlContainsMedia(decodeHtmlEntities(srcdoc), selector, location.href)) return true;
       const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      return !!doc && !!doc.querySelector(selector);
+      if (doc) {
+        const docHtml = doc.documentElement?.outerHTML || "";
+        if (htmlContainsMedia(docHtml, selector, iframe.src || location.href)) return true;
+        if (doc.querySelector(selector)) return true;
+      }
+      const src = iframe.getAttribute ? (iframe.getAttribute("src") || "") : "";
+      if (src) {
+        const abs = new URL(src, location.href).href;
+        const cached = state.mediaSourceHtmlCache.get(abs);
+        if (cached && htmlContainsMedia(cached, selector, abs)) return true;
+      }
+      return false;
     } catch (_err) {
       return false;
     }
@@ -3203,129 +3348,155 @@
   function videoCandidates() {
     const html = htmlSourceText();
     const file = currentHtmlFileName();
-    const rows = [];
-    const seen = new Set();
-    const pushRow = item => {
-      const key = `${item.kind}|${item.line}|${item.fragment}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push(item);
-    };
-    const addRow = (el, kind, insertion, extra = {}) => {
-      const info = sourceInfoForElement(el, html);
-      const raw = el.outerHTML || '';
-      const fragment = extra.fragment || sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 80, 260)) || raw.replace(/\s+/g, ' ').trim();
-      const item = {
-        kind,
-        file,
-        line: info.line,
-        fragment,
-        insertion,
-        element: el,
-        target: el,
-        href: el.getAttribute ? el.getAttribute('href') : '',
-        src: el.getAttribute ? el.getAttribute('src') : '',
-        poster: el.getAttribute ? el.getAttribute('poster') : '',
-        hasControls: kind === 'video' ? el.hasAttribute('controls') : false,
-        hasAutoplay: kind === 'video' ? el.hasAttribute('autoplay') : false,
-        hasMuted: kind === 'video' ? el.hasAttribute('muted') : false,
-        hasPlaysinline: kind === 'video' ? el.hasAttribute('playsinline') : false,
-        hasCaptions: kind === 'video' ? !!el.querySelector("track[kind='captions'],track[kind='subtitles']") : false,
-        trackKind: extra.trackKind || '',
-        severity: extra.severity || 'warn'
-      };
-      item.problems = extra.problems || videoIssueText(item);
-      item.label = extra.label || `${kind} localizado`;
-      pushRow(item);
-    };
+    const findings = [];
+    const seenTargets = new Set();
+    const MARK = "data-a11y-video-detected";
+    const STYLE_ID = "a11y-video-detector-style";
+    const videoHosts = /youtube|youtu\.be|youtube-nocookie|vimeo|wistia|brightcove|kaltura|panopto|dailymotion|twitch|streamable|vidyard|jwplayer|sproutvideo|cloudflarestream|mux|livestream|zoom|webinar|player/i;
+    const videoWords = /video|vídeo|media|player|reproductor|webinar|recording|grabaci[oó]n|youtube|vimeo|wistia/i;
+    const embedClasses = /video|embed|iframe|player|media|responsive|wp-block-embed|oembed|ratio|aspect/i;
 
-    pageElements('video,video-cover').forEach(video => {
-      addRow(video, 'video', '<video>', {
-        severity: video.hasAttribute('controls') && video.querySelector("track[kind='captions'],track[kind='subtitles']") ? 'warn' : 'error'
-      });
-      if (video.hasAttribute('poster')) {
-        const poster = video.getAttribute('poster');
-        addRow(video, 'poster', 'Atributo poster en <video>', {
-          fragment: `poster="${poster}"`,
-          severity: 'warn',
-          problems: `Poster: ${poster}. No sustituye subtítulos ni transcripción.`,
-          label: 'Poster detectado'
-        });
-      }
-      video.querySelectorAll('source').forEach(source => {
-        addRow(source, 'source', 'Hijo <source> de <video>', {
-          severity: 'warn'
-        });
-      });
-      video.querySelectorAll('track').forEach(track => {
-        addRow(track, 'track', 'Hijo <track> de <video>', {
-          severity: track.getAttribute('kind') === 'captions' || track.getAttribute('kind') === 'subtitles' ? 'ok' : 'warn',
-          trackKind: track.getAttribute('kind') || '',
-          problems: videoIssueText({ kind: 'track', trackKind: track.getAttribute('kind') || '' })
-        });
-      });
-    });
-
-    pageElements('source').forEach(source => {
-      if (source.closest('audio')) return;
-      const src = source.getAttribute('src') || '';
-      const type = source.getAttribute('type') || '';
-      const raw = source.outerHTML || '';
-      const looksVideo = videoFileLink(src) || /^video\//i.test(type) || /<(video|video-cover)\b/i.test(raw);
-      if (!looksVideo) return;
-      addRow(source, source.closest('video,video-cover') ? 'source' : 'video', source.closest('video,video-cover') ? 'Hijo <source> de <video>' : 'Posible <source> de vídeo', {
-        severity: source.closest('video,video-cover') ? 'warn' : 'error',
-        problems: source.closest('video,video-cover')
-          ? 'Elemento <source> dentro de vídeo. Comprueba formato y subtítulos.'
-          : 'Elemento <source> que apunta a vídeo. Comprueba que pertenezca a un reproductor de vídeo.'
-      });
-    });
-
-    pageElements('[src],[data-src],[data-video],[data-url],[data-player],[poster]').forEach(el => {
-      if (el.closest('audio')) return;
-      if (el.matches('video,video-cover,source,track,iframe,embed,object')) return;
-      const raw = el.outerHTML || '';
-      const attrText = mediaAttrText(el);
-      const src = [
-        el.getAttribute('src'),
-        el.getAttribute('data-src'),
-        el.getAttribute('data-video'),
-        el.getAttribute('data-url'),
-        el.getAttribute('data-player')
-      ].filter(Boolean).join(' ');
-      const looksVideo = videoFileLink(src) || /<(video|video-cover)\b/i.test(raw) || /^video\//i.test(attrText) || /videoobject/i.test(attrText);
-      if (!looksVideo) return;
-      addRow(el, el.hasAttribute('poster') ? 'poster' : 'video', el.hasAttribute('poster') ? 'Atributo poster en contenedor de vídeo' : 'Posible vídeo en atributos', {
-        severity: 'warn',
-        problems: el.hasAttribute('poster')
-          ? 'Poster detectado junto a atributos de vídeo. No sustituye subtítulos ni transcripción.'
-          : 'Atributos detectados que apuntan a vídeo. Comprueba controles, subtítulos y alternativa textual.'
-      });
-    });
-
-    if (!rows.some(item => item.kind === 'video') && /<(video|video-cover)\b/i.test(html)) {
-      rawVideoTagCandidates(html).forEach(pushRow);
+    function ensureVideoStyle(doc = document) {
+      if (!doc || !doc.head || doc.getElementById(STYLE_ID)) return;
+      const style = doc.createElement("style");
+      style.id = STYLE_ID;
+      style.textContent = `[${MARK}]{outline:4px solid #ECB63A!important;outline-offset:-4px!important;box-shadow:inset 0 0 0 4px #171717!important;background-color:rgba(236,182,58,.18)!important;border-radius:.25rem!important}`;
+      doc.head.appendChild(style);
     }
 
-    pageElements('iframe,embed,object').forEach(el => {
-      if (el.closest(`#${PANEL_ID}`)) return;
-      const tag = el.tagName.toLowerCase();
-      if (tag === 'iframe') {
-        if (!iframeHasMedia(el, 'video')) return;
-        addRow(el, 'iframe', 'iframe con vídeo', { severity: 'warn', problems: 'Vídeo incrustado en iframe. Comprueba título accesible, controles y subtítulos del reproductor.' });
-        return;
-      }
-      const attrText = mediaAttrText(el);
-      if (!videoFileLink(attrText) && !/^video\//i.test(attrText) && !/<video\b/i.test(attrText)) return;
-      addRow(el, tag === 'embed' ? 'embed' : 'object', `Contenedor <${tag}> con vídeo`, {
-        severity: 'warn',
-        problems: tag === 'embed'
-          ? 'Vídeo incrustado con embed. Comprueba título accesible, controles y alternativa textual.'
-          : 'Vídeo incrustado con object. Comprueba alternativa accesible, título y controles.'
-      });
-    });
+    function txt(el) {
+      return [
+        el.getAttribute && el.getAttribute("src") || el.src || "",
+        el.getAttribute && el.getAttribute("data-src") || "",
+        el.getAttribute && el.getAttribute("data-lazy-src") || "",
+        el.title || "",
+        el.name || "",
+        el.id || "",
+        el.className || "",
+        el.getAttribute && el.getAttribute("aria-label") || "",
+        el.getAttribute && el.getAttribute("allow") || ""
+      ].join(" ");
+    }
 
-    return rows;
+    function usefulContainer(el) {
+      return el.closest("figure,.wp-block-embed,.wp-block-video,.video,.video-container,.video-wrapper,.embed,.embed-container,.responsive-embed,.media,.player,.ratio,[class*='video'],[class*='embed'],[class*='player']") || null;
+    }
+
+    function videoLabelFor(kind) {
+      if (kind === "video") return "VIDEO detectado";
+      if (kind === "iframe") return "IFRAME con contenido de vídeo";
+      if (kind === "container") return "Contenedor de vídeo";
+      if (kind === "embed") return "Contenido multimedia embebido";
+      return "Vídeo detectado";
+    }
+
+    function addFinding(target, kind, insertion, problems, severity = "warn", extra = {}) {
+      if (!target || target.nodeType !== Node.ELEMENT_NODE || seenTargets.has(target)) return;
+      seenTargets.add(target);
+      const baseHtml = target.ownerDocument === document ? html : (target.ownerDocument?.documentElement?.outerHTML || "");
+      const raw = target.outerHTML || "";
+      const index = baseHtml ? baseHtml.indexOf(raw) : -1;
+      const line = index >= 0 ? sourceLineNumber(baseHtml, index) : "";
+      const fragment = extra.fragment || (index >= 0 ? sourceFragment(baseHtml, index, Math.min(raw.length + 80, 260)) : raw.replace(/\s+/g, " ").trim());
+      findings.push({
+        kind,
+        file: extra.file || file,
+        line,
+        fragment,
+        insertion,
+        element: target,
+        target,
+        src: target.getAttribute ? (target.getAttribute("src") || "") : "",
+        poster: target.getAttribute ? (target.getAttribute("poster") || "") : "",
+        severity,
+        problems,
+        label: extra.label || videoLabelFor(kind)
+      });
+    }
+
+    function markVisual(el, kind, label) {
+      if (!el || el.nodeType !== Node.ELEMENT_NODE) return;
+      const doc = el.ownerDocument || document;
+      ensureVideoStyle(doc);
+      if (el.hasAttribute(MARK)) return;
+      el.setAttribute(MARK, kind);
+      el.setAttribute("data-a11y-video-detector-label", label);
+      const existingTitle = el.getAttribute("title") || "";
+      el.setAttribute("title", existingTitle ? `${existingTitle} | ${label}` : label);
+    }
+
+    function likelyVideoIframe(f) {
+      const t = txt(f);
+      if (videoHosts.test(t) || videoWords.test(t)) return true;
+      if ((f.allowFullscreen || /fullscreen|picture-in-picture|autoplay/.test(t)) && embedClasses.test(t)) return true;
+      const p = f.closest("figure,article,section,div");
+      if (p && videoWords.test([p.id, p.className, p.getAttribute("aria-label") || "", p.getAttribute("role") || ""].join(" "))) return true;
+      return false;
+    }
+
+    function scanRoot(root, ownerFrame = null, depth = 0) {
+      if (!root || depth > 3) return 0;
+      ensureVideoStyle(root.ownerDocument || document);
+      let count = 0;
+
+      root.querySelectorAll("video,video-cover").forEach(video => {
+        count += 1;
+        markVisual(video, "video", "VIDEO detectado");
+        const c = usefulContainer(video);
+        if (c && c !== video) markVisual(c, "container", "Contenedor de VIDEO");
+        addFinding(video, "video", "Etiqueta <video> detectada en la página", "El contenido no se ha movido: solo se ha aplicado outline/sombra visual.", video.hasAttribute("controls") ? "warn" : "error");
+        if (video.hasAttribute("poster")) {
+          const poster = video.getAttribute("poster") || "";
+          addFinding(video, "poster", "Atributo poster en <video>", `Poster: ${poster}. No sustituye subtítulos ni transcripción.`, "warn", { label: "Poster detectado" });
+        }
+        video.querySelectorAll("source").forEach(source => {
+          addFinding(source, "source", "Hijo <source> de <video>", "Comprueba formato, controles y subtítulos.", "warn", { label: "Fuente de vídeo" });
+        });
+        video.querySelectorAll("track").forEach(track => {
+          addFinding(track, "track", "Hijo <track> de <video>", `Pista <track> tipo ${track.getAttribute("kind") || "desconocido"}.`, track.getAttribute("kind") === "captions" || track.getAttribute("kind") === "subtitles" ? "ok" : "warn", { label: "Pista de vídeo" });
+        });
+      });
+
+      root.querySelectorAll("iframe").forEach(frame => {
+        let innerCount = 0;
+        let accessible = false;
+        try {
+          const doc = frame.contentDocument || frame.contentWindow?.document;
+          if (doc) {
+            accessible = true;
+            const innerHtml = doc.documentElement?.outerHTML || "";
+            if (/<(video|video-cover)/i.test(innerHtml)) {
+              innerCount = doc.querySelectorAll("video,video-cover").length || 1;
+              scanRoot(doc, frame, depth + 1);
+            }
+          }
+        } catch (_error) {
+          accessible = false;
+        }
+        if (innerCount || likelyVideoIframe(frame) || !accessible) {
+          count += 1;
+          markVisual(frame, "iframe", innerCount ? "IFRAME con contenido de vídeo" : "IFRAME detectado");
+          const container = usefulContainer(frame);
+          if (container && container !== frame) markVisual(container, "container", "Contenedor de vídeo embebido");
+          addFinding(frame, "iframe", innerCount ? "iframe con contenido de vídeo" : "iframe relacionado con vídeo", innerCount ? "Vídeo detectado dentro del iframe." : "Revisar si este iframe contiene vídeo.", "warn", { label: innerCount ? "IFRAME con contenido de vídeo" : "IFRAME relacionado con vídeo" });
+        }
+      });
+
+      root.querySelectorAll("object,embed").forEach(el => {
+        const t = txt(el);
+        if (!videoHosts.test(t) && !videoWords.test(t)) return;
+        count += 1;
+        markVisual(el, "embed", "Contenido multimedia embebido");
+        const c = usefulContainer(el);
+        if (c && c !== el) markVisual(c, "container", "Contenedor multimedia");
+        addFinding(el, el.tagName.toLowerCase(), "Contenido multimedia embebido", "El contenido no se ha movido: solo se ha aplicado outline/sombra visual.", "warn", { label: "Contenido multimedia embebido" });
+      });
+
+      return count;
+    }
+
+    scanRoot(document);
+    return findings;
   }
 
   function isVideoLike(el, html = htmlSourceText()) {
@@ -3337,8 +3508,8 @@
     if (tag === "iframe" && iframeHasMedia(el, "video")) return true;
     if (/\.(mp4|webm|ogv|m3u8|mpd)(?:[?#]|$)/i.test(mediaAttrText(el))) return true;
     if (/videoobject/i.test(mediaAttrText(el))) return true;
-    if (/<(video|video-cover)\b/i.test(raw)) return true;
-    if (html && /<(video|video-cover)\b/i.test(html) && html.indexOf(raw) >= 0) return true;
+    if (/<(video|video-cover)(?:\s|>|$)/i.test(raw)) return true;
+    if (html && /<(video|video-cover)(?:\s|>|$)/i.test(html) && html.indexOf(raw) >= 0) return true;
     return false;
   }
 
@@ -3407,124 +3578,251 @@
     const file = currentHtmlFileName();
     const rows = [];
     const seen = new Set();
-    const pushRow = item => {
+    const MARK = "data-a11y-audio-detected";
+    const STYLE_ID = "a11y-audio-detector-style";
+    const audioExt = /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba)(\?|#|$)/i;
+    const audioHosts = /soundcloud|spotify|ivoox|mixcloud|spreaker|podbean|buzzsprout|libsyn|simplecast|audioboom|anchor\.fm|podcasters\.spotify|podcasts\.apple|apple\.com\/.*podcast|player\.fm|radiopublic|castbox|podomatic|deezer|amazon\.com\/music|music\.amazon|tunein|radio|radioplayer|shoutcast|icecast/i;
+
+    function ensureAudioStyle(doc = document) {
+      if (!doc || !doc.head || doc.getElementById(STYLE_ID)) return;
+      const style = doc.createElement("style");
+      style.id = STYLE_ID;
+      style.textContent = `[${MARK}]{outline:4px solid #ECB63A!important;outline-offset:-4px!important;box-shadow:inset 0 0 0 4px #171717!important;background-color:rgba(236,182,58,.18)!important;border-radius:.25rem!important}`;
+      doc.head.appendChild(style);
+    }
+
+    function mark(el, type, label) {
+      if (!el || el.nodeType !== 1 || el.hasAttribute(MARK)) return;
+      el.setAttribute(MARK, type);
+      el.setAttribute("data-a11y-audio-label", label);
+      el.title = el.title ? `${el.title} | ${label}` : label;
+    }
+
+    function textOf(el) {
+      return [
+        (el.src || ""),
+        (el.href || ""),
+        (el.data || ""),
+        (el.getAttribute("src") || ""),
+        (el.getAttribute("href") || ""),
+        (el.getAttribute("data") || ""),
+        (el.getAttribute("data-src") || ""),
+        (el.getAttribute("data-lazy-src") || ""),
+        (el.getAttribute("title") || ""),
+        (el.getAttribute("aria-label") || ""),
+        (el.getAttribute("name") || ""),
+        (el.getAttribute("property") || ""),
+        (el.getAttribute("content") || ""),
+        (el.getAttribute("type") || ""),
+        typeof el.className === "string" ? el.className : "",
+        el.id || ""
+      ].join(" ");
+    }
+
+    function closestVisibleArea(el) {
+      return el.closest("main,[role='main'],article,section,figure,.audio,.podcast,.player,.soundcloud,.spotify,.ivoox,.mixcloud,[class*='audio'],[class*='podcast'],[class*='player'],[class*='soundcloud'],[class*='spotify'],[class*='ivoox'],[class*='mixcloud']") || document.body;
+    }
+
+    function isAudioIframe(f) {
+      const t = textOf(f);
+      return audioHosts.test(t) || audioExt.test(t);
+    }
+
+    function pushRow(item) {
       const key = `${item.kind}|${item.line}|${item.fragment}`;
       if (seen.has(key)) return;
       seen.add(key);
       rows.push(item);
-    };
-    const addRow = (el, kind, insertion, extra = {}) => {
-      if (isVideoLike(el, html) || isAlreadyMarkedAsVideo(el)) return;
-      const raw = el.outerHTML || '';
+    }
+
+    function buildRow(el, kind, insertion, problems, severity = "warn", extra = {}) {
+      const raw = el.outerHTML || "";
       const info = sourceInfoForElement(el, html);
-      const fragment = extra.fragment || sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 80, 260)) || raw.replace(/\s+/g, ' ').trim();
+      const index = html.indexOf(raw);
+      const fragment = extra.fragment || (index >= 0 ? sourceFragment(html, index, Math.min(raw.length + 80, 260)) : raw.replace(/\s+/g, " ").trim());
       const item = {
         kind,
         file,
-        line: info.line,
+        line: extra.line || info.line,
         fragment,
         insertion,
         element: el,
-        target: el,
-        src: el.getAttribute ? el.getAttribute('src') : '',
-        type: el.getAttribute ? el.getAttribute('type') : '',
-        provider: extra.provider || '',
-        hasControls: el.hasAttribute ? el.hasAttribute('controls') : false,
-        hasAutoplay: el.hasAttribute ? el.hasAttribute('autoplay') : false,
-        hasMuted: el.hasAttribute ? el.hasAttribute('muted') : false,
-        hasLoop: el.hasAttribute ? el.hasAttribute('loop') : false,
-        hasPreload: el.hasAttribute ? el.hasAttribute('preload') : false,
-        preload: el.getAttribute ? (el.getAttribute('preload') || '') : '',
-        hasCrossorigin: el.hasAttribute ? el.hasAttribute('crossorigin') : false,
-        crossorigin: el.getAttribute ? (el.getAttribute('crossorigin') || '') : '',
-        hasLabel: !!(el.getAttribute && (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.getAttribute('title'))),
-        severity: extra.severity || 'warn'
+        target: extra.target || el,
+        src: el.getAttribute ? (el.getAttribute("src") || "") : "",
+        type: el.getAttribute ? (el.getAttribute("type") || "") : "",
+        provider: extra.provider || "",
+        hasControls: el.hasAttribute ? el.hasAttribute("controls") : false,
+        hasAutoplay: el.hasAttribute ? el.hasAttribute("autoplay") : false,
+        hasMuted: el.hasAttribute ? el.hasAttribute("muted") : false,
+        hasLoop: el.hasAttribute ? el.hasAttribute("loop") : false,
+        hasPreload: el.hasAttribute ? el.hasAttribute("preload") : false,
+        preload: el.getAttribute ? (el.getAttribute("preload") || "") : "",
+        hasCrossorigin: el.hasAttribute ? el.hasAttribute("crossorigin") : false,
+        crossorigin: el.getAttribute ? (el.getAttribute("crossorigin") || "") : "",
+        hasLabel: !!(el.getAttribute && (el.getAttribute("aria-label") || el.getAttribute("aria-labelledby") || el.getAttribute("title"))),
+        severity,
+        problems,
+        label: extra.label || "Audio detectado",
+        rawFallback: !!extra.rawFallback
       };
-      item.problems = extra.problems || audioIssueText(item);
       pushRow(item);
-    };
+      return item;
+    }
 
-    all('audio').forEach(audio => {
-      if (isVideoLike(audio, html) || isAlreadyMarkedAsVideo(audio)) return;
-      addRow(audio, 'audio', '<audio>', {
-        severity: audio.hasAttribute('controls') ? 'warn' : 'error'
+    function scanMeta(root) {
+      root.querySelectorAll('meta[property="og:audio"],meta[property="og:audio:url"],meta[property="og:audio:secure_url"]').forEach(m => {
+        const target = closestVisibleArea(m);
+        buildRow(target, "meta", "Metadato og:audio detectado", "Metadato og:audio detectado. Comprueba controles, formato y alternativa textual.", "warn", {
+          label: "Metadato de audio detectado",
+          target,
+          fragment: (m.outerHTML || "").replace(/\s+/g, " ").trim()
+        });
       });
-      audio.querySelectorAll('source').forEach(source => {
-        const src = source.getAttribute('src') || '';
-        const type = source.getAttribute('type') || '';
-        const invalidType = type && !/^audio\//i.test(type);
-        if (invalidType || src) {
-          addRow(source, 'source', 'Hijo <source> de <audio>', {
-            severity: invalidType || !src ? 'error' : 'warn',
-            problems: audioIssueText({ kind: 'source', src, type }),
-            fragment: source.outerHTML.replace(/\s+/g, ' ').trim()
+      root.querySelectorAll('meta[property="og:type"]').forEach(m => {
+        const c = m.getAttribute("content") || "";
+        if (/music|audio|podcast|song|album|radio/i.test(c)) {
+          const target = closestVisibleArea(m);
+          buildRow(target, "meta", "Metadato og:type de audio/música detectado", "Metadato og:type de audio/música detectado. Comprueba controles, formato y alternativa textual.", "warn", {
+            label: "Metadato de audio detectado",
+            target,
+            fragment: (m.outerHTML || "").replace(/\s+/g, " ").trim()
           });
         }
       });
-    });
+    }
 
-    pageElements('source').forEach(source => {
-      if (source.closest('video') || source.closest('video-cover')) return;
-      const src = source.getAttribute('src') || '';
-      const type = source.getAttribute('type') || '';
-      if (!audioFileLink(src) && !/^audio\//i.test(type)) return;
-      addRow(source, source.closest('audio') ? 'source' : 'audio', source.closest('audio') ? 'Hijo <source> de <audio>' : 'Posible <source> de audio', {
-        severity: source.closest('audio') ? 'warn' : 'error',
-        problems: source.closest('audio')
-          ? 'Elemento <source> dentro de audio. Comprueba formato y controles.'
-          : 'Elemento <source> que apunta a audio. Comprueba que pertenezca a un reproductor de audio.'
+    function scanJsonLd(root) {
+      root.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
+        const raw = s.textContent || "";
+        if (/"@type"\s*:\s*"?AudioObject"?/i.test(raw) || /"@type"\s*:\s*"?PodcastEpisode"?/i.test(raw) || /"@type"\s*:\s*"?MusicRecording"?/i.test(raw) || /"@type"\s*:\s*"?MusicAlbum"?/i.test(raw) || /"@type"\s*:\s*"?RadioEpisode"?/i.test(raw) || /"contentUrl"\s*:\s*"[^"]+\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba)/i.test(raw)) {
+          const target = closestVisibleArea(s);
+          buildRow(target, "jsonld", "JSON-LD con objeto de audio detectado", "JSON-LD con audio detectado. Comprueba name, description, contentUrl, embedUrl y transcript.", "warn", {
+            label: "JSON-LD de audio detectado",
+            target,
+            fragment: (s.outerHTML || "").replace(/\s+/g, " ").trim()
+          });
+        }
       });
-    });
+    }
 
-    pageElements('[src],[href],[data-src],[data-audio],[data-url],[data-file],[data-media],[data-track],[data-player]').forEach(el => {
-      if (el.closest('video,video-cover')) return;
-      if (el.matches('audio,source,track,iframe,embed,object')) return;
-      const raw = el.outerHTML || '';
-      const attrText = audioAttrText(el);
-      const src = [
-        el.getAttribute('src'),
-        el.getAttribute('href'),
-        el.getAttribute('data-src'),
-        el.getAttribute('data-audio'),
-        el.getAttribute('data-url'),
-        el.getAttribute('data-file'),
-        el.getAttribute('data-media'),
-        el.getAttribute('data-track'),
-        el.getAttribute('data-player')
-      ].filter(Boolean).join(' ');
-      const looksAudio = audioFileLink(src) || /^audio\//i.test(attrText) || /audioobject|podcastepisode|musicrecording|musicalbum|radioepisode/i.test(attrText) || /<audio/i.test(raw);
-      if (!looksAudio) return;
-      addRow(el, 'audio', 'Posible audio en atributos', {
-        severity: 'warn',
-        problems: 'Atributos detectados que apuntan a audio. Comprueba controles, formato y alternativa textual.'
+    function scan(root, depth = 0) {
+      if (!root || depth > 3) return;
+      ensureAudioStyle(root.ownerDocument || document);
+
+      root.querySelectorAll("audio").forEach(a => {
+        mark(a, "audio", "Etiqueta <audio> detectada");
+        buildRow(a, "audio", "Etiqueta <audio> detectada", "Etiqueta <audio> detectada. Comprueba controles, formato y alternativa textual.", a.hasAttribute("controls") ? "warn" : "error", {
+          label: "Etiqueta <audio> detectada"
+        });
       });
-    });
 
-    pageElements('iframe,embed,object').forEach(el => {
-      if (el.closest('video,video-cover')) return;
-      const tag = el.tagName.toLowerCase();
-      if (tag === 'iframe') {
-        if (!iframeHasMedia(el, 'audio')) return;
-        addRow(el, 'iframe', 'iframe con audio', { severity: 'warn', problems: 'Audio incrustado en iframe. Comprueba título accesible, controles y transcripción.' });
-        return;
+      root.querySelectorAll("audio source,source").forEach(s => {
+        const src = s.getAttribute("src") || "";
+        const type = s.getAttribute("type") || "";
+        if (!audioExt.test(src) && !/^audio\//i.test(type)) return;
+        const target = s.closest("audio") || s;
+        mark(target, "source", "Fuente de audio detectada");
+        buildRow(target, s.closest("audio") ? "source" : "audio", s.closest("audio") ? "Hijo <source> de <audio>" : "Posible <source> de audio", s.closest("audio") ? "Fuente de audio detectada. Comprueba formato, controles y alternativa textual." : "Elemento <source> que apunta a audio. Comprueba que pertenezca a un reproductor de audio.", s.closest("audio") ? "warn" : "error", {
+          label: "Fuente de audio detectada",
+          target
+        });
+      });
+
+      root.querySelectorAll("a[href]").forEach(a => {
+        const href = a.getAttribute("href") || "";
+        if (!audioExt.test(href)) return;
+        mark(a, "link", "Enlace a audio detectado");
+        buildRow(a, "link", "Enlace a archivo de audio detectado", "Enlace directo a audio. Comprueba texto descriptivo, formato de archivo y alternativa textual.", "warn", {
+          label: "Enlace a audio detectado"
+        });
+      });
+
+      root.querySelectorAll("iframe[src],iframe[data-src],iframe[data-lazy-src]").forEach(f => {
+        let foundInside = false;
+        try {
+          const d = f.contentDocument || f.contentWindow.document;
+          if (d) {
+            const before = rows.length;
+            scan(d, depth + 1);
+            foundInside = rows.length > before;
+          }
+        } catch (_e) {}
+        if (foundInside || isAudioIframe(f)) {
+          const provider = isAudioIframe(f) ? (textOf(f).match(audioHosts) || [""])[0] : "";
+          mark(f, "iframe", "Iframe con audio detectado");
+          buildRow(f, "iframe", "Iframe con contenido de audio detectado", "Audio incrustado en iframe. Comprueba título accesible, controles y transcripción.", "warn", {
+            label: "Iframe con audio detectado",
+            provider
+          });
+        }
+      });
+
+      root.querySelectorAll("embed[src]").forEach(e => {
+        const t = textOf(e);
+        if (!audioExt.test(t) && !audioHosts.test(t) && !/^audio\//i.test(e.getAttribute("type") || "")) return;
+        mark(e, "embed", "Embed de audio detectado");
+        buildRow(e, "embed", "Elemento <embed> de audio detectado", "Audio incrustado con embed. Comprueba título accesible, controles y alternativa textual.", "warn", {
+          label: "Embed de audio detectado"
+        });
+      });
+
+      root.querySelectorAll("object[data]").forEach(o => {
+        const t = textOf(o);
+        if (!audioExt.test(t) && !audioHosts.test(t) && !/^audio\//i.test(o.getAttribute("type") || "")) return;
+        mark(o, "object", "Object de audio detectado");
+        buildRow(o, "object", "Elemento <object> de audio detectado", "Audio incrustado con object. Comprueba alternativa accesible, título y controles.", "warn", {
+          label: "Object de audio detectado"
+        });
+      });
+
+      scanMeta(root);
+      scanJsonLd(root);
+    }
+
+    scan(document);
+    if (!rows.some(item => item.rawFallback) && /<audio/i.test(html)) {
+      const regex = /<audio/gi;
+      let match;
+      while ((match = regex.exec(html))) {
+        const index = match.index;
+        const endTag = html.indexOf('>', index);
+        const end = endTag === -1 ? Math.min(html.length, index + 220) : Math.min(html.length, endTag + 1);
+        const fragment = html.slice(index, end).replace(/\s+/g, ' ').trim();
+        const snippet = fragment || '<audio';
+        const item = {
+          kind: 'audio',
+          file,
+          line: sourceLineNumber(html, index),
+          fragment: sourceFragment(html, index, Math.min(snippet.length + 60, 240)) || snippet,
+          insertion: 'Etiqueta <audio> detectada en el HTML fuente bruto',
+          element: null,
+          target: null,
+          src: '',
+          type: '',
+          provider: '',
+          hasControls: /controls/i.test(fragment),
+          hasAutoplay: /autoplay/i.test(fragment),
+          hasMuted: /muted/i.test(fragment),
+          hasLoop: /loop/i.test(fragment),
+          hasPreload: /preload/i.test(fragment),
+          preload: '',
+          hasCrossorigin: /crossorigin/i.test(fragment),
+          crossorigin: '',
+          hasLabel: false,
+          severity: /controls/i.test(fragment) ? 'warn' : 'error',
+          problems: 'Etiqueta <audio> detectada en el HTML fuente bruto. Comprueba controles, formato y alternativa textual.',
+          label: 'Audio detectado en HTML bruto',
+          rawFallback: true
+        };
+        const key = `${item.kind}|${item.line}|${item.fragment}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        rows.push(item);
       }
-      const attrText = audioAttrText(el);
-      if (!audioFileLink(attrText) && !/^audio\//i.test(attrText) && !/<audio/i.test(attrText)) return;
-      addRow(el, tag === 'embed' ? 'embed' : 'object', `Contenedor <${tag}> con audio`, {
-        severity: 'warn',
-        problems: tag === 'embed'
-          ? 'Audio incrustado con embed. Comprueba título accesible, controles y alternativa textual.'
-          : 'Audio incrustado con object. Comprueba alternativa accesible, título y controles.'
-      });
-    });
-
-    if (!rows.some(item => item.kind === 'audio') && /<audio/i.test(html)) {
-      rawAudioTagCandidates(html).forEach(pushRow);
     }
 
     return rows;
   }
-
   function cssPath(el) {
     if (el.id) return `#${el.id}`;
     const parts = [];
@@ -3552,14 +3850,15 @@
           if (alt === null) {
             issues += 1;
             missingAlt += 1;
-            if (state.imagesVisible) mark(img, "Sin atributo alt", "error", "media");
+            if (state.imagesVisible) annotateImageAlt(img, "Sin texto alternativo");
             return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="error"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>Sin atributo alt</span><span>La imagen no tiene atributo alt.</span></button>`;
           }
           if (alt.trim() === "") {
-            if (state.imagesVisible) mark(img, "Alt vacío: decorativa", "warn", "media");
-            return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="warn"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>Alt vacío</span><span>Comprobar si es una imagen decorativa.</span></button>`;
+            issues += 1;
+            if (state.imagesVisible) annotateImageAlt(img, "Alt vacío");
+            return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="warn"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>Alt vacío</span><span>Comprobar si es una imagen decorativa o no.</span></button>`;
           }
-          if (state.imagesVisible) mark(img, `alt: ${alt.slice(0, 80)}`, "ok", "media");
+          if (state.imagesVisible) annotateImageAlt(img, alt);
           return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="ok"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>${escapeHtml(alt.slice(0, 140))}</span><span>Observar si el texto alternativo corresponde a la imagen que se muestra.</span></button>`;
         });
         const box = floating("Texto alternativo de imágenes", `
@@ -3567,14 +3866,15 @@
           <p class="apcf-result">${escapeHtml(`${imgs.length} imagen(es) visibles.`)}</p>
           ${rows.length ? listHead("apcf-list-head--image", ["Ver", "Id", "Texto alternativo", "Observación"]) : ""}
           <div class="apcf-media-list">${rows.length ? rows.join("") : "<p>No hay imagenes visibles.</p>"}</div>
-        `, { summary: "Texto alternativo de imágenes", summaryDetail: "Revisa el texto alternativo de cada imagen para comprobar que se ajusta a la información a transmitir.", summaryResult: `${imgs.length} imagen(es) visibles. ${missingAlt} sin atributo alt.`, summaryResultMarkup: missingAlt ? `${escapeHtml(`${imgs.length} imagen(es) visibles.`)}<span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${missingAlt} sin atributo alt.`)}</span>` : "" });
+        `, { summary: "Texto alternativo de imágenes", summaryDetail: "Revisa el texto alternativo de cada imagen para comprobar que se ajusta a la información a transmitir.", summaryResult: missingAlt ? `${imgs.length} imagen(es) visibles. ${missingAlt} sin atributo alt.` : `${imgs.length} imagen(es) visibles.`, summaryResultMarkup: missingAlt ? `${escapeHtml(`${imgs.length} imagen(es) visibles.`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${missingAlt} sin atributo alt.`)}</span>` : "" });
+        if (state.imagesVisible && imgs[0]) focusMarkedElement(imgs[0]);
         box.querySelectorAll("[data-apcf-show-image]").forEach(button => {
           button.addEventListener("click", () => {
             const img = imgs[Number(button.dataset.apcfShowImage)];
             if (!img) return;
             const alt = img.getAttribute("alt");
             if (alt !== null && alt.trim() === "") {
-              revealElement(img, "Alt vacío", "warn", { detail: "Comprobar si es una imagen decorativa.", noLabel: true });
+              revealElement(img, "Alt vacío", "warn", { detail: "Comprobar si es una imagen decorativa o no.", noLabel: true });
             } else {
               revealElement(img, alt ? `Imagen: ${alt.slice(0, 80)}` : "Imagen sin atributo alt", alt && alt.trim() ? "warn" : "error", { detail: alt ? `Texto alternativo: ${alt.slice(0, 160)}\nObservar si el texto alternativo corresponde a la imagen que se muestra.` : "La imagen no tiene atributo alt.", noLabel: true });
             }
@@ -3643,6 +3943,7 @@
           summaryResult: headings.length ? `${headings.length} encabezado(s) visibles. H1 encontrados: ${h1Count}. Saltos de jerarquía: ${hierarchySkips}.` : "No se encontraron encabezados.",
           summarySeverity: h1Problem || hierarchyProblem ? "error" : ""
         });
+        if (state.headingsVisible && headings[0]) focusMarkedElement(headings[0]);
         box.querySelectorAll("[data-apcf-scroll-heading]").forEach(button => {
           button.addEventListener("click", () => {
             const heading = headings[Number(button.dataset.apcfScrollHeading)];
@@ -3682,7 +3983,9 @@
           ${landmarks.length ? (!mainProblem ? `<p class="apcf-result">${escapeHtml(`${landmarks.length} puntos marcados. Main encontrados: ${mainCount}.`)}</p>` : "") : problemResult("Problema: no se encontró ningún punto de referencia.")}
           ${landmarks.length ? listHead("apcf-list-head--landmark", ["Tipo", "Etiqueta", "Título"]) : ""}
           <div class="apcf-landmark-map"><div class="apcf-landmark-tree">${boxes || "<p>No se encontraron puntos de referencia.</p>"}</div></div>
-        `, { summary: "Puntos de referencia", summaryDetail: "Comprueba que las zonas estructuran la página y que cada una se reconoce por su tipo y su etiqueta visible.", summaryResult: landmarks.length ? `${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.` : "No se encontraron puntos de referencia.", summarySeverity: landmarks.length === 0 ? "error" : "" });
+        `, { summary: "Puntos de referencia", summaryDetail: "Comprueba que las zonas estructuran la página y que cada una se reconoce por su tipo y su etiqueta visible.", summaryResult: landmarks.length ? `${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.` : "No se encontraron puntos de referencia.", summaryResultMarkup: landmarks.length ? ((mainCount === 0 || mainCount > 1) ? `${escapeHtml(`${landmarks.length} punto(s) de referencia.`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`Main encontrados: ${mainCount}.`)}</span>` : escapeHtml(`${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.`)) : "", summarySeverity: landmarks.length === 0 ? "error" : "" });
+        if (state.landmarksVisible && landmarks[0]) focusMarkedElement(landmarks[0]);
+        if (landmarks[0]) focusMarkedElement(landmarks[0]);
         box.querySelectorAll("[data-apcf-landmark]").forEach(button => {
           button.addEventListener("click", () => {
             const landmark = landmarks[Number(button.dataset.apcfLandmark)];
@@ -3831,6 +4134,7 @@
           ${rows ? listHead("apcf-list-head--link", ["Ver", "Id", "Texto visible", "Nombre accesible", "Estado"]) : ""}
           <div class="apcf-media-list">${rows || "<p>No se encontraron enlaces.</p>"}</div>
         `, { summary: "Texto de enlaces", summaryDetail: "Revisa si el nombre accesible es correcto.", summaryResult: issues ? `${issues} enlace(s) con texto visible y sin nombre accesible.` : "No se detectaron enlaces con texto visible y sin nombre accesible.", summarySeverity: linkProblem || links.length === 0 ? "error" : "" });
+        if (state.linkTextVisible && links[0]) focusMarkedElement(links[0]);
         const showLink = index => {
           const link = links[index];
           if (!link) return;
@@ -3978,9 +4282,10 @@
           const box = floating("Audio", `
             <p class="apcf-explain">Observa si en el audio hay una transcripción textual.</p>
             <p class="apcf-result">${escapeHtml(summaryResult)}</p>
-            ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Problemas"]) : ""}
+            ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Revisión"]) : ""}
             ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
           `, { summary: "Audio", summaryDetail: "Observa si en el audio hay una transcripción textual.", summaryResult });
+          if (findings[0]?.target || findings[0]?.element) focusMarkedElement(findings[0].target || findings[0].element);
           box.querySelectorAll("[data-apcf-show-media]").forEach(button => {
             button.addEventListener("click", () => {
               const item = findings[Number(button.dataset.apcfShowMedia)];
@@ -3993,7 +4298,7 @@
                   `Línea: ${item.line || "?"}`,
                   `Fragmento: ${item.fragment}`,
                   `Inserción: ${item.insertion}`,
-                  `Problemas: ${item.problems}`
+                  `Revisión: revisar si el video tiene subtítulos y audiodescripción o transcripción.`
                 ].join("\n"),
                 noLabel: true
               });
@@ -4011,8 +4316,8 @@
         const items = findings.map((item, index) => {
           if (item.severity === "error") issues += 1;
           const target = item.target || item.element;
-          if (state.videoVisible && target && !highlighted.has(target)) {
-            const label = mark(target, `${item.kind === "poster" ? "Poster" : "Vídeo"} localizado`, "warn", "media");
+          if (target && !highlighted.has(target)) {
+            const label = mark(target, `${item.kind === "poster" ? "Poster" : "Vídeo"} localizado`, item.severity === "error" ? "error" : "warn", "media");
             if (label) {
               label.dataset.apcfMediaPlacement = "below";
               positionLabel(label);
@@ -4032,9 +4337,10 @@
         const box = floating("Vídeo", `
           <p class="apcf-explain">Observa si el video tiene subtítulos y audiodescripción o transcripción.</p>
           <p class="apcf-result">${escapeHtml(summaryResult)}</p>
-          ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Problemas"]) : ""}
+          ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Revisión"]) : ""}
           ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
         `, { summary: "Vídeo", summaryDetail: "Observa si el video tiene subtítulos y audiodescripción o transcripción.", summaryResult });
+        if (findings[0]?.target || findings[0]?.element) focusMarkedElement(findings[0].target || findings[0].element);
         if (findings.length) {
           requestAnimationFrame(() => {
             const first = findings[0];
@@ -4059,7 +4365,7 @@
                 `Línea: ${item.line || "?"}`,
                 `Fragmento: ${item.fragment}`,
                 `Inserción: ${item.insertion}`,
-                `Problemas: ${item.problems}`
+                `Revisión: revisar si el video tiene subtítulos y audiodescripción o transcripción.`
               ].join("\n"),
               noLabel: true
             });
@@ -4150,7 +4456,8 @@
           <p class="apcf-result">${escapeHtml(`${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`)}</p>
           ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Nombre accesible"]) : ""}
           <div class="apcf-media-list">${items}</div>
-        `, { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: `${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`, summaryResultMarkup: issues ? `${escapeHtml(`${fields.length} campo(s) visible(s).`)}<span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${issues} incidencia(s) automática(s).`)}</span>` : "" });
+        `, { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: `${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`, summaryResultMarkup: issues ? `${escapeHtml(`${fields.length} campo(s) visible(s).`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`incidencia(s) automática(s).`)}</span>` : "" });
+        if (fields[0]) focusMarkedElement(fields[0]);
         box.querySelectorAll("[data-apcf-show-field]").forEach(button => {
           button.addEventListener("click", () => {
             const field = fields[Number(button.dataset.apcfShowField)];
@@ -4219,8 +4526,9 @@
           <p class="apcf-result">${escapeHtml(requiredSummary)}</p>
           ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Estado"]) : ""}
           <div class="apcf-media-list">${items}</div>
-        `, { summary: "Campos obligatorios", summaryDetail: "Observa si los obligatorios están señalados.", summaryResult: requiredSummary });
+        `, { summary: "Campos obligatorios", summaryDetail: "Observa si los obligatorios están señalados.", summaryResult: requiredSummary, summaryResultMarkup: "" });
         const requiredBox = document.querySelector(`.${FLOATING}`);
+        if (requiredItems[0]?.field) focusMarkedElement(requiredItems[0].field);
         requiredBox?.querySelectorAll("[data-apcf-show-required]").forEach(button => {
           button.addEventListener("click", () => {
             const item = requiredItems[Number(button.dataset.apcfShowRequired)];
@@ -4288,12 +4596,9 @@
     loadPageSourceHtml().then(html => {
       if (!html) return;
       state.pageSourceHtml = html;
+      return prefetchIframeSourceHtml(html);
+    }).then(() => {
       if (document.getElementById(PANEL_ID) && (state.active.has("video") || state.active.has("audio"))) {
-        refreshVisuals();
-      }
-    });
-    prefetchIframeSourceHtml().then(() => {
-      if (document.getElementById(PANEL_ID) && state.active.has("video")) {
         refreshVisuals();
       }
     });
@@ -4322,7 +4627,7 @@
   }
 
   function statusHtml() {
-    return "<strong>Evaluar</strong><span>Elige una opción y observa las marcas en la página.</span>";
+    return "<span class=\"apcf-status-title\">Evaluar</span><span>Elige una opción y observa las marcas en la página.</span>";
   }
 
   function groupedChecks(list) {

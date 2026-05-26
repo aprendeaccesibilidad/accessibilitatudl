@@ -1400,7 +1400,7 @@
       const badge = document.getElementById('bookmarklet-build');
       if (!bookmarklet || !code) return;
 
-      const build = (bookmarklet.dataset.build || '492').replace(/[^\w.-]/g, '') || '434';
+      const build = (bookmarklet.dataset.build || '492').replace(/[^\w.-]/g, '') || '492';
       const scriptUrl = `https://accessibilitat.udl.cat/A11yEvalBasic/A11yEvalBasic.js?v=${encodeURIComponent(build)}`;
       const bookmarkletCode = `javascript:(function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();return;}var s=document.createElement('script');s.charset='utf-8';s.src='${scriptUrl}';s.onload=function(){if(window.A11yEvalBasic){window.A11yEvalBasic.open();}};s.onerror=function(){var id='apcf-load-error';var old=document.getElementById(id);if(old)old.remove();var box=document.createElement('aside');box.id=id;box.setAttribute('role','alert');box.setAttribute('aria-live','assertive');box.style.cssText='position:fixed;inset:auto 1rem 1rem auto;z-index:2147483647;max-width:min(34rem,calc(100vw - 2rem));background:#fff3f3;color:#7a0010;border:2px solid #c1121f;border-radius:.85rem;padding:.95rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.25);font:700 16px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';box.innerHTML='<strong style="display:block;margin:0 0 .35rem">No se pudo cargar Evaluación básica de accesibilidad.</strong><span style="display:block">Revisa que el archivo JS sea público y esté disponible por HTTPS.</span>';document.body.appendChild(box);setTimeout(function(){box.remove();},10000);try{alert('No se pudo cargar Evaluación básica de accesibilidad. Revisa que el archivo JS sea público y esté disponible por HTTPS.');}catch(_e){}};document.body.appendChild(s);})();`;
 
