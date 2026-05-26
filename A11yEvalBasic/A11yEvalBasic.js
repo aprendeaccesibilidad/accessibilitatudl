@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "419";
+  const BUILD = "422";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -3092,6 +3092,92 @@
     }
   }
 
+  function rawVideoTagCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const regex = /<video\b/gi;
+    let match;
+    while ((match = regex.exec(html))) {
+      const index = match.index;
+      const endTag = html.indexOf('>', index);
+      const end = endTag === -1 ? Math.min(html.length, index + 220) : Math.min(html.length, endTag + 1);
+      const fragment = html.slice(index, end).replace(/\s+/g, ' ').trim();
+      const snippet = fragment || '<video';
+      pushRow({
+        kind: 'video',
+        file: currentHtmlFileName(),
+        line: sourceLineNumber(html, index),
+        fragment: sourceFragment(html, index, Math.min(snippet.length + 60, 240)) || snippet,
+        insertion: 'Etiqueta <video> detectada en el HTML fuente bruto',
+        target: null,
+        element: null,
+        href: '',
+        src: '',
+        poster: '',
+        hasControls: /\bcontrols\b/i.test(fragment),
+        hasCaptions: /<track\b[^>]*\bkind\s*=\s*["']?(captions|subtitles)["']?/i.test(html.slice(index, Math.min(html.length, index + 1200))),
+        trackKind: '',
+        severity: /\bcontrols\b/i.test(fragment) ? 'warn' : 'error',
+        problems: 'Etiqueta <video> detectada en el HTML fuente bruto. Comprueba controles, subtítulos y transcripción.',
+        label: 'Vídeo detectado en HTML bruto',
+        rawFallback: true
+      });
+    }
+    return rows;
+  }
+
+  function rawAudioTagCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const regex = /<audio\b/gi;
+    let match;
+    while ((match = regex.exec(html))) {
+      const index = match.index;
+      const endTag = html.indexOf('>', index);
+      const end = endTag === -1 ? Math.min(html.length, index + 220) : Math.min(html.length, endTag + 1);
+      const fragment = html.slice(index, end).replace(/\s+/g, ' ').trim();
+      const snippet = fragment || '<audio';
+      pushRow({
+        kind: 'audio',
+        file: currentHtmlFileName(),
+        line: sourceLineNumber(html, index),
+        fragment: sourceFragment(html, index, Math.min(snippet.length + 60, 240)) || snippet,
+        insertion: 'Etiqueta <audio> detectada en el HTML fuente bruto',
+        target: null,
+        element: null,
+        src: '',
+        type: '',
+        provider: '',
+        hasControls: /\bcontrols\b/i.test(fragment),
+        hasAutoplay: /\bautoplay\b/i.test(fragment),
+        hasMuted: /\bmuted\b/i.test(fragment),
+        hasLoop: /\bloop\b/i.test(fragment),
+        hasPreload: /\bpreload\b/i.test(fragment),
+        preload: '',
+        hasCrossorigin: /\bcrossorigin\b/i.test(fragment),
+        crossorigin: '',
+        hasLabel: false,
+        severity: /\bcontrols\b/i.test(fragment) ? 'warn' : 'error',
+        problems: 'Etiqueta <audio> detectada en el HTML fuente bruto. Comprueba controles, formato y alternativa textual.',
+        label: 'Audio detectado en HTML bruto',
+        rawFallback: true
+      });
+    }
+    return rows;
+  }
+
   function videoCandidates() {
     const html = htmlSourceText();
     const file = currentHtmlFileName();
@@ -3105,10 +3191,10 @@
     };
     const addElementRow = (el, kind, insertion, target = el, extra = {}) => {
       const info = sourceInfoForElement(el, html);
-      const href = el.getAttribute && el.getAttribute("href");
-      const src = el.getAttribute && el.getAttribute("src");
-      const poster = el.getAttribute && el.getAttribute("poster");
-      const fragment = extra.fragment || sourceFragment(html, html.indexOf(el.outerHTML || ""), Math.min((el.outerHTML || "").length + 60, 240)) || (el.outerHTML || "").replace(/\s+/g, " ").trim();
+      const href = el.getAttribute && el.getAttribute('href');
+      const src = el.getAttribute && el.getAttribute('src');
+      const poster = el.getAttribute && el.getAttribute('poster');
+      const fragment = extra.fragment || sourceFragment(html, html.indexOf(el.outerHTML || ''), Math.min((el.outerHTML || '').length + 60, 240)) || (el.outerHTML || '').replace(/\s+/g, ' ').trim();
       const item = {
         kind,
         file,
@@ -3120,75 +3206,79 @@
         href,
         src,
         poster,
-        hasControls: kind === "video" ? el.hasAttribute("controls") : false,
-        hasCaptions: kind === "video" ? !!el.querySelector("track[kind='captions'],track[kind='subtitles']") : false,
-        trackKind: extra.trackKind || "",
-        severity: extra.severity || "warn"
+        hasControls: kind === 'video' ? el.hasAttribute('controls') : false,
+        hasCaptions: kind === 'video' ? !!el.querySelector("track[kind='captions'],track[kind='subtitles']") : false,
+        trackKind: extra.trackKind || '',
+        severity: extra.severity || 'warn'
       };
       item.problems = extra.problems || videoIssueText(item);
       item.label = extra.label || `${kind} localizado`;
       pushRow(item);
     };
 
-    pageElements("video").forEach(video => {
-      addElementRow(video, "video", "<video>", video, {
-        severity: video.hasAttribute("controls") && video.querySelector("track[kind='captions'],track[kind='subtitles']") ? "warn" : "error"
+    pageElements('video').forEach(video => {
+      addElementRow(video, 'video', '<video>', video, {
+        severity: video.hasAttribute('controls') && video.querySelector("track[kind='captions'],track[kind='subtitles']") ? 'warn' : 'error'
       });
-      if (video.hasAttribute("poster")) {
-        const poster = video.getAttribute("poster");
-        addElementRow(video, "poster", "Atributo poster en <video>", video, {
+      if (video.hasAttribute('poster')) {
+        const poster = video.getAttribute('poster');
+        addElementRow(video, 'poster', 'Atributo poster en <video>', video, {
           fragment: `poster="${poster}"`,
-          severity: "warn",
+          severity: 'warn',
           problems: `Poster: ${poster}. No sustituye subtítulos ni transcripción.`,
-          label: "Poster detectado"
+          label: 'Poster detectado'
         });
       }
-      video.querySelectorAll("source").forEach(source => {
-        addElementRow(source, "source", "Hijo <source> de <video>", video, {
-          severity: "warn"
+      video.querySelectorAll('source').forEach(source => {
+        addElementRow(source, 'source', 'Hijo <source> de <video>', video, {
+          severity: 'warn'
         });
       });
-      video.querySelectorAll("track").forEach(track => {
-        addElementRow(track, "track", "Hijo <track> de <video>", video, {
-          severity: track.getAttribute("kind") === "captions" || track.getAttribute("kind") === "subtitles" ? "ok" : "warn",
-          trackKind: track.getAttribute("kind") || "",
+      video.querySelectorAll('track').forEach(track => {
+        addElementRow(track, 'track', 'Hijo <track> de <video>', video, {
+          severity: track.getAttribute('kind') === 'captions' || track.getAttribute('kind') === 'subtitles' ? 'ok' : 'warn',
+          trackKind: track.getAttribute('kind') || '',
           problems: videoIssueText({
-            kind: "track",
-            trackKind: track.getAttribute("kind") || ""
+            kind: 'track',
+            trackKind: track.getAttribute('kind') || ''
           })
         });
       });
     });
 
-    pageElements("iframe").forEach(iframe => {
-      if (iframeHasMedia(iframe, "video")) {
-        addElementRow(iframe, "iframe", "iframe con vídeo dentro", iframe, {
-          severity: "warn",
-          problems: "Iframe con contenido real de vídeo detectado. Comprueba controles, subtítulos, transcripción y título accesible."
+    pageElements('iframe').forEach(iframe => {
+      if (iframeHasMedia(iframe, 'video')) {
+        addElementRow(iframe, 'iframe', 'iframe con vídeo dentro', iframe, {
+          severity: 'warn',
+          problems: 'Iframe con contenido real de vídeo detectado. Comprueba controles, subtítulos, transcripción y título accesible.'
         });
       }
     });
 
-    pageElements("embed").forEach(embed => {
-      const text = `${embed.getAttribute("src") || ""} ${embed.getAttribute("type") || ""} ${embed.getAttribute("title") || ""}`;
+    pageElements('embed').forEach(embed => {
+      const text = `${embed.getAttribute('src') || ''} ${embed.getAttribute('type') || ''} ${embed.getAttribute('title') || ''}`;
       if (/video|mp4|webm|ogg|youtube|vimeo|jwplayer|kaltura|brightcove/i.test(text)) {
-        addElementRow(embed, "embed", "embed incrustado", embed, { severity: "warn" });
+        addElementRow(embed, 'embed', 'embed incrustado', embed, { severity: 'warn' });
       }
     });
 
-    pageElements("object").forEach(object => {
-      const text = `${object.getAttribute("data") || ""} ${object.getAttribute("type") || ""} ${object.getAttribute("title") || ""}`;
+    pageElements('object').forEach(object => {
+      const text = `${object.getAttribute('data') || ''} ${object.getAttribute('type') || ''} ${object.getAttribute('title') || ''}`;
       if (/video|mp4|webm|ogg|youtube|vimeo|jwplayer|kaltura|brightcove/i.test(text)) {
-        addElementRow(object, "object", "object incrustado", object, { severity: "warn" });
+        addElementRow(object, 'object', 'object incrustado', object, { severity: 'warn' });
       }
     });
 
-    pageElements("a[href]").forEach(link => {
-      const href = link.getAttribute("href") || "";
+    if (!rows.some(item => item.kind === 'video') && /<video\b/i.test(html)) {
+      rawVideoTagCandidates(html).forEach(pushRow);
+    }
+
+    pageElements('a[href]').forEach(link => {
+      const href = link.getAttribute('href') || '';
       if (videoFileLink(href)) {
-        addElementRow(link, "link", "Enlace a archivo de vídeo", link, {
-          severity: /descargar|download/i.test(textValue(link)) ? "warn" : "warn",
-          fragment: sourceFragment(html, html.indexOf(link.outerHTML || ""), Math.min((link.outerHTML || "").length + 60, 240))
+        addElementRow(link, 'link', 'Enlace a archivo de vídeo', link, {
+          severity: /descargar|download/i.test(textValue(link)) ? 'warn' : 'warn',
+          fragment: sourceFragment(html, html.indexOf(link.outerHTML || ''), Math.min((link.outerHTML || '').length + 60, 240))
         });
       }
     });
@@ -3324,6 +3414,10 @@
         });
       }
     });
+
+    if (!rows.some(item => item.kind === 'audio') && /<audio\b/i.test(html)) {
+      rawAudioTagCandidates(html).forEach(pushRow);
+    }
 
     all("a[href]").forEach(link => {
       const href = link.getAttribute("href") || "";
@@ -3814,14 +3908,17 @@
           if (findings.length) {
             const first = findings[0];
             const focusTarget = first.target || first.element;
-            try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
-            try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
+            if (focusTarget) {
+              try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+              try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
+            }
           }
           box.querySelectorAll("[data-apcf-show-media]").forEach(button => {
             button.addEventListener("click", () => {
               const item = findings[Number(button.dataset.apcfShowMedia)];
               if (!item) return;
               const target = item.target || item.element;
+              if (!target) return;
               revealElement(target, `${item.kind} · línea ${item.line || "?"}`, item.severity === "error" ? "error" : "warn", {
                 detail: [
                   `Archivo: ${item.file}`,
@@ -3874,8 +3971,10 @@
           requestAnimationFrame(() => {
             const first = findings[0];
             const focusTarget = first.target || first.element;
-            try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
-            try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
+            if (focusTarget) {
+              try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+              try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
+            }
             updateLabels();
           });
         }
@@ -3884,6 +3983,7 @@
             const item = findings[Number(button.dataset.apcfShowMedia)];
             if (!item) return;
             const target = item.target || item.element;
+            if (!target) return;
             const label = item.kind === "poster" ? "Poster" : `Vídeo ${item.kind}`;
             revealElement(target, `${label} · línea ${item.line || "?"}`, item.severity === "error" ? "error" : "warn", {
               detail: [
@@ -4208,8 +4308,6 @@
         }
         refreshVisuals();
         render(false);
-        const next = document.querySelector(`#${PANEL_ID} [data-check="${CSS.escape(id)}"]`);
-        if (next) next.focus({ preventScroll: true });
       });
     });
     panel.querySelectorAll("[data-apcf-toggle-panel]").forEach(toggleButton => toggleButton.addEventListener("click", () => {
@@ -4227,7 +4325,6 @@
         refreshVisuals();
         render(false);
         const next = document.querySelector(`#${PANEL_ID} input[name='apcf-profile'][value="${CSS.escape(state.profile)}"]`);
-        if (next) next.focus({ preventScroll: true });
       });
     });
     if (focusClose) {
