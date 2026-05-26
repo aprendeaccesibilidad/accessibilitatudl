@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "422";
+  const BUILD = "423";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -752,8 +752,14 @@
       #${PANEL_ID} .apcf-profile-wrap { position: relative; }
       #${PANEL_ID} .apcf-profile-wrap input {
         position: absolute;
-        opacity: 0;
-        pointer-events: none;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        border: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
       }
 
       #${PANEL_ID} .apcf-profile {
