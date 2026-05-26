@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "430";
+  const BUILD = "432";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -3135,20 +3135,19 @@
       seen.add(key);
       rows.push(item);
     };
-    const providerPattern = /youtube|youtu\.be|vimeo|wistia|brightcove|panopto|loom|player|embed|video/i;
-    const candidates = [...document.querySelectorAll("a[href],source[src],script[src],script[data-src],script[data-video],script[data-url],script[data-player],iframe[src],iframe[title],iframe[aria-label],iframe[class],iframe[id],embed[src],object[data],[data-src],[data-video],[data-url],[data-player]")]
+    const candidates = [...document.querySelectorAll("video[src],source[src],script[src],script[data-src],script[data-video],script[data-url],script[data-player],iframe,embed[src],object[data],[data-src],[data-video],[data-url],[data-player],[data-video-src],a[href]")]
       .filter(el => !el.closest(`#${PANEL_ID}`));
     candidates.forEach(el => {
       const tag = el.tagName.toLowerCase();
+      if (tag === "iframe" && !iframeHasMedia(el, "video")) return;
+      if (tag === "embed" || tag === "object") return;
       const attrNames = ["src", "href", "data-src", "data-video", "data-url", "data-player", "data-media", "data-video-src"];
       const values = attrNames.map(name => ({ name, value: el.getAttribute && el.getAttribute(name) || "" })).filter(item => item.value);
       if (!values.length) return;
-      const matches = values.filter(item => videoFileLink(item.value) || providerPattern.test(item.value));
-      const text = mediaAttrText(el);
-      const isIframeClue = tag === "iframe" && providerPattern.test(text);
-      if (!matches.length && !isIframeClue) return;
-      const best = matches[0] || values[0];
-      const kind = tag === "iframe" ? "iframe" : tag === "embed" ? "embed" : tag === "object" ? "object" : tag === "source" ? "link" : "link";
+      const matches = values.filter(item => videoFileLink(item.value) || /^video\//i.test(item.value));
+      if (!matches.length) return;
+      const best = matches[0];
+      const kind = tag === "iframe" ? "iframe" : tag === "source" ? "link" : "link";
       const info = sourceInfoForElement(el, html);
       const fragment = sourceFragment(html, html.indexOf(el.outerHTML || ""), Math.min((el.outerHTML || "").length + 60, 240)) || (el.outerHTML || "").replace(/\s+/g, " ").trim();
       pushRow({
@@ -3156,16 +3155,14 @@
         file: currentHtmlFileName(),
         line: info.line,
         fragment,
-        insertion: isIframeClue ? "iframe con señales de vídeo" : `Atributo ${best.name} en <${tag}>`,
+        insertion: `Atributo ${best.name} en <${tag}>`,
         target: el,
         element: el,
         href: el.getAttribute ? el.getAttribute("href") : "",
         src: el.getAttribute ? el.getAttribute("src") : "",
         poster: el.getAttribute ? el.getAttribute("poster") : "",
         severity: "warn",
-        problems: isIframeClue
-          ? `Pista de iframe relacionada con vídeo (${best.name}: ${best.value}). Comprueba controles, subtítulos y título accesible.`
-          : `Atributo ${best.name} relacionado con vídeo (${best.value}). Comprueba que el recurso tenga controles, subtítulos y alternativa textual.`,
+        problems: `Atributo ${best.name} relacionado con vídeo (${best.value}). Comprueba que el recurso tenga controles, subtítulos y alternativa textual.`,
         label: "Posible vídeo detectado"
       });
     });
@@ -3248,58 +3245,6 @@
       } catch (_error) {
         // Ignore invalid JSON-LD.
       }
-    });
-    return rows;
-  }
-
-  function videoTextClueCandidates(html) {
-    const rows = [];
-    const seen = new Set();
-    const pushRow = item => {
-      const key = `${item.kind}|${item.line}|${item.fragment}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push(item);
-    };
-    const clues = [
-      { label: "subtitles", regex: /subtitles?/i },
-      { label: "captions", regex: /captions?/i },
-      { label: "transcript", regex: /transcript/i },
-      { label: "watch the video", regex: /watch the video/i },
-      { label: "tap to unmute", regex: /tap to unmute/i },
-      { label: "your browser can't play this video", regex: /your browser can'?t play this video/i },
-      { label: "recording", regex: /recording/i },
-      { label: "webinar", regex: /webinar/i },
-    ];
-    const candidates = visibleElements("p,li,a,button,figcaption,span,div,section,article,h1,h2,h3,h4,h5,h6,td,th,strong,em")
-      .filter(el => !el.closest("nav,footer,header,aside,[role='navigation']"))
-      .filter(el => textValue(el).length > 0);
-    const used = new Set();
-    clues.forEach(clue => {
-      const matches = candidates.filter(el => clue.regex.test(textValue(el)));
-      if (!matches.length) return;
-      const scored = matches.map(el => {
-        const rect = el.getBoundingClientRect();
-        return { el, area: Math.max(1, Math.round(rect.width * rect.height)), len: textValue(el).length };
-      }).sort((a, b) => a.area - b.area || a.len - b.len);
-      const chosen = scored.find(item => !used.has(item.el));
-      if (!chosen) return;
-      used.add(chosen.el);
-      const info = sourceInfoForElement(chosen.el, html);
-      const snippet = sourceFragment(html, html.indexOf(chosen.el.outerHTML || ""), Math.min((chosen.el.outerHTML || "").length + 60, 240)) || textValue(chosen.el).slice(0, 240);
-      pushRow({
-        kind: "clue",
-        file: currentHtmlFileName(),
-        line: info.line,
-        fragment: snippet,
-        insertion: "Pista textual de vídeo",
-        target: chosen.el,
-        element: chosen.el,
-        severity: "warn",
-        cluePhrase: clue.label,
-        problems: `Possible video clue: ${clue.label}. Prioridad baja; comprueba si realmente refiere a un vídeo.`,
-        label: "Possible video clue"
-      });
     });
     return rows;
   }
@@ -3400,18 +3345,13 @@
     if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
     if (el.closest(`#${PANEL_ID}`)) return false;
     const tag = el.tagName.toLowerCase();
-    const text = mediaAttrText(el);
     const raw = el.outerHTML || "";
-    const iframePattern = /youtube|youtu\.be|vimeo|wistia|brightcove|panopto|loom|player\.vimeo\.com|youtube\.com\/embed|embed|video/i;
     if (tag === "video") return true;
-    if (tag === "iframe" || tag === "embed" || tag === "object") {
-      if (iframePattern.test(text)) return true;
-    }
-    if (/\.(mp4|webm|ogv|m3u8|mpd)(?:[?#]|$)/i.test(text)) return true;
-    if (/videoobject/i.test(text)) return true;
-    if (/\bvideo\b|\bwebinar\b|\bvideo player\b/i.test(text)) return true;
-    if (/<video\b/i.test(raw)) return true;
-    if (html && /<video\b/i.test(html) && html.indexOf(raw) >= 0) return true;
+    if (tag === "iframe" && iframeHasMedia(el, "video")) return true;
+    if (/\.(mp4|webm|ogv|m3u8|mpd)(?:[?#]|$)/i.test(mediaAttrText(el))) return true;
+    if (/videoobject/i.test(mediaAttrText(el))) return true;
+    if (/<video/i.test(raw)) return true;
+    if (html && /<video/i.test(html) && html.indexOf(raw) >= 0) return true;
     return false;
   }
 
@@ -3431,11 +3371,15 @@
       rows.push(item);
     };
     const audioPattern = /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mid|midi)(?:[?#]|$)/i;
-    const candidates = [...document.querySelectorAll("audio[src],source[src],script[src],script[data-src],script[data-audio],script[data-url],script[data-file],script[data-media],script[data-track],script[data-player],[data-src],[data-audio],[data-url],[data-file],[data-media],[data-track],[data-player],a[href]")]
+    const candidates = [...document.querySelectorAll("audio[src],source[src],script[src],script[data-src],script[data-audio],script[data-url],script[data-file],script[data-media],script[data-track],script[data-player],iframe,[data-src],[data-audio],[data-url],[data-file],[data-media],[data-track],[data-player],a[href]")]
       .filter(el => !el.closest(`#${PANEL_ID}`));
     candidates.forEach(el => {
-      if (isVideoLike(el, html)) return;
       const tag = el.tagName.toLowerCase();
+      if (tag === "iframe" && !iframeHasMedia(el, "audio")) return;
+      if (tag === "iframe" || tag === "embed" || tag === "object") {
+        if (!iframeHasMedia(el, "audio")) return;
+      }
+      if (isVideoLike(el, html)) return;
       const attrs = ["src", "href", "data-src", "data-audio", "data-url", "data-file", "data-media", "data-track", "data-player"];
       const values = attrs.map(name => ({ name, value: el.getAttribute && el.getAttribute(name) || "" })).filter(item => item.value);
       if (!values.length) return;
@@ -3542,65 +3486,6 @@
       } catch (_error) {
         // Ignore invalid JSON-LD.
       }
-    });
-    return rows;
-  }
-
-  function audioTextClueCandidates(html) {
-    const rows = [];
-    const seen = new Set();
-    const pushRow = item => {
-      const key = `${item.kind}|${item.line}|${item.fragment}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      rows.push(item);
-    };
-    const clues = [
-      { label: "listen", regex: /listen(?: to)?/i },
-      { label: "play audio", regex: /play audio/i },
-      { label: "podcast", regex: /podcasts?/i },
-      { label: "episode", regex: /episodes?/i },
-      { label: "recording", regex: /recordings?/i },
-      { label: "interview", regex: /interviews?/i },
-      { label: "transcript", regex: /transcript(?:ion)?/i },
-      { label: "escuchar", regex: /escuchar/i },
-      { label: "reproducir audio", regex: /reproducir audio/i },
-      { label: "pódcast", regex: /p[oó]dcast/i },
-      { label: "grabación", regex: /grabaci[oó]n/i },
-      { label: "entrevista", regex: /entrevista/i },
-      { label: "transcripción", regex: /transcripci[oó]n/i },
-      { label: "audio", regex: /audio/i }
-    ];
-    const candidates = visibleElements('p,li,a,button,figcaption,span,div,section,article,h1,h2,h3,h4,h5,h6,td,th,strong,em')
-      .filter(el => !el.closest('nav,footer,header,aside,[role="navigation"]'))
-      .filter(el => textValue(el).length > 0)
-      .filter(el => !isVideoLike(el, html));
-    const used = new Set();
-    clues.forEach(clue => {
-      const matches = candidates.filter(el => clue.regex.test(textValue(el)));
-      if (!matches.length) return;
-      const scored = matches.map(el => {
-        const rect = el.getBoundingClientRect();
-        return { el, area: Math.max(1, Math.round(rect.width * rect.height)), len: textValue(el).length };
-      }).sort((a, b) => a.area - b.area || a.len - b.len);
-      const chosen = scored.find(item => !used.has(item.el));
-      if (!chosen) return;
-      used.add(chosen.el);
-      const info = sourceInfoForElement(chosen.el, html);
-      const snippet = sourceFragment(html, html.indexOf(chosen.el.outerHTML || ''), Math.min((chosen.el.outerHTML || '').length + 60, 240)) || textValue(chosen.el).slice(0, 240);
-      pushRow({
-        kind: 'clue',
-        file: currentHtmlFileName(),
-        line: info.line,
-        fragment: snippet,
-        insertion: 'Pista textual de audio',
-        target: chosen.el,
-        element: chosen.el,
-        severity: 'warn',
-        cluePhrase: clue.label,
-        problems: `Possible audio clue: ${clue.label}. Prioridad baja; comprueba si realmente refiere a un audio.`,
-        label: 'Possible audio clue'
-      });
     });
     return rows;
   }
@@ -4204,6 +4089,16 @@
             ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Problemas"]) : ""}
             ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
           `, { summary: "Audio", summaryDetail: "Observa si en el audio hay una transcripción textual.", summaryResult });
+          if (findings.length) {
+            requestAnimationFrame(() => {
+              const first = findings[0];
+              const focusTarget = first.target || first.element;
+              if (focusTarget) {
+                try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+                try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
+              }
+            });
+          }
           box.querySelectorAll("[data-apcf-show-media]").forEach(button => {
             button.addEventListener("click", () => {
               const item = findings[Number(button.dataset.apcfShowMedia)];
@@ -4260,6 +4155,12 @@
         `, { summary: "Vídeo", summaryDetail: "Observa si el video tiene subtítulos y audiodescripción o transcripción.", summaryResult });
         if (findings.length) {
           requestAnimationFrame(() => {
+            const first = findings[0];
+            const focusTarget = first.target || first.element;
+            if (focusTarget) {
+              try { focusTarget.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (_error) {}
+              try { focusTarget.focus({ preventScroll: true }); } catch (_error) { try { focusTarget.focus(); } catch (_ignored) {} }
+            }
             updateLabels();
           });
         }
