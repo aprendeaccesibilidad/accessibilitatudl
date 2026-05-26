@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "438";
+  const BUILD = "439";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -2149,8 +2149,26 @@
     return profiles.find(profile => profile.id === state.profile) || profiles[0];
   }
 
+  function queryAllDeep(selector, root = document) {
+    const results = [];
+    const seen = new Set();
+    const visitRoot = currentRoot => {
+      if (!currentRoot || !currentRoot.querySelectorAll) return;
+      currentRoot.querySelectorAll(selector).forEach(el => {
+        if (seen.has(el)) return;
+        seen.add(el);
+        results.push(el);
+      });
+      currentRoot.querySelectorAll("*").forEach(el => {
+        if (el.shadowRoot) visitRoot(el.shadowRoot);
+      });
+    };
+    visitRoot(root);
+    return results;
+  }
+
   function visibleElements(selector) {
-    return [...document.querySelectorAll(selector)]
+    return queryAllDeep(selector)
       .filter(el => !el.closest(`#${PANEL_ID}`))
       .filter(el => {
         const rect = el.getBoundingClientRect();
@@ -2160,7 +2178,7 @@
   }
 
   function pageElements(selector) {
-    return [...document.querySelectorAll(selector)]
+    return queryAllDeep(selector)
       .filter(el => !el.closest(`#${PANEL_ID}`))
       .filter(el => {
         const style = getComputedStyle(el);
@@ -4246,6 +4264,13 @@
   function open() {
     state.panelCollapsed = false;
     render();
+    if (state.active.has("video") || state.active.has("audio")) {
+      window.setTimeout(() => {
+        if (document.getElementById(PANEL_ID) && (state.active.has("video") || state.active.has("audio"))) {
+          refreshVisuals();
+        }
+      }, 600);
+    }
   }
   function close() { closePanel(); }
   function toggle() {
