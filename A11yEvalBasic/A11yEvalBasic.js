@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "434";
+  const BUILD = "435";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -3049,34 +3049,38 @@
       seen.add(key);
       rows.push(item);
     };
-    const regex = /<(video|video-cover)\b/gi;
-    let match;
-    while ((match = regex.exec(html))) {
-      const index = match.index;
-      const endTag = html.indexOf('>', index);
-      const end = endTag === -1 ? Math.min(html.length, index + 220) : Math.min(html.length, endTag + 1);
-      const fragment = html.slice(index, end).replace(/\s+/g, ' ').trim();
-      const snippet = fragment || '<video';
-      pushRow({
-        kind: 'video',
-        file: currentHtmlFileName(),
-        line: sourceLineNumber(html, index),
-        fragment: sourceFragment(html, index, Math.min(snippet.length + 60, 240)) || snippet,
-        insertion: 'Etiqueta <video> o <video-cover> detectada en el HTML fuente bruto',
-        target: null,
-        element: null,
-        href: '',
-        src: '',
-        poster: '',
-        hasControls: /\bcontrols\b/i.test(fragment),
-        hasCaptions: /<track\b[^>]*\bkind\s*=\s*["']?(captions|subtitles)["']?/i.test(html.slice(index, Math.min(html.length, index + 1200))),
-        trackKind: '',
-        severity: /\bcontrols\b/i.test(fragment) ? 'warn' : 'error',
-        problems: 'Etiqueta <video> o <video-cover> detectada en el HTML fuente bruto. Comprueba controles, subtítulos y transcripción.',
-        label: 'Vídeo detectado en HTML bruto',
-        rawFallback: true
-      });
-    }
+    const scan = (regex) => {
+      let match;
+      while ((match = regex.exec(html))) {
+        const index = match.index;
+        const endTag = html.indexOf('>', index);
+        const end = endTag === -1 ? Math.min(html.length, index + 220) : Math.min(html.length, endTag + 1);
+        const fragment = html.slice(index, end).replace(/\s+/g, ' ').trim();
+        const tagName = match[1].toLowerCase();
+        const snippet = fragment || `<${tagName}`;
+        pushRow({
+          kind: 'video',
+          file: currentHtmlFileName(),
+          line: sourceLineNumber(html, index),
+          fragment: sourceFragment(html, index, Math.min(snippet.length + 60, 240)) || snippet,
+          insertion: `Etiqueta <${tagName}> detectada en el HTML fuente bruto`,
+          target: null,
+          element: null,
+          href: '',
+          src: '',
+          poster: '',
+          hasControls: /\bcontrols\b/i.test(fragment),
+          hasCaptions: /<track\b[^>]*\bkind\s*=\s*["']?(captions|subtitles)["']?/i.test(html.slice(index, Math.min(html.length, index + 1200))),
+          trackKind: '',
+          severity: /\bcontrols\b/i.test(fragment) ? 'warn' : 'error',
+          problems: `Etiqueta <${tagName}> detectada en el HTML fuente bruto. Comprueba controles, subtítulos y transcripción.`,
+          label: 'Vídeo detectado en HTML bruto',
+          rawFallback: true
+        });
+      }
+    };
+    scan(/<(video)\b/gi);
+    scan(/<(video-cover)\b/gi);
     return rows;
   }
 
