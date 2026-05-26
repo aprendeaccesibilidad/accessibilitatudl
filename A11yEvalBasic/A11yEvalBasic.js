@@ -13,7 +13,7 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "427";
+  const BUILD = "430";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
@@ -2943,12 +2943,8 @@
 
   function isMediaPlayer(el, type) {
     const tag = el.tagName.toLowerCase();
-    const text = mediaAttrText(el);
-    const genericPlayer = /player|reproductor|media|jwplayer|kaltura|brightcove|loom|vidyard|streamable|twitch|facebook|tiktok/.test(text);
-    const videoPlayer = /youtube|youtu\.be|vimeo|wistia|dailymotion|video|jwplayer|kaltura|brightcove|loom|vidyard|streamable|twitch|facebook|tiktok/.test(text);
-    const audioPlayer = /soundcloud|spotify|podcast|audio|jwplayer|kaltura|brightcove|media/.test(text);
-    if (type === "audio") return tag === "audio" || audioPlayer || genericPlayer;
-    return tag === "video" || (tag === "iframe" && videoPlayer) || (tag === "embed" && videoPlayer) || (tag === "object" && videoPlayer) || genericPlayer;
+    if (type === "audio") return tag === "audio";
+    return tag === "video";
   }
 
   function mediaMarkTarget(el) {
@@ -2958,78 +2954,7 @@
   }
 
   function mediaPlayers(type) {
-    const selector = [
-      "audio",
-      "video",
-      "iframe",
-      "embed",
-      "object",
-      "iframe[src*='youtube']",
-      "iframe[src*='youtu.be']",
-      "iframe[src*='vimeo']",
-      "iframe[src*='soundcloud']",
-      "iframe[src*='spotify']",
-      "iframe[src*='dailymotion']",
-      "iframe[src*='twitch']",
-      "iframe[src*='loom']",
-      "iframe[src*='vidyard']",
-      "iframe[src*='jwplayer']",
-      "iframe[src*='kaltura']",
-      "iframe[src*='brightcove']",
-      "iframe[src*='facebook']",
-      "iframe[src*='tiktok']",
-      "[id*='player']",
-      "[class*='player']",
-      "[title*='player']",
-      "[aria-label*='player']",
-      "[id*='jw']",
-      "[class*='jw']",
-      "[title*='jw']",
-      "[aria-label*='jw']",
-      "[id*='kaltura']",
-      "[class*='kaltura']",
-      "[title*='kaltura']",
-      "[aria-label*='kaltura']",
-      "[id*='brightcove']",
-      "[class*='brightcove']",
-      "[title*='brightcove']",
-      "[aria-label*='brightcove']",
-      "[id*='Player']",
-      "[class*='Player']",
-      "[title*='Player']",
-      "[aria-label*='Player']",
-      "[id*='video']",
-      "[class*='video']",
-      "[title*='video']",
-      "[aria-label*='video']",
-      "[id*='Video']",
-      "[class*='Video']",
-      "[title*='Video']",
-      "[aria-label*='Video']",
-      "[id*='youtube']",
-      "[class*='youtube']",
-      "[title*='youtube']",
-      "[aria-label*='youtube']",
-      "[id*='vimeo']",
-      "[class*='vimeo']",
-      "[title*='vimeo']",
-      "[aria-label*='vimeo']",
-      "[id*='wistia']",
-      "[class*='wistia']",
-      "[title*='wistia']",
-      "[aria-label*='wistia']",
-      "[id*='dailymotion']",
-      "[class*='dailymotion']",
-      "[title*='dailymotion']",
-      "[aria-label*='dailymotion']",
-      "[id*='reproductor']",
-      "[class*='reproductor']",
-      "[title*='reproductor']",
-      "[aria-label*='reproductor']",
-      "a[href*='youtube']",
-      "a[href*='youtu.be']",
-      "a[href*='vimeo']"
-    ].join(",");
+    const selector = type === "audio" ? "audio" : "video";
     return visibleElements(selector).filter(el => isMediaPlayer(el, type));
   }
 
@@ -3345,7 +3270,6 @@
       { label: "your browser can't play this video", regex: /your browser can'?t play this video/i },
       { label: "recording", regex: /recording/i },
       { label: "webinar", regex: /webinar/i },
-      { label: "video", regex: /videos?/i }
     ];
     const candidates = visibleElements("p,li,a,button,figcaption,span,div,section,article,h1,h2,h3,h4,h5,h6,td,th,strong,em")
       .filter(el => !el.closest("nav,footer,header,aside,[role='navigation']"))
@@ -3451,36 +3375,12 @@
       });
     });
 
-    pageElements('iframe').forEach(iframe => {
-      if (iframeHasMedia(iframe, 'video')) {
-        addElementRow(iframe, 'iframe', 'iframe con vídeo dentro', iframe, {
-          severity: 'warn',
-          problems: 'Iframe con contenido real de vídeo detectado. Comprueba controles, subtítulos, transcripción y título accesible.'
-        });
-      }
-    });
-
-    pageElements('embed').forEach(embed => {
-      const text = `${embed.getAttribute('src') || ''} ${embed.getAttribute('type') || ''} ${embed.getAttribute('title') || ''}`;
-      if (/video|mp4|webm|ogg|youtube|vimeo|jwplayer|kaltura|brightcove/i.test(text)) {
-        addElementRow(embed, 'embed', 'embed incrustado', embed, { severity: 'warn' });
-      }
-    });
-
-    pageElements('object').forEach(object => {
-      const text = `${object.getAttribute('data') || ''} ${object.getAttribute('type') || ''} ${object.getAttribute('title') || ''}`;
-      if (/video|mp4|webm|ogg|youtube|vimeo|jwplayer|kaltura|brightcove/i.test(text)) {
-        addElementRow(object, 'object', 'object incrustado', object, { severity: 'warn' });
-      }
-    });
-
     if (!rows.some(item => item.kind === 'video') && /<video\b/i.test(html)) {
       rawVideoTagCandidates(html).forEach(pushRow);
     }
 
     videoDirectAttributeCandidates(html).forEach(pushRow);
     videoStructuredDataCandidates(html).forEach(pushRow);
-    videoTextClueCandidates(html).forEach(pushRow);
 
     pageElements('a[href]').forEach(link => {
       const href = link.getAttribute('href') || '';
@@ -3518,6 +3418,191 @@
   function isAlreadyMarkedAsVideo(el) {
     if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
     return !!el.closest('[data-video-detected], [data-detected-type="video"], [data-media-type="video"], .video-detected, .detected-video');
+  }
+
+
+  function audioDirectAttributeCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const audioPattern = /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mid|midi)(?:[?#]|$)/i;
+    const candidates = [...document.querySelectorAll("audio[src],source[src],script[src],script[data-src],script[data-audio],script[data-url],script[data-file],script[data-media],script[data-track],script[data-player],[data-src],[data-audio],[data-url],[data-file],[data-media],[data-track],[data-player],a[href]")]
+      .filter(el => !el.closest(`#${PANEL_ID}`));
+    candidates.forEach(el => {
+      if (isVideoLike(el, html)) return;
+      const tag = el.tagName.toLowerCase();
+      const attrs = ["src", "href", "data-src", "data-audio", "data-url", "data-file", "data-media", "data-track", "data-player"];
+      const values = attrs.map(name => ({ name, value: el.getAttribute && el.getAttribute(name) || "" })).filter(item => item.value);
+      if (!values.length) return;
+      const matches = values.filter(item => audioPattern.test(item.value) || /^audio\//i.test(item.value));
+      if (!matches.length) return;
+      const best = matches[0];
+      const kind = tag === "source" ? "source" : tag === "audio" ? "audio" : tag === "script" ? "link" : "link";
+      const info = sourceInfoForElement(el, html);
+      const raw = el.outerHTML || "";
+      const fragment = sourceFragment(html, html.indexOf(raw), Math.min(raw.length + 60, 240)) || raw.replace(/\s+/g, " ").trim();
+      pushRow({
+        kind,
+        file: currentHtmlFileName(),
+        line: info.line,
+        fragment,
+        insertion: `Atributo ${best.name} en <${tag}>`,
+        target: el,
+        element: el,
+        href: el.getAttribute ? el.getAttribute("href") : "",
+        src: el.getAttribute ? el.getAttribute("src") : "",
+        severity: "warn",
+        problems: `Atributo ${best.name} relacionado con audio (${best.value}). Comprueba controles, formato y alternativa textual.`,
+        label: "Posible audio detectado"
+      });
+    });
+    return rows;
+  }
+
+  function audioStructuredDataCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const scripts = [...document.querySelectorAll("script[type='application/ld+json']")].filter(el => !el.closest(`#${PANEL_ID}`));
+    const audioTypes = new Set(["audioobject", "podcastepisode", "musicrecording", "musicalbum", "radioepisode"]);
+    const emit = (script, obj) => {
+      const fields = {
+        name: obj.name || obj.headline || obj.caption || "",
+        description: obj.description || "",
+        contentUrl: obj.contentUrl || obj.url || "",
+        embedUrl: obj.embedUrl || "",
+        encodingFormat: obj.encodingFormat || "",
+        duration: obj.duration || "",
+        transcript: obj.transcript || ""
+      };
+      const summary = [
+        fields.name ? `name=${fields.name}` : "",
+        fields.contentUrl ? `contentUrl=${fields.contentUrl}` : "",
+        fields.embedUrl ? `embedUrl=${fields.embedUrl}` : "",
+        fields.encodingFormat ? `encodingFormat=${fields.encodingFormat}` : "",
+        fields.duration ? `duration=${fields.duration}` : "",
+        fields.transcript ? `transcript=${fields.transcript}` : ""
+      ].filter(Boolean).join(" · ");
+      const info = sourceInfoForElement(script, html);
+      pushRow({
+        kind: "schema",
+        file: currentHtmlFileName(),
+        line: info.line,
+        fragment: summary || sourceFragment(html, html.indexOf(script.outerHTML || ""), 240) || (script.outerHTML || "").replace(/\s+/g, " ").trim(),
+        insertion: "Metadatos estructurados JSON-LD AudioObject",
+        target: script,
+        element: script,
+        severity: "warn",
+        name: fields.name,
+        description: fields.description,
+        contentUrl: fields.contentUrl,
+        embedUrl: fields.embedUrl,
+        encodingFormat: fields.encodingFormat,
+        duration: fields.duration,
+        transcript: fields.transcript,
+        problems: `AudioObject${summary ? ` · ${summary}` : ""}`,
+        label: "AudioObject detectado"
+      });
+    };
+    const visit = (node, script) => {
+      if (!node) return;
+      if (Array.isArray(node)) {
+        node.forEach(child => visit(child, script));
+        return;
+      }
+      if (typeof node !== "object") return;
+      const type = node["@type"];
+      const types = Array.isArray(type) ? type : [type].filter(Boolean);
+      if (types.some(value => audioTypes.has(String(value).toLowerCase()))) {
+        emit(script, node);
+      }
+      if (String(type || "").toLowerCase().includes("videoobject")) return;
+      if (node["@graph"]) visit(node["@graph"], script);
+      Object.keys(node).forEach(key => {
+        if (key === "@context" || key === "@type" || key === "@graph") return;
+        const value = node[key];
+        if (value && typeof value === "object") visit(value, script);
+      });
+    };
+    scripts.forEach(script => {
+      const text = (script.textContent || script.innerText || "").trim();
+      if (!text) return;
+      try {
+        visit(JSON.parse(text), script);
+      } catch (_error) {
+        // Ignore invalid JSON-LD.
+      }
+    });
+    return rows;
+  }
+
+  function audioTextClueCandidates(html) {
+    const rows = [];
+    const seen = new Set();
+    const pushRow = item => {
+      const key = `${item.kind}|${item.line}|${item.fragment}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push(item);
+    };
+    const clues = [
+      { label: "listen", regex: /listen(?: to)?/i },
+      { label: "play audio", regex: /play audio/i },
+      { label: "podcast", regex: /podcasts?/i },
+      { label: "episode", regex: /episodes?/i },
+      { label: "recording", regex: /recordings?/i },
+      { label: "interview", regex: /interviews?/i },
+      { label: "transcript", regex: /transcript(?:ion)?/i },
+      { label: "escuchar", regex: /escuchar/i },
+      { label: "reproducir audio", regex: /reproducir audio/i },
+      { label: "pódcast", regex: /p[oó]dcast/i },
+      { label: "grabación", regex: /grabaci[oó]n/i },
+      { label: "entrevista", regex: /entrevista/i },
+      { label: "transcripción", regex: /transcripci[oó]n/i },
+      { label: "audio", regex: /audio/i }
+    ];
+    const candidates = visibleElements('p,li,a,button,figcaption,span,div,section,article,h1,h2,h3,h4,h5,h6,td,th,strong,em')
+      .filter(el => !el.closest('nav,footer,header,aside,[role="navigation"]'))
+      .filter(el => textValue(el).length > 0)
+      .filter(el => !isVideoLike(el, html));
+    const used = new Set();
+    clues.forEach(clue => {
+      const matches = candidates.filter(el => clue.regex.test(textValue(el)));
+      if (!matches.length) return;
+      const scored = matches.map(el => {
+        const rect = el.getBoundingClientRect();
+        return { el, area: Math.max(1, Math.round(rect.width * rect.height)), len: textValue(el).length };
+      }).sort((a, b) => a.area - b.area || a.len - b.len);
+      const chosen = scored.find(item => !used.has(item.el));
+      if (!chosen) return;
+      used.add(chosen.el);
+      const info = sourceInfoForElement(chosen.el, html);
+      const snippet = sourceFragment(html, html.indexOf(chosen.el.outerHTML || ''), Math.min((chosen.el.outerHTML || '').length + 60, 240)) || textValue(chosen.el).slice(0, 240);
+      pushRow({
+        kind: 'clue',
+        file: currentHtmlFileName(),
+        line: info.line,
+        fragment: snippet,
+        insertion: 'Pista textual de audio',
+        target: chosen.el,
+        element: chosen.el,
+        severity: 'warn',
+        cluePhrase: clue.label,
+        problems: `Possible audio clue: ${clue.label}. Prioridad baja; comprueba si realmente refiere a un audio.`,
+        label: 'Possible audio clue'
+      });
+    });
+    return rows;
   }
 
   function audioAttrText(el) {
@@ -3642,47 +3727,20 @@
       }
     });
 
-    pageElements("iframe").forEach(iframe => {
-      if (iframeHasMedia(iframe, "audio") && !iframeHasMedia(iframe, "video") && !isVideoLike(iframe, html)) {
-        addRow(iframe, "iframe", "iframe con audio dentro", {
-          severity: "warn",
-          problems: "Iframe con contenido real de audio detectado. Comprueba controles, transcripción, título accesible y alternativa textual."
-        });
-      }
-    });
-
     if (!rows.some(item => item.kind === 'audio') && /<audio\b/i.test(html)) {
       rawAudioTagCandidates(html).forEach(pushRow);
     }
 
     audioDirectAttributeCandidates(html).forEach(pushRow);
     audioStructuredDataCandidates(html).forEach(pushRow);
-    audioTextClueCandidates(html).forEach(pushRow);
 
     all("a[href]").forEach(link => {
       const href = link.getAttribute("href") || "";
-      const visible = textValue(link);
       if (!isVideoLike(link, html) && /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus|weba|mid|midi)(?:[?#]|$)/i.test(href)) {
         addRow(link, "link", "Enlace directo a audio", {
           severity: /download/i.test(audioAttrText(link)) ? "warn" : "warn",
           fragment: link.outerHTML.replace(/\s+/g, " ").trim(),
           problems: audioIssueText({ kind: "link" })
-        });
-      } else if (!isVideoLike(link, html) && ((/play|pause|reproducir|pausar|mute|silenciar|volume|volumen|audio-player|sound|player/.test(audioAttrText(link)) || /play|pause|reproducir|pausar|mute|silenciar|volume|volumen/i.test(visible)) && /audio|sound|player/.test(audioAttrText(link)))) {
-        addRow(link, "button", "Control personalizado de audio", {
-          severity: "warn",
-          problems: audioIssueText({ kind: "button" })
-        });
-      }
-    });
-
-    all("button,[role='button'],[aria-label],[aria-labelledby],[title]").forEach(el => {
-      if (isVideoLike(el, html) || isAlreadyMarkedAsVideo(el)) return;
-      const text = audioAttrText(el);
-      if (/play|pause|reproducir|pausar|mute|silenciar|volume|volumen|audio-player|sound|player/.test(text)) {
-        addRow(el, "button", "Control personalizado de audio", {
-          severity: "warn",
-          problems: audioIssueText({ kind: "button" })
         });
       }
     });
