@@ -13,11 +13,13 @@
   const FLOATING = "apcf-floating";
   const FOCUS_INFO_ID = "wai-info-box";
   const FOCUS_STYLE_ID = "wai-styles";
-  const BUILD = "492";
+  const FOCUS_ORDER_ROUTE_ID = "apcf-focus-order-route";
+  const BUILD = "547";
   const PANEL_WIDTH_VAR = "--apcf-panel-width";
   const PANEL_WIDTH_OPEN = "410px";
   const PANEL_WIDTH_COLLAPSED = "4.25rem";
   const INFO_URL = "https://accessibilitat.udl.cat/A11yEvalBasic/";
+  const SURVEY_URL = "https://docs.google.com/forms/d/1Eu5WPCpfRFY8k0DB4W_pngPsdt78T6g9i8aDtKATpJI/preview";
   const SCRIPT_BASE = (() => {
     const src = document.currentScript && document.currentScript.src;
     return src ? src.slice(0, src.lastIndexOf("/") + 1) : "";
@@ -189,9 +191,12 @@
   }
 
   function injectStyles() {
-    if (document.getElementById(STYLE_ID)) return;
+    const existingStyle = document.getElementById(STYLE_ID);
+    if (existingStyle && existingStyle.dataset.apcfBuild === BUILD) return;
+    existingStyle?.remove();
     const style = document.createElement("style");
     style.id = STYLE_ID;
+    style.dataset.apcfBuild = BUILD;
     style.textContent = `
       html.${PAGE_SHIFT} {
         --apcf-panel-width: ${PANEL_WIDTH_OPEN};
@@ -220,7 +225,7 @@
         width: var(${PANEL_WIDTH_VAR});
         height: 100vh;
         display: grid;
-        grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+        grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
         background: #f7f7f5;
         color: #171717;
         border-right: 1px solid #d7d7d2;
@@ -320,7 +325,7 @@
 
       #${PANEL_ID} .apcf-window-title {
         gap: .45rem !important;
-        font-size: 1.34rem !important;
+        font-size: 1.42rem !important;
       }
 
       #${PANEL_ID} .apcf-title-icon {
@@ -411,7 +416,7 @@
         justify-content: flex-start;
         gap: .38rem;
         color: #ffffff;
-        font-size: 1.31rem;
+        font-size: 1.58rem;
         line-height: 1;
         font-weight: 950;
         justify-self: start;
@@ -421,8 +426,12 @@
       }
 
       #${PANEL_ID} .apcf-title-icon {
-        width: 2rem;
-        height: 2rem;
+        width: 2.3rem;
+        height: 2.3rem;
+        max-width: 2.3rem;
+        min-width: 2.3rem;
+        max-height: 2.3rem;
+        min-height: 2.3rem;
         padding: 0;
         border-radius: 0;
         background: transparent;
@@ -435,7 +444,7 @@
       #${PANEL_ID} .apcf-release-note {
         display: block;
         display: inline-block;
-        margin: .24rem 0 0;
+        margin: .12rem auto;
         padding: .16rem .32rem .2rem;
         width: fit-content;
         max-width: 100%;
@@ -445,7 +454,7 @@
         font-size: .7rem;
         font-weight: 850;
         line-height: 1.15;
-        text-align: right;
+        text-align: center;
         white-space: nowrap;
       }
 
@@ -683,7 +692,7 @@
 
       #${PANEL_ID} .apcf-check[aria-pressed="true"] .apcf-option-dot {
         border: 5px solid #171717;
-        background: #ffffff;
+        background: #171717;
       }
 
       #${PANEL_ID} .apcf-check-title {
@@ -803,20 +812,101 @@
       }
 
       #${PANEL_ID} .apcf-profile-wrap input:checked + .apcf-profile {
-        background: #fff5d6;
-        color: #831451;
-        box-shadow: inset 0 6px 0 #821550;
-        outline: 3px solid #821550;
+        background: transparent;
+        color: #4d4d4d;
+        box-shadow: inset 0 0 0 2px #171717;
+        outline: 2px solid #171717;
         outline-offset: -2px;
       }
 
       #${PANEL_ID} .apcf-close:focus-visible,
       #${PANEL_ID} .apcf-panel-toggle:focus-visible,
       #${PANEL_ID} .apcf-release-note a:focus-visible,
+      #${PANEL_ID} .apcf-feedback-link:focus-visible,
       #${PANEL_ID} .apcf-check:focus-visible,
       #${PANEL_ID} .apcf-profile-wrap input:focus-visible + .apcf-profile {
         outline: 4px solid #0b66d8;
         outline-offset: -3px;
+      }
+
+      #${PANEL_ID} .apcf-feedback {
+        margin: 0;
+        padding: .36rem .45rem .42rem;
+        border-top: 1px solid #dadad7;
+        background: #ffffff;
+        box-shadow: 0 -6px 16px rgb(0 0 0 / .08);
+      }
+
+      #${PANEL_ID} .apcf-feedback-link {
+        display: grid;
+        grid-template-columns: 2rem minmax(0, 1fr);
+        align-items: center;
+        gap: .52rem;
+        min-height: 3.05rem;
+        padding: .46rem .68rem;
+        border: 2px solid #000000;
+        border-radius: .85rem;
+        background: #004D73;
+        color: #ffffff;
+        text-decoration: none;
+        box-shadow: 0 8px 18px rgb(0 0 0 / .18);
+      }
+
+      #${PANEL_ID} .apcf-feedback-link:hover {
+        background: #f7bd3d;
+        color: #171717;
+        text-decoration: underline;
+        text-decoration-thickness: .14em;
+        text-underline-offset: .16em;
+      }
+
+      #${PANEL_ID} .apcf-feedback-link:focus-visible {
+        background: #f7bd3d;
+        color: #171717;
+        outline: 3px solid #f7bd3d;
+        outline-offset: 2px;
+      }
+
+      #${PANEL_ID} .apcf-feedback-icon {
+        display: inline-grid;
+        place-items: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #004D73;
+        font-size: 1.08rem;
+        font-weight: 950;
+        line-height: 1;
+      }
+
+      #${PANEL_ID} .apcf-feedback-text {
+        display: grid;
+        gap: .05rem;
+        min-width: 0;
+        align-content: center;
+        justify-content: start;
+        text-align: left;
+      }
+
+      #${PANEL_ID} .apcf-feedback-text strong {
+        display: block;
+        font-size: .94rem;
+        line-height: 1.05;
+        font-weight: 950;
+        margin: 0;
+      }
+
+      #${PANEL_ID} .apcf-feedback-text span {
+        display: block;
+        font-size: .76rem;
+        line-height: 1.1;
+        font-weight: 750;
+        margin: 0;
+      }
+
+      #${PANEL_ID} .apcf-feedback-link {
+        align-items: center;
       }
 
       .${MARK} {
@@ -834,6 +924,7 @@
         outline: 2px solid #ECB63A !important;
         outline-offset: 0 !important;
         box-shadow: inset 0 0 0 2px #171717 !important;
+        border: 2px solid #171717 !important;
         border-radius: .25rem !important;
       }
 
@@ -1058,12 +1149,27 @@
         font-weight: 800 !important;
         font-size: 1.08rem !important;
         line-height: 1.45 !important;
+        white-space: pre-line !important;
+      }
+      .${FLOATING} .apcf-iframe-note {
+        margin-top: .65rem !important;
+        border: 1px solid rgb(255 255 255 / .22) !important;
+        border-radius: .55rem !important;
+        background: #3a3a3a !important;
+        color: #eeeeee !important;
+        padding: .65rem .75rem !important;
+        font-weight: 650 !important;
+      }
+      .${FLOATING} .apcf-iframe-note strong {
+        color: #ffffff !important;
+        font-weight: 900 !important;
       }
       .${FLOATING} .apcf-result {
         color: #ffffff !important;
         font-weight: 650 !important;
         font-size: 1.05rem !important;
         line-height: 1.45 !important;
+        white-space: pre-line !important;
       }
       .${FLOATING} .apcf-problem {
         display: flex !important;
@@ -1333,8 +1439,12 @@
         grid-template-columns: 3.4rem minmax(3rem, 4.8rem) minmax(0, 1.2fr) minmax(0, 1fr) !important;
       }
 
+      .${FLOATING} .apcf-list-head--audio {
+        grid-template-columns: 3rem minmax(14rem, 1.45fr) minmax(0, 1fr) !important;
+      }
+
       .${FLOATING} .apcf-list-head--video {
-        grid-template-columns: 3rem minmax(8rem, .85fr) minmax(3.25rem, .45fr) minmax(0, 1.55fr) minmax(7rem, .95fr) minmax(0, 1.2fr) !important;
+        grid-template-columns: 3rem minmax(14rem, 1.45fr) minmax(0, 1fr) !important;
       }
 
       .${FLOATING} .apcf-list-head--image > span:first-child {
@@ -1353,12 +1463,64 @@
         grid-template-columns: 3rem minmax(10rem, 16%) minmax(0, 1fr) minmax(0, 1fr) !important;
       }
 
+      .${FLOATING} .apcf-list-head--hidden-start {
+        grid-template-columns: 3rem minmax(7rem, .75fr) minmax(0, 1fr) minmax(0, 1fr) !important;
+      }
+
+      .${FLOATING} .apcf-list-head--focus-order {
+        grid-template-columns: 3rem 4.2rem minmax(0, 1fr) !important;
+      }
+
       .${FLOATING} .apcf-list-head--heading {
         grid-template-columns: 4rem minmax(0, 1fr) !important;
+        margin-top: 0 !important;
+        top: 0 !important;
+        z-index: 5 !important;
       }
 
       .${FLOATING} .apcf-list-head--landmark {
         grid-template-columns: minmax(9rem, .9fr) minmax(0, 1.05fr) minmax(0, 1.05fr) !important;
+        margin-top: 0 !important;
+        top: 0 !important;
+        z-index: 5 !important;
+      }
+
+      .${FLOATING} .apcf-landmark-panel {
+        display: grid !important;
+        grid-template-rows: auto minmax(0, 1fr) !important;
+        gap: .75rem !important;
+        max-height: calc(min(74vh, calc(100vh - 2rem)) - 5.8rem) !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .${FLOATING} .apcf-landmark-info {
+        display: grid !important;
+        gap: .45rem !important;
+      }
+
+      .${FLOATING} .apcf-heading-table {
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: auto !important;
+        margin-top: 0 !important;
+        border-radius: .65rem !important;
+      }
+
+      .${FLOATING} .apcf-heading-table .apcf-tree {
+        margin-top: 0 !important;
+        border: 1px solid #747474 !important;
+        border-top: 0 !important;
+        border-radius: 0 0 .65rem .65rem !important;
+        padding-top: .45rem !important;
+      }
+
+      .${FLOATING} .apcf-landmark-table {
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: auto !important;
+        margin-top: 0 !important;
+        border-radius: .65rem !important;
       }
 
       .${FLOATING} .apcf-landmark-map {
@@ -1424,7 +1586,7 @@
       }
 
       .${FLOATING} .apcf-video-item {
-        grid-template-columns: 3rem minmax(8rem, .85fr) minmax(3.25rem, .45fr) minmax(0, 1.55fr) minmax(7rem, .95fr) minmax(0, 1.2fr) !important;
+        grid-template-columns: 3rem minmax(14rem, 1.45fr) minmax(0, 1fr) !important;
       }
 
       .${FLOATING} .apcf-form-item strong {
@@ -1537,12 +1699,15 @@
       }
 
       .${FLOATING} .apcf-video-item > :nth-child(3) {
-        text-align: center !important;
-        font-variant-numeric: tabular-nums !important;
+        word-break: break-word !important;
       }
 
-      .${FLOATING} .apcf-video-item > :nth-child(4),
-      .${FLOATING} .apcf-video-item > :nth-child(6) {
+      .${FLOATING} .apcf-audio-item {
+        grid-template-columns: 3rem minmax(14rem, 1.45fr) minmax(0, 1fr) !important;
+        border-color: #ffffff !important;
+      }
+
+      .${FLOATING} .apcf-audio-item > :nth-child(3) {
         word-break: break-word !important;
       }
 
@@ -1813,7 +1978,7 @@
         width: var(${PANEL_WIDTH_VAR}) !important;
         height: 100vh !important;
         display: grid !important;
-        grid-template-rows: auto auto auto auto minmax(0, 1fr) auto !important;
+        grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto !important;
         align-content: start !important;
         justify-content: start !important;
         overflow: visible !important;
@@ -1958,7 +2123,7 @@
         margin-right: 0 !important;
         margin-bottom: 0 !important;
         color: #ffffff !important;
-        font-size: 1.31rem !important;
+        font-size: 1.58rem !important;
         line-height: .96 !important;
         font-weight: 950 !important;
         text-align: left !important;
@@ -1968,10 +2133,12 @@
 
       #${PANEL_ID} .apcf-title-icon {
         display: block !important;
-        width: 2rem !important;
-        height: 2rem !important;
-        max-width: 2rem !important;
-        min-width: 2rem !important;
+        width: 2.3rem !important;
+        height: 2.3rem !important;
+        max-width: 2.3rem !important;
+        min-width: 2.3rem !important;
+        max-height: 2.3rem !important;
+        min-height: 2.3rem !important;
         padding: 0 !important;
         border: 0 !important;
         border-radius: 0 !important;
@@ -1981,10 +2148,18 @@
         opacity: 1 !important;
       }
 
+      #${PANEL_ID} .apcf-header a:focus-visible,
+      #${PANEL_ID} .apcf-header button:focus-visible,
+      #${PANEL_ID} .apcf-header [tabindex]:focus-visible {
+        outline: 3px solid #ffffff !important;
+        outline-offset: 2px !important;
+        box-shadow: 0 0 0 2px #831451 !important;
+      }
+
       #${PANEL_ID} .apcf-release-note {
         display: block !important;
         display: inline-block !important;
-        margin: .26rem 0 0 !important;
+        margin: .12rem auto !important;
         padding: .18rem .35rem .18rem !important;
         background: #ffffff !important;
         color: #171717 !important;
@@ -1993,7 +2168,7 @@
         font-size: .72rem !important;
         font-weight: 850 !important;
         line-height: 1.15 !important;
-        text-align: left !important;
+        text-align: center !important;
         white-space: nowrap !important;
       }
 
@@ -2226,6 +2401,7 @@
       el.removeAttribute("data-a11y-audio-label");
     });
     document.querySelectorAll(`.${LABEL}`).forEach(el => el.remove());
+    document.getElementById(FOCUS_ORDER_ROUTE_ID)?.remove();
     document.querySelectorAll("[data-apcf-image-alt-annotated]").forEach(img => {
       const prev = img.getAttribute("data-apcf-image-prev-border") || "";
       if (prev) img.style.border = prev;
@@ -2236,6 +2412,7 @@
       img.removeAttribute("data-apcf-image-prev-border");
       img.removeAttribute("data-apcf-image-alt-annotated");
     });
+    clearFormInlineNotes();
   }
 
   function clearFocusView() {
@@ -2318,6 +2495,12 @@
   }
 
   function positionLabel(label) {
+    if (label.dataset.apcfHiddenStartLabel === "true") {
+      const index = Number(label.dataset.apcfHiddenStartIndex || "0");
+      label.style.left = "12px";
+      label.style.top = `${12 + index * 42}px`;
+      return;
+    }
     const targetId = label.dataset.apcfTarget;
     const target = targetId ? document.querySelector(`[data-apcf-mark-id="${CSS.escape(targetId)}"]`) : null;
     if (!target) return;
@@ -2534,6 +2717,45 @@
     return (el.textContent || "").replace(/\s+/g, " ").trim();
   }
 
+  function normalizedText(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\p{L}\p{N}\s]/gu, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLocaleLowerCase("es-ES");
+  }
+
+  function genericLinkTextReason(value) {
+    const text = normalizedText(value);
+    if (!text) return "";
+    const generic = new Set([
+      "leer mas",
+      "ver mas",
+      "mas",
+      "mas info",
+      "mas informacion",
+      "info",
+      "informacion",
+      "saber mas",
+      "conocer mas",
+      "ampliar",
+      "detalle",
+      "detalles",
+      "continuar",
+      "seguir leyendo",
+      "read more",
+      "more",
+      "more info",
+      "learn more",
+      "details"
+    ]);
+    if (generic.has(text)) return `Texto de enlace poco descriptivo: "${value}".`;
+    if (/^(leer|ver|saber|conocer|mostrar|ampliar)\s+mas$/.test(text)) return `Texto de enlace poco descriptivo: "${value}".`;
+    return "";
+  }
+
   function explainResult(explain, result) {
     return `<p class="apcf-explain">${escapeHtml(explain)}</p><p class="apcf-result">${result}</p>`;
   }
@@ -2582,6 +2804,11 @@
     const ariaLabel = (field.getAttribute("aria-label") || "").trim();
     const name = accessibleName(field).trim();
     const labelText = labelForField(field).trim();
+    const tag = field.tagName.toLowerCase();
+    const type = (field.getAttribute("type") || "").toLowerCase();
+    const buttonLike = tag === "button" || (tag === "input" && ["button", "submit", "reset"].includes(type)) || field.getAttribute("role") === "button";
+    const buttonText = textValue(field) || (tag === "input" ? (field.getAttribute("value") || "").trim() : "");
+    const buttonHasVisibleName = buttonLike && !!buttonText;
     const source = explicit
       ? `label[for="${id}"]`
       : wrapped
@@ -2591,11 +2818,13 @@
           : ariaLabel
             ? `aria-label: ${ariaLabel}`
             : "";
-    const hasLabel = !!(explicit || wrapped || labelledBy || ariaLabel);
+    const hasLabel = !!(explicit || wrapped || labelledBy || ariaLabel || buttonHasVisibleName);
     const hasName = !!name;
     const title = hasName
       ? (labelText ? `Etiqueta: ${labelText}` : `Nombre accesible: ${name}`)
-      : (id
+      : buttonHasVisibleName
+        ? `Texto visible: ${buttonText}`
+        : (id
           ? `Sin etiqueta (no se encontró label para el ID='${id}')`
           : "Sin etiqueta");
     const detail = [
@@ -2603,10 +2832,50 @@
       wrapped ? `Etiqueta envolvente: ${labelText || "sin texto"}` : "",
       labelledBy ? `Etiqueta por aria-labelledby: ${labelledByIds.join(" ")}` : "",
       ariaLabel ? `Etiqueta ARIA: ${ariaLabel}` : "",
+      buttonHasVisibleName ? `Texto visible del control: ${buttonText}` : "",
       source ? `Origen: ${source}` : "",
       hasName ? `Nombre accesible: ${name}` : "Sin nombre accesible"
     ].filter(Boolean).join(" · ");
     return { hasLabel, hasName, title, detail, labelText, name, explicit, wrapped, labelledByIds, ariaLabel };
+  }
+
+  function clearFormInlineNotes() {
+    document.querySelectorAll("[data-apcf-form-inline-note='true']").forEach(note => {
+      const prevBorder = note.dataset.apcfFormPrevBorder || "";
+      const prevOutline = note.dataset.apcfFormPrevOutline || "";
+      const targetId = note.dataset.apcfTargetId || "";
+      const target = targetId ? document.getElementById(targetId) : null;
+      if (target) {
+        if (prevBorder) target.style.border = prevBorder;
+        else target.style.removeProperty("border");
+        if (prevOutline) target.style.outline = prevOutline;
+        else target.style.removeProperty("outline");
+        target.style.removeProperty("outline-offset");
+      }
+      note.remove();
+    });
+  }
+
+  function annotateFormInline(field, message, severity = "warn") {
+    if (!field) return null;
+    const note = document.createElement("div");
+    note.dataset.apcfFormInlineNote = "true";
+    note.dataset.apcfTargetId = field.id || "";
+    note.dataset.apcfFormPrevBorder = field.style.border || "";
+    note.dataset.apcfFormPrevOutline = field.style.outline || "";
+    note.style.marginTop = "5px";
+    note.style.padding = "5px";
+    note.style.borderRadius = "5px";
+    note.style.fontSize = "14px";
+    note.style.lineHeight = "1.35";
+    note.style.whiteSpace = "pre-line";
+    note.style.border = "1px solid transparent";
+    note.style.backgroundColor = severity === "error" ? "#F9D7DA" : "#FFF1BF";
+    note.style.color = severity === "error" ? "#721C23" : "#6A4E00";
+    note.innerText = message;
+    field.style.border = severity === "error" ? "2px solid red" : "2px solid #b88200";
+    field.insertAdjacentElement("afterend", note);
+    return note;
   }
 
   function revealElement(el, label, severity = "warn", options = {}) {
@@ -2653,8 +2922,123 @@ ${options.detail}` : "";
     return pageElements("a[href],button,select,input:not([type='hidden']),textarea,summary,details,area,[tabindex],[contenteditable]:not([contenteditable='false'])")
       .filter(el => {
         const tabindex = el.getAttribute("tabindex");
-        return tabindex !== "-1";
+        const disabled = el.matches("button:disabled,input:disabled,select:disabled,textarea:disabled,[disabled],[aria-disabled='true']");
+        const rect = el.getBoundingClientRect();
+        return tabindex !== "-1" && !disabled && rect.width > 0 && rect.height > 0;
       });
+  }
+
+  function hiddenStartElementIdentifier(el) {
+    if (el.id) return `#${el.id}`;
+    const href = el.getAttribute("href");
+    if (href) return `${el.tagName.toLowerCase()}[href="${href.slice(0, 52)}"]`;
+    const name = el.getAttribute("name");
+    if (name) return `${el.tagName.toLowerCase()}[name="${name.slice(0, 52)}"]`;
+    const ariaLabel = el.getAttribute("aria-label");
+    if (ariaLabel) return `[aria-label="${ariaLabel.slice(0, 52)}"]`;
+    return cssPath(el) || el.tagName.toLowerCase();
+  }
+
+  function hiddenStartElementReason(el) {
+    const rect = el.getBoundingClientRect();
+    const style = getComputedStyle(el);
+    if (style.display === "none") return "display:none";
+    if (style.visibility === "hidden") return "visibility:hidden";
+    if (style.opacity === "0") return "opacity:0";
+    if (style.clip !== "auto" || style.clipPath !== "none") return "recortado visualmente";
+    if (rect.width <= 1 || rect.height <= 1) return "sin caja visible";
+    if (rect.right <= 0 || rect.bottom <= 0 || rect.left >= window.innerWidth || rect.top >= window.innerHeight) return "fuera de la ventana visible";
+    if (style.position === "absolute" && (Number.parseFloat(style.left) < -20 || Number.parseFloat(style.top) < -20)) return "posicionado fuera de pantalla";
+    return "";
+  }
+
+  function hiddenStartFocusableElements() {
+    const selector = "a[href],button,select,input:not([type='hidden']),textarea,summary,details,area,[tabindex],[contenteditable]:not([contenteditable='false'])";
+    const candidates = [...document.body.querySelectorAll(selector)]
+      .filter(el => !el.closest(`#${PANEL_ID}, .${FLOATING}`))
+      .filter(el => !el.matches("button:disabled,input:disabled,select:disabled,textarea:disabled,[disabled],[aria-disabled='true']"))
+      .filter(el => el.getAttribute("tabindex") !== "-1")
+      .slice(0, 40);
+    return candidates
+      .map(el => ({ el, reason: hiddenStartElementReason(el) }))
+      .filter(item => item.reason);
+  }
+
+  function markHiddenStartElement(el, index) {
+    const label = mark(el, hiddenStartElementIdentifier(el), "warn");
+    if (!label) return null;
+    label.dataset.apcfHiddenStartLabel = "true";
+    label.dataset.apcfHiddenStartIndex = String(index);
+    label.textContent = hiddenStartElementIdentifier(el);
+    label.style.position = "fixed";
+    label.style.zIndex = "2147483647";
+    label.style.maxWidth = "min(34rem, calc(100vw - 2rem))";
+    positionLabel(label);
+    return label;
+  }
+
+  function tabOrderedPageElements() {
+    const indexed = focusablePageElements().map((el, index) => {
+      const tabindexAttr = el.getAttribute("tabindex");
+      const tabindex = tabindexAttr == null || tabindexAttr === "" ? 0 : Number(tabindexAttr);
+      return { el, index, tabindex: Number.isFinite(tabindex) ? tabindex : 0 };
+    });
+    return [
+      ...indexed.filter(item => item.tabindex > 0).sort((a, b) => a.tabindex - b.tabindex || a.index - b.index),
+      ...indexed.filter(item => item.tabindex <= 0).sort((a, b) => a.index - b.index)
+    ].map(item => item.el);
+  }
+
+  function drawFocusOrderRoute(elements) {
+    document.getElementById(FOCUS_ORDER_ROUTE_ID)?.remove();
+    const points = elements.map(el => {
+      const rect = el.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      return {
+        x: window.scrollX + rect.left + rect.width / 2,
+        y: window.scrollY + rect.top + rect.height / 2
+      };
+    }).filter(Boolean);
+    if (points.length < 2) return;
+    const width = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth, window.innerWidth);
+    const height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight, window.innerHeight);
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.id = FOCUS_ORDER_ROUTE_ID;
+    svg.setAttribute("width", String(width));
+    svg.setAttribute("height", String(height));
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("aria-hidden", "true");
+    svg.style.position = "absolute";
+    svg.style.left = "0";
+    svg.style.top = "0";
+    svg.style.width = `${width}px`;
+    svg.style.height = `${height}px`;
+    svg.style.pointerEvents = "none";
+    svg.style.zIndex = "2147483645";
+    const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    polyline.setAttribute("points", points.map(point => `${point.x},${point.y}`).join(" "));
+    polyline.setAttribute("fill", "none");
+    polyline.setAttribute("stroke", "#f7bd3d");
+    polyline.setAttribute("stroke-width", "4");
+    polyline.setAttribute("stroke-linecap", "round");
+    polyline.setAttribute("stroke-linejoin", "round");
+    polyline.setAttribute("stroke-dasharray", "10 7");
+    polyline.setAttribute("opacity", ".96");
+    svg.appendChild(polyline);
+    document.body.appendChild(svg);
+  }
+
+  function focusOrderElementId(el) {
+    if (el.id) return `#${el.id}`;
+    const ariaLabel = el.getAttribute("aria-label");
+    if (ariaLabel) return `[aria-label="${ariaLabel.slice(0, 40)}"]`;
+    const name = el.getAttribute("name");
+    if (name) return `${el.tagName.toLowerCase()}[name="${name.slice(0, 40)}"]`;
+    return cssPath(el) || el.tagName.toLowerCase();
+  }
+
+  function focusOrderElementLabel(el) {
+    return accessibleName(el) || el.getAttribute("title") || textValue(el) || el.getAttribute("href") || el.tagName.toLowerCase();
   }
 
   function applyFocusView() {
@@ -2705,27 +3089,147 @@ ${options.detail}` : "";
     const elements = focusablePageElements()
       .filter(el => !el.closest(`#${FOCUS_INFO_ID}, .${FLOATING}`));
     const previousActive = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusProperties = [
+      "outline",
+      "outline-color",
+      "outline-style",
+      "outline-width",
+      "outline-offset",
+      "box-shadow",
+      "border",
+      "border-top-color",
+      "border-right-color",
+      "border-bottom-color",
+      "border-left-color",
+      "border-top-style",
+      "border-right-style",
+      "border-bottom-style",
+      "border-left-style",
+      "border-top-width",
+      "border-right-width",
+      "border-bottom-width",
+      "border-left-width",
+      "background-color",
+      "color",
+      "text-decoration",
+      "text-decoration-color",
+      "text-decoration-line",
+      "text-decoration-style",
+      "text-decoration-thickness",
+      "text-underline-offset",
+      "filter"
+    ];
+    const focusStyleSnapshot = styles => {
+      const snapshot = new Map();
+      focusProperties.forEach(property => {
+        snapshot.set(property, {
+          value: styles.getPropertyValue(property),
+          priority: styles.getPropertyPriority(property)
+        });
+      });
+      return snapshot;
+    };
+    const changedFocusProperties = (before, after) => focusProperties.filter(property => (
+      before.get(property)?.value !== after.get(property)?.value
+    ));
+    const splitSelectors = selectorText => {
+      const selectors = [];
+      let current = "";
+      let depth = 0;
+      for (const char of selectorText) {
+        if (char === "(") depth += 1;
+        if (char === ")") depth = Math.max(0, depth - 1);
+        if (char === "," && depth === 0) {
+          selectors.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      if (current.trim()) selectors.push(current.trim());
+      return selectors;
+    };
+    const selectorMatchesFocusedElement = (selector, el) => {
+      if (!/:focus(?:-visible)?\b/.test(selector) || selector.includes("::") || /:not\([^)]*:focus/.test(selector)) return false;
+      const unfocusedSelector = selector
+        .replace(/:focus-visible\b/g, "")
+        .replace(/:focus\b/g, "")
+        .trim();
+      try {
+        return !!unfocusedSelector && el.matches(unfocusedSelector);
+      } catch (_error) {
+        return false;
+      }
+    };
+    const collectFocusCssStyles = el => {
+      const collected = new Map();
+      const visitRules = rules => {
+        [...rules].forEach(rule => {
+          if (rule.cssRules) {
+            try { visitRules(rule.cssRules); } catch (_error) {}
+            return;
+          }
+          if (!(rule instanceof CSSStyleRule) || !/:focus(?:-visible)?\b/.test(rule.selectorText)) return;
+          const matches = splitSelectors(rule.selectorText).some(selector => selectorMatchesFocusedElement(selector, el));
+          if (!matches) return;
+          focusProperties.forEach(property => {
+            const value = rule.style.getPropertyValue(property);
+            if (value) {
+              collected.set(property, {
+                value,
+                priority: rule.style.getPropertyPriority(property)
+              });
+            }
+          });
+        });
+      };
+      [...document.styleSheets].forEach(sheet => {
+        try { visitRules(sheet.cssRules); } catch (_error) {}
+      });
+      return collected;
+    };
+    const hasVisibleFocusIndicator = styles => {
+      const get = property => styles.get(property)?.value || "";
+      const outline = get("outline");
+      const outlineWidth = Number.parseFloat(get("outline-width")) || 0;
+      const outlineVisible = (outline && outline !== "none") || (get("outline-style") !== "none" && outlineWidth > 0);
+      const boxShadow = get("box-shadow");
+      const boxShadowVisible = boxShadow && boxShadow !== "none";
+      const border = get("border");
+      const borderShorthandVisible = border && border !== "none" && !/^0(?:px)?\b/.test(border);
+      const borderVisible = ["top", "right", "bottom", "left"].some(side => (
+        get(`border-${side}-style`) !== "none" &&
+        (Number.parseFloat(get(`border-${side}-width`)) || 0) > 0
+      ));
+      const textDecoration = get("text-decoration");
+      const textDecorationVisible = (textDecoration && textDecoration !== "none") || get("text-decoration-line") !== "none";
+      return outlineVisible || boxShadowVisible || borderShorthandVisible || borderVisible || textDecorationVisible;
+    };
+    let visibleCount = 0;
     elements.forEach(el => {
       el.setAttribute("data-apcf-focus-style", el.getAttribute("style") || "");
       el.style.transition = "none";
+      const before = focusStyleSnapshot(getComputedStyle(el));
       try { el.focus({ preventScroll: true }); } catch (_error) { try { el.focus(); } catch (_ignored) {} }
-      const computed = getComputedStyle(el);
-      let inlineStyle = "";
-      for (let index = 0; index < computed.length; index += 1) {
-        const property = computed[index];
-        inlineStyle += `${property}:${computed.getPropertyValue(property)};`;
+      const after = focusStyleSnapshot(getComputedStyle(el));
+      const changed = changedFocusProperties(before, after);
+      const cssFocusStyles = collectFocusCssStyles(el);
+      const cssProperties = [...cssFocusStyles.keys()];
+      const propertiesToApply = changed.length && hasVisibleFocusIndicator(after) ? changed : cssProperties;
+      const styleSource = changed.length && hasVisibleFocusIndicator(after) ? after : cssFocusStyles;
+      if (propertiesToApply.length && hasVisibleFocusIndicator(styleSource)) {
+        visibleCount += 1;
+        propertiesToApply.forEach(property => {
+          const styleValue = styleSource.get(property);
+          if (!styleValue) return;
+          el.style.setProperty(property, styleValue.value, styleValue.priority);
+        });
       }
-      const outlineVisible = computed.outlineStyle !== "none" && computed.outlineWidth !== "0px";
-      const boxShadowVisible = computed.boxShadow && computed.boxShadow !== "none";
-      if (!outlineVisible && !boxShadowVisible) {
-        inlineStyle += "outline:4px solid #0b66d8;outline-offset:3px;box-shadow:0 0 0 7px rgb(11 102 216 / .22);";
-      }
-      el.setAttribute("style", inlineStyle);
     });
     if (previousActive && document.contains(previousActive)) {
       try { previousActive.focus({ preventScroll: true }); } catch (_error) { try { previousActive.focus(); } catch (_ignored) {} }
     }
-    return elements.length;
+    return { total: elements.length, visible: visibleCount };
   }
 
   function hideCurrentFloatingPanel() {
@@ -2770,9 +3274,11 @@ ${options.detail}` : "";
     const labelled = labelledByText(el);
     const formLabel = el.matches("input,select,textarea") ? labelForField(el) : "";
     const text = textValue(el);
+    const buttonLike = el.matches("button,[role='button']") || (el.matches("input") && ["button", "submit", "reset"].includes((el.getAttribute("type") || "").toLowerCase()));
+    const buttonText = buttonLike ? (text || (el.matches("input") ? (el.getAttribute("value") || "").trim() : "")) : "";
     const title = el.getAttribute("title");
     const imgAlt = [...el.querySelectorAll("img[alt]")].map(img => img.getAttribute("alt").trim()).filter(Boolean).join(" ");
-    return ariaLabel || labelled || formLabel || text || imgAlt || title || "";
+    return ariaLabel || labelled || formLabel || buttonText || text || imgAlt || title || "";
   }
 
   function visibleLandmarkTitle(el) {
@@ -3355,12 +3861,11 @@ ${options.detail}` : "";
     const videoHosts = /youtube|youtu\.be|youtube-nocookie|vimeo|wistia|brightcove|kaltura|panopto|dailymotion|twitch|streamable|vidyard|jwplayer|sproutvideo|cloudflarestream|mux|livestream|zoom|webinar|player/i;
     const videoWords = /video|vídeo|media|player|reproductor|webinar|recording|grabaci[oó]n|youtube|vimeo|wistia/i;
     const embedClasses = /video|embed|iframe|player|media|responsive|wp-block-embed|oembed|ratio|aspect/i;
-
     function ensureVideoStyle(doc = document) {
       if (!doc || !doc.head || doc.getElementById(STYLE_ID)) return;
       const style = doc.createElement("style");
       style.id = STYLE_ID;
-      style.textContent = `[${MARK}]{outline:4px solid #ECB63A!important;outline-offset:-4px!important;box-shadow:inset 0 0 0 4px #171717!important;background-color:rgba(236,182,58,.18)!important;border-radius:.25rem!important}`;
+      style.textContent = `[${MARK}]{outline:2px solid #ECB63A!important;outline-offset:0!important;box-shadow:inset 0 0 0 2px #171717!important;background-color:rgba(236,182,58,.18)!important;border-radius:.25rem!important}`;
       doc.head.appendChild(style);
     }
 
@@ -3459,26 +3964,33 @@ ${options.detail}` : "";
 
       root.querySelectorAll("iframe").forEach(frame => {
         let innerCount = 0;
-        let accessible = false;
         try {
           const doc = frame.contentDocument || frame.contentWindow?.document;
           if (doc) {
-            accessible = true;
             const innerHtml = doc.documentElement?.outerHTML || "";
-            if (/<(video|video-cover)/i.test(innerHtml)) {
+            if (/<(video|video-cover)\b/i.test(innerHtml)) {
               innerCount = doc.querySelectorAll("video,video-cover").length || 1;
               scanRoot(doc, frame, depth + 1);
             }
           }
         } catch (_error) {
-          accessible = false;
+          innerCount = 0;
         }
-        if (innerCount || likelyVideoIframe(frame) || !accessible) {
+        if (!innerCount && iframeHasMedia(frame, "video")) innerCount = 1;
+        const providerIframe = innerCount === 0 && likelyVideoIframe(frame);
+        if (innerCount > 0 || providerIframe) {
           count += 1;
-          markVisual(frame, "iframe", innerCount ? "IFRAME con contenido de vídeo" : "IFRAME detectado");
+          markVisual(frame, "iframe", innerCount > 0 ? "IFRAME con contenido de vídeo" : "IFRAME de reproductor de vídeo");
           const container = usefulContainer(frame);
           if (container && container !== frame) markVisual(container, "container", "Contenedor de vídeo embebido");
-          addFinding(frame, "iframe", innerCount ? "iframe con contenido de vídeo" : "iframe relacionado con vídeo", innerCount ? "Vídeo detectado dentro del iframe." : "Revisar si este iframe contiene vídeo.", "warn", { label: innerCount ? "IFRAME con contenido de vídeo" : "IFRAME relacionado con vídeo" });
+          addFinding(
+            frame,
+            "iframe",
+            innerCount > 0 ? "iframe con contenido de vídeo" : "iframe de reproductor de vídeo",
+            innerCount > 0 ? "Vídeo detectado dentro del iframe." : "Reproductor de vídeo detectado por la URL o atributos del iframe.",
+            "warn",
+            { label: innerCount > 0 ? "IFRAME con contenido de vídeo" : "IFRAME de reproductor de vídeo" }
+          );
         }
       });
 
@@ -3862,11 +4374,12 @@ ${options.detail}` : "";
           return `<button class="apcf-media-item" type="button" data-apcf-show-image="${index}" data-apcf-severity="ok"><span class="apcf-mini-button" aria-hidden="true">Ver</span><strong>${index + 1}</strong><span>${escapeHtml(alt.slice(0, 140))}</span><span>Observar si el texto alternativo corresponde a la imagen que se muestra.</span></button>`;
         });
         const box = floating("Texto alternativo de imágenes", `
-          <p class="apcf-explain">Revisa el texto alternativo de cada imagen para comprobar que se ajusta a la información a transmitir.</p>
+          <p class="apcf-explain">Revisa el texto alternativo de cada imagen.
+Comprueba que se ajusta a la información visual que transmite.</p>
           <p class="apcf-result">${escapeHtml(`${imgs.length} imagen(es) visibles.`)}</p>
           ${rows.length ? listHead("apcf-list-head--image", ["Ver", "Id", "Texto alternativo", "Observación"]) : ""}
           <div class="apcf-media-list">${rows.length ? rows.join("") : "<p>No hay imagenes visibles.</p>"}</div>
-        `, { summary: "Texto alternativo de imágenes", summaryDetail: "Revisa el texto alternativo de cada imagen para comprobar que se ajusta a la información a transmitir.", summaryResult: missingAlt ? `${imgs.length} imagen(es) visibles. ${missingAlt} sin atributo alt.` : `${imgs.length} imagen(es) visibles.`, summaryResultMarkup: missingAlt ? `${escapeHtml(`${imgs.length} imagen(es) visibles.`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${missingAlt} sin atributo alt.`)}</span>` : "" });
+        `, { summary: "Texto alternativo de imágenes", summaryDetail: "Revisa el texto alternativo de cada imagen.\nComprueba que se ajusta a la información visual que transmite.", summaryResult: missingAlt ? `${imgs.length} imagen(es) visibles. ${missingAlt} sin atributo alt.` : `${imgs.length} imagen(es) visibles.`, summaryResultMarkup: missingAlt ? `${escapeHtml(`${imgs.length} imagen(es) visibles.`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${missingAlt} sin atributo alt.`)}</span>` : "" });
         if (state.imagesVisible && imgs[0]) focusMarkedElement(imgs[0]);
         box.querySelectorAll("[data-apcf-show-image]").forEach(button => {
           button.addEventListener("click", () => {
@@ -3899,7 +4412,7 @@ ${options.detail}` : "";
           : explainResult(
               pageTitleExplain,
               `<strong>Título:</strong> ${escapeHtml(title)}`
-            ), { summary: "Título de la página", summaryDetail: pageTitleExplain, summaryResult: pageTitleResult });
+            ), { summary: "Título de la página", summaryDetail: pageTitleExplain, summaryResult: pageTitleResult, summarySeverity: issue ? "error" : "" });
         result(check, issue ? 1 : 0);
         break;
       }
@@ -3933,10 +4446,16 @@ ${options.detail}` : "";
             ].join("")
           : `<p class="apcf-problem"><span aria-hidden="true">⚠</span><span>Error: no se encontró ningún encabezado H1-H6.</span></p>`;
         const box = floating("Encabezados", `
-          <p class="apcf-explain">Comprueba la jerarquía de los encabezados. H1 es el principal y los demás cuelgan de él.</p>
-          ${headingsStatus}
-          ${headings.length ? listHead("apcf-list-head--heading", ["Nivel", "Texto"]) : ""}
-          <ul class="apcf-tree">${items || "<li>No se encontraron encabezados.</li>"}</ul>
+          <div class="apcf-landmark-panel">
+            <div class="apcf-landmark-info">
+              <p class="apcf-explain">Comprueba la jerarquía de los encabezados. H1 es el principal y los demás cuelgan de él.</p>
+              ${headingsStatus}
+            </div>
+            <div class="apcf-heading-table">
+              ${headings.length ? listHead("apcf-list-head--heading", ["Nivel", "Texto"]) : ""}
+              <ul class="apcf-tree">${items || "<li>No se encontraron encabezados.</li>"}</ul>
+            </div>
+          </div>
         `, {
           summary: "Encabezados",
           summaryDetail: "Comprueba la jerarquía de los encabezados.",
@@ -3978,12 +4497,15 @@ ${options.detail}` : "";
           ? problemResult(mainCount === 0 ? "Error: no se encontró ninguna zona main." : `Error: se detectaron ${mainCount} zonas main. Debe haber una sola zona main.`)
           : "";
         const box = floating("Puntos de referencia", `
-          <p class="apcf-explain">Comprueba que las zonas estructuran la página y que cada una se reconoce por su tipo y su etiqueta visible.</p>
-          ${mainError}
-          ${landmarks.length ? (!mainProblem ? `<p class="apcf-result">${escapeHtml(`${landmarks.length} puntos marcados. Main encontrados: ${mainCount}.`)}</p>` : "") : problemResult("Problema: no se encontró ningún punto de referencia.")}
-          ${landmarks.length ? listHead("apcf-list-head--landmark", ["Tipo", "Etiqueta", "Título"]) : ""}
-          <div class="apcf-landmark-map"><div class="apcf-landmark-tree">${boxes || "<p>No se encontraron puntos de referencia.</p>"}</div></div>
-        `, { summary: "Puntos de referencia", summaryDetail: "Comprueba que las zonas estructuran la página y que cada una se reconoce por su tipo y su etiqueta visible.", summaryResult: landmarks.length ? `${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.` : "No se encontraron puntos de referencia.", summaryResultMarkup: landmarks.length ? ((mainCount === 0 || mainCount > 1) ? `${escapeHtml(`${landmarks.length} punto(s) de referencia.`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`Main encontrados: ${mainCount}.`)}</span>` : escapeHtml(`${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.`)) : "", summarySeverity: landmarks.length === 0 ? "error" : "" });
+          <div class="apcf-landmark-panel">
+            <div class="apcf-landmark-info">
+              <p class="apcf-explain">Comprueba que las zonas estructuran la página y que cada una se comprende por su tipo, etiqueta y título.</p>
+              ${mainError}
+              ${landmarks.length ? (!mainProblem ? `<p class="apcf-result">${escapeHtml(`${landmarks.length} puntos marcados. Main encontrados: ${mainCount}.`)}</p>` : "") : problemResult("Problema: no se encontró ningún punto de referencia.")}
+            </div>
+            ${landmarks.length ? `<div class="apcf-landmark-table">${listHead("apcf-list-head--landmark", ["Tipo", "Etiqueta", "Título"])}<div class="apcf-landmark-map"><div class="apcf-landmark-tree">${boxes || "<p>No se encontraron puntos de referencia.</p>"}</div></div></div>` : ""}
+          </div>
+        `, { summary: "Puntos de referencia", summaryDetail: "Comprueba que las zonas estructuran la página y que cada una se comprende por su tipo, etiqueta y título.", summaryResult: landmarks.length ? `${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.` : "No se encontraron puntos de referencia.", summaryResultMarkup: landmarks.length ? ((mainCount === 0 || mainCount > 1) ? `${escapeHtml(`${landmarks.length} punto(s) de referencia.`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`Main encontrados: ${mainCount}.`)}</span>` : escapeHtml(`${landmarks.length} punto(s) de referencia. Main encontrados: ${mainCount}.`)) : "", summarySeverity: landmarks.length === 0 ? "error" : "" });
         if (state.landmarksVisible && landmarks[0]) focusMarkedElement(landmarks[0]);
         if (landmarks[0]) focusMarkedElement(landmarks[0]);
         box.querySelectorAll("[data-apcf-landmark]").forEach(button => {
@@ -4103,6 +4625,7 @@ ${options.detail}` : "";
         const rows = links.map((link, index) => {
           const visibleText = textValue(link);
           const name = accessibleName(link);
+          const genericReason = genericLinkTextReason(visibleText) || genericLinkTextReason(name);
           let severity = "ok";
           let note = visibleText
             ? "Sin incidencias automáticas."
@@ -4114,6 +4637,10 @@ ${options.detail}` : "";
           } else if (visibleText && !name) {
             severity = "error";
             note = "Texto visible presente y sin nombre accesible.";
+            issues += 1;
+          } else if (genericReason) {
+            severity = "error";
+            note = genericReason;
             issues += 1;
           }
           return `
@@ -4128,28 +4655,33 @@ ${options.detail}` : "";
         }).join("");
         const linkProblem = issues > 0;
         const box = floating("Texto de enlaces", `
-          <p class="apcf-explain">Revisa si el nombre accesible es correcto.</p>
-          ${linkProblem ? problemResult(`Error: ${issues} enlace(s) con texto visible y sin nombre accesible.`) : ""}
-          <p class="apcf-result">${escapeHtml(issues ? `${issues} enlace(s) con texto visible y sin nombre accesible.` : "No se detectaron enlaces con texto visible y sin nombre accesible.")}</p>
+          <p class="apcf-explain">Revisa si el nombre accesible se comprende.<br>El texto visible es la información que se muestra pantalla.<br>Cuando no hay texto visible, puede ser un icono.</p>
+          ${linkProblem ? problemResult(`Error: ${issues} enlace(s) con texto o nombre accesible poco descriptivo.`) : ""}
+          <p class="apcf-result">${escapeHtml(issues ? `${issues} enlace(s) con texto o nombre accesible poco descriptivo.` : "No se detectaron enlaces con texto visible o nombre accesible poco descriptivo.")}</p>
           ${rows ? listHead("apcf-list-head--link", ["Ver", "Id", "Texto visible", "Nombre accesible", "Estado"]) : ""}
           <div class="apcf-media-list">${rows || "<p>No se encontraron enlaces.</p>"}</div>
-        `, { summary: "Texto de enlaces", summaryDetail: "Revisa si el nombre accesible es correcto.", summaryResult: issues ? `${issues} enlace(s) con texto visible y sin nombre accesible.` : "No se detectaron enlaces con texto visible y sin nombre accesible.", summarySeverity: linkProblem || links.length === 0 ? "error" : "" });
+        `, { summary: "Texto de enlaces", summaryDetail: "Revisa si el nombre accesible se comprende. El texto visible es la información que se muestra pantalla. Cuando no hay texto visible, puede ser un icono.", summaryResult: issues ? `${issues} enlace(s) con texto o nombre accesible poco descriptivo.` : "No se detectaron enlaces con texto visible o nombre accesible poco descriptivo.", summarySeverity: linkProblem || links.length === 0 ? "error" : "" });
         if (state.linkTextVisible && links[0]) focusMarkedElement(links[0]);
-        const showLink = index => {
-          const link = links[index];
-          if (!link) return;
+        const linkSeverity = link => {
           const visibleText = textValue(link);
           const name = accessibleName(link);
           const hasVisible = !!visibleText;
+          const genericReason = genericLinkTextReason(visibleText) || genericLinkTextReason(name);
+          if ((!visibleText || visibleText.trim().toLowerCase() === "sin texto visible") && (!name || name.trim().toLowerCase() === "sin nombre")) return "error";
+          if (visibleText && !name) return "error";
+          if (genericReason) return "error";
+          if (!hasVisible) return (!name || name === "Sin nombre") ? "error" : "warn";
           const different = visibleText && visibleText.replace(/\s+/g, " ").trim().toLowerCase() !== name.replace(/\s+/g, " ").trim().toLowerCase();
-          const missingVisibleAndName = (!visibleText || visibleText.trim().toLowerCase() === "sin texto visible") && (!name || name.trim().toLowerCase() === "sin nombre");
-          const severity = missingVisibleAndName
-            ? "error"
-            : !hasVisible
-              ? ((!name || name === "Sin nombre") ? "error" : "warn")
-              : (!name ? "error" : (different ? "warn" : "ok"));
-          revealElement(link, "Enlace", severity, {
-            detail: name ? name.slice(0, 160) : "Sin nombre accesible.",
+          return different ? "warn" : "ok";
+        };
+        const showLink = index => {
+          const link = links[index];
+          if (!link) return;
+          const name = accessibleName(link);
+          const visibleText = textValue(link);
+          const genericReason = genericLinkTextReason(visibleText) || genericLinkTextReason(name);
+          revealElement(link, "Enlace", linkSeverity(link), {
+            detail: genericReason || (name ? name.slice(0, 160) : "Sin nombre accesible."),
             noLabel: true
           });
           hideCurrentFloatingPanel();
@@ -4174,8 +4706,7 @@ ${options.detail}` : "";
             const labelText = visibleText
               ? (name ? name.slice(0, 120) : "Sin nombre accesible!")
               : "Sin texto visible!";
-            const severity = visibleText && !name ? "error" : "ok";
-            mark(link, labelText, severity, "link");
+            mark(link, labelText, linkSeverity(link), "link");
             link.setAttribute("data-apcf-link-mark", "true");
             const label = document.querySelector(`.${LABEL}[data-apcf-target="${CSS.escape(link.getAttribute("data-apcf-mark-id"))}"]`);
             if (label) {
@@ -4192,8 +4723,7 @@ ${options.detail}` : "";
             const labelText = visibleText
               ? (name ? name.slice(0, 120) : "Sin nombre accesible!")
               : "Sin texto visible!";
-            const severity = visibleText && !name ? "error" : "ok";
-            mark(link, labelText, severity, "link");
+            mark(link, labelText, linkSeverity(link), "link");
             link.setAttribute("data-apcf-link-mark", "true");
             const label = document.querySelector(`.${LABEL}[data-apcf-target="${CSS.escape(link.getAttribute("data-apcf-mark-id"))}"]`);
             if (label) {
@@ -4209,31 +4739,48 @@ ${options.detail}` : "";
 
       case "skip-link": {
         const internal = visibleElements("a[href^='#']").filter(a => (a.getAttribute("href") || "").length > 1);
-        const first = internal[0];
-        let issues = 0;
-        if (!first) {
-          issues = 1;
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          document.body.setAttribute("tabindex", "-1");
-          try { document.body.focus({ preventScroll: true }); } catch (_error) {}
-          floating("Enlace de salto", `
-            ${problemResult("No se encontró enlace de salto al contenido.")}
-            <p class="apcf-explain">Comprueba que exista un enlace de salto al contenido y que lleve a la zona correcta.</p>
-          `, { summary: "Enlace de salto", summaryDetail: "Comprueba que exista un enlace de salto al contenido.", summaryResult: "No se encontró enlace de salto al contenido.", summarySeverity: "error" });
-        } else {
-          const targetId = first.getAttribute("href").slice(1);
+        const skipRows = internal.map((link, index) => {
+          const href = link.getAttribute("href") || "";
+          let targetId = href.slice(1);
+          try { targetId = decodeURIComponent(targetId); } catch (_error) {}
           const target = document.getElementById(targetId);
-          const originLabel = mark(first, `Skip link -> #${targetId}`, target ? "ok" : "error");
+          const linkText = textValue(link) || accessibleName(link) || href;
+          const originLabel = mark(link, `Skip link -> #${targetId}`, target ? "ok" : "error");
           if (originLabel) originLabel.setAttribute("data-apcf-skip-link", "true");
           if (target) mark(target, `Destino de skip link: #${targetId}`, "ok");
-          else issues = 1;
-          first.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-          try { first.focus({ preventScroll: true }); } catch (_error) { try { first.focus(); } catch (_ignored) {} }
-          floating("Enlace de salto", explainResult(
-            "Comprueba que exista un enlace de salto al contenido y que lleve a la zona correcta.",
-            `Origen: ${escapeHtml(textValue(first) || first.getAttribute("href"))}<br>Destino: #${escapeHtml(targetId)} ${target ? "encontrado" : "no encontrado"}`
-          ), { summary: "Enlace de salto", summaryDetail: "Comprueba origen y destino del salto al contenido.", summaryResult: `1 enlace interno. Destino ${target ? "encontrado" : "no encontrado"}.` });
-        }
+          return `
+            <button class="apcf-media-item apcf-link-item" type="button" data-apcf-show-skip-link="${index}" data-apcf-severity="${target ? "warn" : "error"}">
+              <span class="apcf-mini-button" aria-hidden="true">Ver</span>
+              <strong>${index + 1}</strong>
+              <span>${escapeHtml(linkText)}</span>
+              <span>${escapeHtml(`#${targetId || "sin destino"}`)}</span>
+              <span>${escapeHtml(target ? "Destino encontrado" : "Destino no encontrado")}</span>
+            </button>
+          `;
+        }).join("");
+        const issues = internal.filter(link => {
+          const href = link.getAttribute("href") || "";
+          let targetId = href.slice(1);
+          try { targetId = decodeURIComponent(targetId); } catch (_error) {}
+          return !document.getElementById(targetId);
+        }).length;
+        const box = floating("Enlace de salto", `
+          <p class="apcf-result">${escapeHtml(`${internal.length} enlace(s) de salto detectado(s).`)}</p>
+          ${internal.length ? listHead("apcf-list-head--link", ["Ver", "N", "Texto", "Destino", "Estado"]) : ""}
+          ${internal.length ? `<div class="apcf-media-list">${skipRows}</div>` : `<p class="apcf-explain">No se encontraron enlaces de salto visibles.</p>`}
+        `, { summary: "Enlace de salto", summaryDetail: "Muestra los enlaces internos de salto detectados y si su destino existe.", summaryResult: internal.length ? `${internal.length} enlace(s) de salto detectado(s).` : "No se encontraron enlaces de salto visibles.", summarySeverity: issues ? "error" : "" });
+        box.querySelectorAll("[data-apcf-show-skip-link]").forEach(button => {
+          button.addEventListener("click", () => {
+            const link = internal[Number(button.dataset.apcfShowSkipLink)];
+            if (!link) return;
+            const href = link.getAttribute("href") || "";
+            let targetId = href.slice(1);
+            try { targetId = decodeURIComponent(targetId); } catch (_error) {}
+            const target = document.getElementById(targetId);
+            if (target) focusMarkedElement(target);
+            else focusMarkedElement(link);
+          });
+        });
         result(check, issues);
         break;
       }
@@ -4242,11 +4789,11 @@ ${options.detail}` : "";
         const lang = document.documentElement.getAttribute("lang");
         const langProblem = !lang || !lang.trim();
         floating("Idioma de la página", explainResult(
-          "Comprueba que coincide con el idioma principal del texto de la página.",
+          "Comprueba que coincide con el idioma principal del texto de la página.\nSi el idioma es español, el idioma declarado será ES. Si el idioma es inglés, el idioma declarado será EN.",
           langProblem
             ? problemResult("Problema: no se encontró este elemento.")
             : `<strong>Idioma declarado:</strong> ${escapeHtml(lang)}`
-        ), { summary: "Idioma de la página", summaryDetail: "Comprueba que coincide con el idioma principal.", summaryResult: langProblem ? "No hay idioma declarado." : `Idioma declarado: ${lang}.`, summarySeverity: langProblem ? "error" : "" });
+        ), { summary: "Idioma de la página", summaryDetail: "Comprueba que coincide con el idioma principal del texto de la página.\nSi el idioma es español, el idioma declarado será ES. Si el idioma es inglés, el idioma declarado será EN.", summaryResult: langProblem ? "No hay idioma declarado." : `Idioma declarado: ${lang}.`, summarySeverity: langProblem ? "error" : "" });
         result(check, langProblem ? 1 : 0);
         break;
       }
@@ -4270,10 +4817,9 @@ ${options.detail}` : "";
               highlighted.add(target);
             }
           return `
-              <button class="apcf-media-item apcf-video-item" type="button" data-apcf-show-media="${index}" data-apcf-media-title="${escapeHtml(`AUDIO · ${item.file}`)}" data-apcf-media-label="${escapeHtml(item.insertion)}">
+              <button class="apcf-media-item apcf-audio-item" type="button" data-apcf-show-media="${index}" data-apcf-media-title="${escapeHtml(`AUDIO · ${item.file}`)}" data-apcf-media-label="${escapeHtml(item.insertion)}">
                 <span class="apcf-mini-button" aria-hidden="true">Ver</span>
-                <strong>${escapeHtml(item.file)}</strong>
-                <span>${escapeHtml(item.insertion)}</span>
+                <strong>${escapeHtml(item.insertion)}</strong>
                 <span>${escapeHtml(item.problems)}</span>
               </button>
             `;
@@ -4282,7 +4828,7 @@ ${options.detail}` : "";
           const box = floating("Audio", `
             <p class="apcf-explain">Observa si en el audio hay una transcripción textual.</p>
             <p class="apcf-result">${escapeHtml(summaryResult)}</p>
-            ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Revisión"]) : ""}
+            ${items.length ? listHead("apcf-list-head--audio", ["Ver", "Descripción", "Revisión"]) : ""}
             ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
           `, { summary: "Audio", summaryDetail: "Observa si en el audio hay una transcripción textual.", summaryResult });
           if (findings[0]?.target || findings[0]?.element) focusMarkedElement(findings[0].target || findings[0].element);
@@ -4317,7 +4863,7 @@ ${options.detail}` : "";
           if (item.severity === "error") issues += 1;
           const target = item.target || item.element;
           if (target && !highlighted.has(target)) {
-            const label = mark(target, `${item.kind === "poster" ? "Poster" : "Vídeo"} localizado`, item.severity === "error" ? "error" : "warn", "media");
+            const label = mark(target, `${item.kind === "poster" ? "Poster" : "Vídeo"} localizado`, "warn", "media");
             if (label) {
               label.dataset.apcfMediaPlacement = "below";
               positionLabel(label);
@@ -4327,8 +4873,7 @@ ${options.detail}` : "";
           return `
             <button class="apcf-media-item apcf-video-item" type="button" data-apcf-show-media="${index}" data-apcf-media-title="${escapeHtml(`${item.kind.toUpperCase()} · ${item.file}`)}" data-apcf-media-label="${escapeHtml(item.insertion)}">
               <span class="apcf-mini-button" aria-hidden="true">Ver</span>
-              <strong>${escapeHtml(item.file)}</strong>
-              <span>${escapeHtml(item.insertion)}</span>
+              <strong>${escapeHtml(item.insertion)}</strong>
               <span>${escapeHtml(item.problems)}</span>
             </button>
           `;
@@ -4337,7 +4882,8 @@ ${options.detail}` : "";
         const box = floating("Vídeo", `
           <p class="apcf-explain">Observa si el video tiene subtítulos y audiodescripción o transcripción.</p>
           <p class="apcf-result">${escapeHtml(summaryResult)}</p>
-          ${items.length ? listHead("apcf-list-head--video", ["Ver", "Archivo", "Inserción", "Revisión"]) : ""}
+          <p class="apcf-explain apcf-iframe-note"><strong>Nota sobre iframes:</strong> algunos vídeos externos no permiten leer su contenido interno, por lo que pueden producirse errores de detección debidos a una limitación técnica, no a un fallo de la herramienta.</p>
+          ${items.length ? listHead("apcf-list-head--video", ["Ver", "Descripción", "Revisión"]) : ""}
           ${items.length ? `<div class="apcf-media-list">${items.join("")}</div>` : ""}
         `, { summary: "Vídeo", summaryDetail: "Observa si el video tiene subtítulos y audiodescripción o transcripción.", summaryResult });
         if (findings[0]?.target || findings[0]?.element) focusMarkedElement(findings[0].target || findings[0].element);
@@ -4377,7 +4923,7 @@ ${options.detail}` : "";
       }
 
       case "focus-order": {
-        const focusable = focusablePageElements();
+        const focusable = tabOrderedPageElements();
         let issues = 0;
         if (!focusable.length) {
           floating("Orden de foco", explainResult("Comprueba el orden de los elementos de foco", "No se encontraron elementos enfocables."), { summary: "Orden de foco", summaryDetail: "Comprueba el orden de los elementos de foco.", summaryResult: "No se encontraron elementos enfocables." });
@@ -4390,23 +4936,54 @@ ${options.detail}` : "";
           if (positive) issues += 1;
           mark(el, `#${index + 1}`, positive ? "warn" : "ok");
         });
-        floating("Orden de foco", explainResult("Comprueba el orden de los elementos de foco", `${focusable.length} elemento(s) enfocable(s) numerados.`), { summary: "Orden de foco", summaryDetail: "Comprueba el orden de los elementos de foco.", summaryResult: `${focusable.length} elemento(s) enfocable(s) numerados.` });
+        drawFocusOrderRoute(focusable);
+        const rows = focusable.map((el, index) => {
+          const tabindexAttr = el.getAttribute("tabindex");
+          const positive = tabindexAttr && Number(tabindexAttr) > 0;
+          return `
+            <button class="apcf-media-item apcf-link-item" type="button" data-apcf-show-focus-order="${index}" data-apcf-severity="${positive ? "warn" : "ok"}">
+              <span class="apcf-mini-button" aria-hidden="true">Ver</span>
+              <strong>${index + 1}</strong>
+              <span>${escapeHtml(focusOrderElementLabel(el).slice(0, 160))}</span>
+            </button>
+          `;
+        }).join("");
+        const box = floating("Orden de foco", `
+          <p class="apcf-explain">Comprueba que el orden secuencial de tabulación de la página tiene sentido al leerse.</p>
+          <p class="apcf-result">${escapeHtml(`${focusable.length} elemento(s) enfocable(s) numerados y conectados por el recorrido de foco.`)}</p>
+          ${listHead("apcf-list-head--focus-order", ["Ver", "Orden", "Nombre o etiqueta"])}
+          <div class="apcf-media-list">${rows}</div>
+        `, { summary: "Orden de foco", summaryDetail: "Comprueba que el orden secuencial de tabulación de la página tiene sentido al leerse.", summaryResult: `${focusable.length} elemento(s) enfocable(s) numerados.` });
+        box.querySelectorAll("[data-apcf-show-focus-order]").forEach(button => {
+          button.addEventListener("click", () => {
+            const el = focusable[Number(button.dataset.apcfShowFocusOrder)];
+            if (!el) return;
+            revealElement(el, `Foco #${Number(button.dataset.apcfShowFocusOrder) + 1}`, "warn", {
+              detail: focusOrderElementLabel(el).slice(0, 160),
+              noLabel: true
+            });
+            hideCurrentFloatingPanel();
+          });
+        });
         result(check, issues);
         break;
       }
 
       case "focus-view": {
-        const count = applyFocusView();
+        const focusView = applyFocusView();
+        const focusSummary = focusView.total
+          ? `${focusView.visible} de ${focusView.total} elemento(s) enfocable(s) muestran un indicador de foco real.`
+          : "No se encontraron elementos enfocables.";
         floating("Mostrar foco", explainResult(
-          "Muestra el estilo que recibe cada elemento cuando obtiene el foco de teclado.",
-          count ? `${count} elemento(s) enfocable(s) revisados.` : "No se encontraron elementos enfocables."
-        ), { summary: "Mostrar foco", summaryDetail: "Muestra el estilo que recibe cada elemento enfocable.", summaryResult: count ? `${count} elemento(s) enfocable(s) revisados.` : "No se encontraron elementos enfocables." });
-        result(check, 0, count ? "manual" : "ok");
+          "Muestra el indicador real que aplica la CSS de la página al foco de teclado. No se añade un foco artificial.",
+          focusSummary
+        ), { summary: "Mostrar foco", summaryDetail: "Muestra el indicador real de foco definido por la página.", summaryResult: focusSummary });
+        result(check, 0, focusView.total ? "manual" : "ok");
         break;
       }
 
       case "form-labels": {
-        const fields = visibleElements("input:not([type='hidden']),select,textarea");
+        const fields = visibleElements("input:not([type='hidden']),select,textarea,button");
         let issues = 0;
         if (!fields.length) {
           floating("Etiquetas", explainResult("Observa si hay campos visibles y si están correctamente etiquetados.", "No hay formularios visibles en esta página."), { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: "No hay formularios visibles." });
@@ -4414,59 +4991,65 @@ ${options.detail}` : "";
           break;
         }
         const items = fields.map((field, index) => {
-          const status = formLabelStatus(field);
-          const labelEl = labelElementForField(field);
-          const hasLabel = status.hasLabel;
-          const hasName = status.hasName;
-          const severity = hasLabel && hasName ? "ok" : "error";
-          const labelNote = status.title;
-          if (!hasLabel || !hasName) {
+          const tag = field.tagName.toLowerCase();
+          const id = field.getAttribute("id") || "";
+          const isButton = tag === "button";
+          const explicitLabel = !isButton && id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+          const labelText = explicitLabel ? textValue(explicitLabel) : "";
+          const buttonText = isButton ? textValue(field) : "";
+          const hasButtonText = isButton ? !!buttonText.trim() : false;
+          const hasLabel = isButton ? hasButtonText : !!explicitLabel;
+          const visibleLabelText = isButton ? buttonText.trim() : labelText.trim();
+          const labelMessage = isButton
+            ? (hasButtonText ? `Texto visible del botón: "${visibleLabelText}"` : "No tiene etiqueta label")
+            : (hasLabel ? `La etiqueta label es: "${visibleLabelText}"` : "No tiene etiqueta label");
+          const severity = hasLabel ? "ok" : "error";
+          if (!hasLabel) {
             issues += 1;
-            mark(field, hasLabel ? "Sin nombre accesible" : "Sin etiqueta", "error");
+            mark(field, isButton ? "Sin texto visible" : "Sin etiqueta", "error");
+            const label = mark(field, labelMessage, "error", "form");
+            if (label) label.dataset.apcfMediaPlacement = "below";
           } else {
-            mark(field, status.labelText ? `Etiqueta: ${status.labelText.slice(0, 70)}` : `Nombre accesible: ${status.name.slice(0, 70)}`, "ok");
-            if (labelEl) {
-              mark(labelEl, field.id ? `Etiqueta del campo con ID='${field.id}'` : "Etiqueta del campo", "ok", "media");
-            }
-            if (status.labelledByIds.length) {
-              status.labelledByIds.forEach(id => {
-                const ref = document.getElementById(id);
-                if (ref) mark(ref, `Etiqueta para ID='${field.id || "campo"}'`, "ok", "media");
-              });
-            }
+            const label = mark(field, labelMessage, "warn", "form");
+            if (label) label.dataset.apcfMediaPlacement = "below";
           }
           return `
             <button class="apcf-media-item apcf-form-item" type="button" data-apcf-show-field="${index}" data-apcf-severity="${severity}">
               <span class="apcf-mini-button" aria-hidden="true">Ver</span>
-              <strong>${escapeHtml(field.tagName.toLowerCase())}</strong>
-              <span>${escapeHtml(labelNote.slice(0, 90))}</span>
-              <span>${escapeHtml(hasName ? `Nombre accesible: ${status.name.slice(0, 90)}` : "Sin nombre accesible")}</span>
+              <strong>${escapeHtml(tag)}</strong>
+              <span>${escapeHtml(visibleLabelText || "No tiene etiqueta label")}</span>
+              <span>${escapeHtml(labelMessage)}</span>
             </button>
           `;
         }).join("");
-        document.querySelectorAll("label[for]").forEach(labelEl => {
-          const targetId = labelEl.getAttribute("for");
-          if (!targetId) return;
-          if (!document.getElementById(targetId)) {
-            mark(labelEl, `Etiqueta sin campo asociado con ID='${targetId}'`, "error", "media");
-          }
-        });
         const box = floating("Etiquetas", `
           <p class="apcf-explain">Observa si hay campos visibles y si están correctamente etiquetados.</p>
-          <p class="apcf-result">${escapeHtml(`${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`)}</p>
-          ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Nombre accesible"]) : ""}
+          <p class="apcf-result">${escapeHtml(`${issues} incidencia(s) automática(s) detectada(s).`)}</p>
+          ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Nombre de Etiqueta", "Estado"]) : ""}
           <div class="apcf-media-list">${items}</div>
-        `, { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: `${fields.length} campo(s) visible(s). ${issues} incidencia(s) automática(s).`, summaryResultMarkup: issues ? `${escapeHtml(`${fields.length} campo(s) visible(s).`)} <span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`incidencia(s) automática(s).`)}</span>` : "" });
+        `, { summary: "Etiquetas", summaryDetail: "Observa si hay campos visibles y correctamente etiquetados.", summaryResult: `${issues} incidencia(s) automática(s) detectada(s).`, summaryResultMarkup: issues ? `<span class="apcf-summary-alert-inline apcf-summary-alert-block">${escapeHtml(`${issues} incidencia(s) automática(s) detectada(s).`)}</span>` : "" });
         if (fields[0]) focusMarkedElement(fields[0]);
         box.querySelectorAll("[data-apcf-show-field]").forEach(button => {
           button.addEventListener("click", () => {
             const field = fields[Number(button.dataset.apcfShowField)];
             if (!field) return;
-            const status = formLabelStatus(field);
-            revealElement(field, status.hasName ? (status.labelText ? `Etiqueta: ${status.labelText.slice(0, 60)}` : `Nombre accesible: ${status.name.slice(0, 60)}`) : "Sin nombre accesible", status.hasName ? "ok" : "error", {
+            const tag = field.tagName.toLowerCase();
+            const id = field.getAttribute("id") || "";
+            const isButton = tag === "button";
+            const explicitLabel = !isButton && id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+            const labelText = explicitLabel ? textValue(explicitLabel) : "";
+            const buttonText = isButton ? textValue(field) : "";
+            const hasButtonText = isButton ? !!buttonText.trim() : false;
+            const hasLabel = isButton ? hasButtonText : !!explicitLabel;
+            revealElement(field, hasLabel ? (isButton ? "Botón con texto visible" : "Control con etiqueta") : (isButton ? "Botón sin texto visible" : "Sin etiqueta label"), hasLabel ? "ok" : "error", {
               detail: [
-                status.title,
-                status.detail || "Sin datos adicionales."
+                `Campo: ${tag}`,
+                field.id ? `ID: ${field.id}` : "Sin ID",
+                field.getAttribute("type") ? `Tipo: ${field.getAttribute("type")}` : "Sin tipo",
+                isButton
+                  ? (hasButtonText ? `Texto visible del botón: "${buttonText.trim()}"` : "No tiene etiqueta label")
+                  : (hasLabel ? `La etiqueta label es: "${labelText}"` : "No tiene etiqueta label"),
+                field.required || field.getAttribute("aria-required") === "true" ? "Campo obligatorio" : "Campo no obligatorio"
               ].join("\n"),
               noLabel: true
             });
@@ -4505,14 +5088,14 @@ ${options.detail}` : "";
           const hasAsterisk = /\*/.test(labelText);
           const keyword = (labelText.match(/\b(obligatorio|requerido|required)\b/i) || [])[0] || "";
           const requiredText = hasAsterisk ? "*" : keyword;
-          const status = requiredText ? `Marcado correctamente con '${requiredText}'?` : "Campo obligatorio";
+          const status = requiredText ? `Marcado con '${requiredText}'?` : "Campo obligatorio";
+          const controlText = field.matches("input[type='submit'],input[type='button'],input[type='reset']") ? (field.getAttribute("value") || "").trim() : (label || field.getAttribute("id") || "Sin nombre accesible");
           mark(field, status, "warn");
-          mark(labelEl, status, "warn", "media");
           return `
             <button class="apcf-media-item apcf-form-item" type="button" data-apcf-show-required="${index}" data-apcf-severity="warn">
               <span class="apcf-mini-button" aria-hidden="true">Ver</span>
               <strong>${escapeHtml(field.tagName.toLowerCase())}</strong>
-              <span>${escapeHtml(label || labelText || "Sin etiqueta")}</span>
+              <span>${escapeHtml(controlText || "Sin nombre accesible")}</span>
               <span>${escapeHtml(status)}</span>
             </button>
           `;
@@ -4524,7 +5107,7 @@ ${options.detail}` : "";
         const box = floating("Campos obligatorios", `
           <p class="apcf-explain">Observa si los campos obligatorios están señalados de forma clara.</p>
           <p class="apcf-result">${escapeHtml(requiredSummary)}</p>
-          ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Etiqueta", "Estado"]) : ""}
+          ${items ? listHead("apcf-list-head--form", ["Ver", "Campo", "Nombre accesible", "Estado"]) : ""}
           <div class="apcf-media-list">${items}</div>
         `, { summary: "Campos obligatorios", summaryDetail: "Observa si los obligatorios están señalados.", summaryResult: requiredSummary, summaryResultMarkup: "" });
         const requiredBox = document.querySelector(`.${FLOATING}`);
@@ -4533,23 +5116,20 @@ ${options.detail}` : "";
           button.addEventListener("click", () => {
             const item = requiredItems[Number(button.dataset.apcfShowRequired)];
             if (!item) return;
-            const { field, labelEl, labelText } = item;
-            const label = labelForField(field) || labelText;
+            const { field, labelText } = item;
             const hasAsterisk = /\*/.test(labelText);
             const keyword = (labelText.match(/\b(obligatorio|requerido|required)\b/i) || [])[0] || "";
             const requiredText = hasAsterisk ? "*" : keyword;
-            const status = requiredText ? `Marcado correctamente con '${requiredText}'?` : "Campo obligatorio";
+            const status = requiredText ? `Marcado con '${requiredText}'?` : "Campo obligatorio";
             revealElement(field, "Campo obligatorio", "warn", {
               detail: [
-                label ? `Etiqueta: ${label.slice(0, 120)}` : "Sin etiqueta.",
+                `Campo: ${field.tagName.toLowerCase()}`,
+                field.id ? `ID: ${field.id}` : "Sin ID",
                 status,
                 requiredVisualText(field) ? `Texto visible detectado: ${requiredVisualText(field).slice(0, 120)}` : "Sin texto visible detectado."
               ].join("\n"),
               noLabel: true
             });
-            if (labelEl) {
-              mark(labelEl, status, "warn", "media");
-            }
             hideCurrentFloatingPanel();
           });
         });
@@ -4708,6 +5288,15 @@ ${options.detail}` : "";
           </span>
         `).join("")}
       </fieldset>
+      <div class="apcf-feedback">
+        <a class="apcf-feedback-link" href="${escapeHtml(SURVEY_URL)}" target="_blank" rel="noopener noreferrer">
+          <span class="apcf-feedback-icon" aria-hidden="true">✎</span>
+          <span class="apcf-feedback-text">
+            <strong>Valora la herramienta</strong>
+            <span>Cuéntanos tu experiencia y comunicanos cualquier problema</span>
+          </span>
+        </a>
+      </div>
     `;
 
     document.body.appendChild(panel);
@@ -4738,14 +5327,47 @@ ${options.detail}` : "";
       const target = document.querySelector(`#${PANEL_ID} [data-apcf-toggle-panel]`);
       target?.focus({ preventScroll: true });
     }));
-    panel.querySelectorAll("input[name='apcf-profile']").forEach(input => {
-      input.addEventListener("change", () => {
-        state.profile = input.value;
-        const visibleIds = new Set(checksForProfile().map(check => check.id));
-        state.active = new Set([...state.active].filter(id => visibleIds.has(id)));
-        refreshVisuals();
-        render(false);
+    const profileInputs = [...panel.querySelectorAll("input[name='apcf-profile']")];
+    const selectProfile = (value, focusSelected = true) => {
+      if (!profiles.some(item => item.id === value)) return;
+      state.profile = value;
+      const visibleIds = new Set(checksForProfile().map(check => check.id));
+      state.active = new Set([...state.active].filter(id => visibleIds.has(id)));
+      refreshVisuals();
+      render(false);
+      if (focusSelected) {
         const next = document.querySelector(`#${PANEL_ID} input[name='apcf-profile'][value="${CSS.escape(state.profile)}"]`);
+        next?.focus({ preventScroll: true });
+      }
+    };
+    profileInputs.forEach((input, index) => {
+      input.addEventListener("change", () => {
+        selectProfile(input.value);
+      });
+      input.addEventListener("keydown", event => {
+        const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
+        if (!keys.includes(event.key)) return;
+        event.preventDefault();
+        let nextIndex = index;
+        if (event.key === "ArrowLeft" || event.key === "ArrowUp") nextIndex = (index - 1 + profileInputs.length) % profileInputs.length;
+        else if (event.key === "ArrowRight" || event.key === "ArrowDown") nextIndex = (index + 1) % profileInputs.length;
+        else if (event.key === "Home") nextIndex = 0;
+        else if (event.key === "End") nextIndex = profileInputs.length - 1;
+        const nextInput = profileInputs[nextIndex];
+        if (!nextInput) return;
+        nextInput.checked = true;
+        selectProfile(nextInput.value);
+      });
+    });
+    panel.querySelectorAll(".apcf-profile").forEach(label => {
+      label.addEventListener("keydown", event => {
+        const input = label.previousElementSibling;
+        if (!input || !input.matches("input[name='apcf-profile']")) return;
+        input.dispatchEvent(new KeyboardEvent("keydown", {
+          key: event.key,
+          bubbles: true,
+          cancelable: true
+        }));
       });
     });
     if (focusClose) {
@@ -4766,6 +5388,7 @@ ${options.detail}` : "";
   }
 
   const api = {
+    build: BUILD,
     open,
     close,
     toggle,
