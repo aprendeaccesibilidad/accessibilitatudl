@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atajos interactivos de lectores de pantalla</title>
+  <meta name="description" content="Explorador local de atajos de JAWS, NVDA y VoiceOver con menú de funciones y teclado visual interactivo.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+  <header class="site-header" role="banner">
+    <a class="brand" href="#contenido" aria-label="Inicio de Atajos de lectores de pantalla">
+      <span class="brand-mark" aria-hidden="true">⌘</span>
+      <span class="brand-text">Screen Reader Shortcuts</span>
+    </a>
+    <p class="site-tagline">Explorador visual de comandos para JAWS, NVDA y VoiceOver.</p>
+  </header>
+
+  <main id="contenido" class="app" tabindex="-1">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Chuleta interactiva</p>
+        <h1 id="page-title">Atajos de lectores de pantalla</h1>
+        <p>
+          Selecciona un lector de pantalla, elige una función en el menú lateral y observa
+          en el teclado qué teclas forman el atajo. Las teclas activas se elevan, se numeran
+          y también aparecen descritas en texto.
+        </p>
+      </div>
+
+      <ol class="steps" aria-label="Cómo usar esta interfaz">
+        <li><strong>1</strong><span>Selecciona lector</span></li>
+        <li><strong>2</strong><span>Elige función</span></li>
+        <li><strong>3</strong><span>Mira el teclado</span></li>
+      </ol>
+    </section>
+
+    <section class="reader-step" aria-labelledby="reader-title">
+      <div class="section-heading">
+        <p class="step-kicker">Paso 1</p>
+        <h2 id="reader-title">Selecciona el lector de pantalla</h2>
+        <p>El teclado y las funciones se adaptan al lector seleccionado.</p>
+      </div>
+
+      <div class="reader-switch" role="group" aria-label="Lectores de pantalla disponibles">
+        <button class="reader-button is-active" type="button" data-reader="jaws" aria-pressed="true">
+          <span class="reader-name">JAWS</span>
+          <span class="reader-platform">Windows</span>
+        </button>
+        <button class="reader-button" type="button" data-reader="nvda" aria-pressed="false">
+          <span class="reader-name">NVDA</span>
+          <span class="reader-platform">Windows</span>
+        </button>
+        <button class="reader-button" type="button" data-reader="voiceover" aria-pressed="false">
+          <span class="reader-name">VoiceOver</span>
+          <span class="reader-platform">macOS</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="workspace" aria-labelledby="workspace-title">
+      <div class="workspace-heading visually-hidden">
+        <h2 id="workspace-title">Explorador de funciones y teclado</h2>
+      </div>
+
+      <aside class="function-panel" aria-labelledby="functions-title">
+        <div class="panel-header">
+          <p class="step-kicker">Paso 2</p>
+          <h2 id="functions-title">Elige una función</h2>
+          <p id="function-panel-help">
+            Selecciona una función de la lista. Aquí se muestra solo la función y sus teclas; la explicación completa aparece en el paso 3.
+          </p>
+        </div>
+
+        <details class="filter-disclosure">
+          <summary>
+            <span>
+              <span class="summary-title">Buscar y filtrar</span>
+              <span id="filter-summary-help" class="summary-help">Sin filtros</span>
+            </span>
+            <span class="summary-icon" aria-hidden="true">⌄</span>
+          </summary>
+
+          <div class="filter-disclosure-content">
+            <form class="search-form" role="search" aria-label="Buscar funciones de lector de pantalla">
+              <label for="search-input">Buscar función o tecla</label>
+              <div class="search-field">
+                <input id="search-input" type="search" placeholder="Ej. encabezado, tabla, F7, rotor…" autocomplete="off">
+                <button id="clear-search" class="clear-search" type="button" aria-label="Borrar búsqueda">×</button>
+              </div>
+            </form>
+
+            <section class="category-area" aria-labelledby="category-title">
+              <h3 id="category-title">Categoría</h3>
+              <div id="category-filters" class="category-filters" role="group" aria-label="Filtrar por categoría"></div>
+            </section>
+          </div>
+        </details>
+
+        <div id="active-filter-bar" class="active-filter-bar" aria-live="polite" aria-atomic="true"></div>
+
+        <section class="function-list-section" aria-labelledby="function-list-title">
+          <div class="function-list-header">
+            <h3 id="function-list-title">Funciones y teclas</h3>
+            <p id="result-count" aria-live="polite"></p>
+          </div>
+          <nav aria-label="Funciones disponibles para el lector seleccionado">
+            <ul id="shortcut-results" class="function-list" aria-describedby="function-panel-help"></ul>
+          </nav>
+        </section>
+      </aside>
+
+      <section class="keyboard-stage" aria-labelledby="keyboard-panel-title">
+        <div class="stage-topline">
+          <div>
+            <p class="step-kicker">Paso 3</p>
+            <h2 id="keyboard-panel-title">Identifica las teclas</h2>
+          </div>
+          <p id="reader-note" class="reader-note"></p>
+        </div>
+
+        <article class="selected-command" aria-labelledby="selected-title" aria-live="polite">
+          <div class="selected-main">
+            <p id="selected-reader" class="selected-reader"></p>
+            <h3 id="selected-title">Selecciona una función</h3>
+            <p id="selected-description">El atajo aparecerá marcado en el teclado visual.</p>
+          </div>
+          <div class="selected-combo-block">
+            <span id="selected-category" class="selected-category"></span>
+            <div>
+              <p class="combo-label">Combinación</p>
+              <div id="selected-combo" class="selected-combo"></div>
+            </div>
+          </div>
+        </article>
+
+        <div id="combo-alternatives" class="combo-alternatives" aria-label="Combinaciones alternativas"></div>
+
+        <section class="keyboard-card" aria-labelledby="keyboard-title">
+          <div class="keyboard-card-header">
+            <div>
+              <p class="eyebrow">Teclado visual</p>
+              <h3 id="keyboard-title">Teclas del atajo seleccionado</h3>
+            </div>
+            <p>
+              Las teclas activas aparecen elevadas y numeradas. También puedes pulsar una tecla
+              para ver qué funciones la usan.
+            </p>
+          </div>
+
+          <div class="keyboard-legend" aria-label="Leyenda del teclado">
+            <span><span class="legend-dot legend-shortcut" aria-hidden="true"></span>Tecla del atajo seleccionado</span>
+            <span><span class="legend-dot legend-filter" aria-hidden="true"></span>Tecla usada como filtro</span>
+          </div>
+
+          <div class="keyboard-perspective">
+            <div
+              id="visual-keyboard"
+              class="visual-keyboard"
+              aria-labelledby="keyboard-title"
+              aria-describedby="keyboard-description"
+            ></div>
+          </div>
+          <p id="keyboard-description" class="visually-hidden">
+            Teclado visual interactivo. Cada tecla es un botón. Las teclas marcadas pertenecen al atajo seleccionado y se anuncian con su posición dentro de la combinación.
+          </p>
+        </section>
+
+        <section class="textual-keys" aria-labelledby="textual-keys-title">
+          <h3 id="textual-keys-title">Lectura textual de la combinación</h3>
+          <p id="textual-keys-content">Selecciona una función para ver sus teclas en texto.</p>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Atajos basados en las guías públicas de Deque University para
+      <a href="https://dequeuniversity.com/screenreaders/jaws-keyboard-shortcuts">
+        JAWS
+      </a>,
+      <a href="https://dequeuniversity.com/screenreaders/nvda-keyboard-shortcuts">
+        NVDA
+      </a>
+      y
+      <a href="https://dequeuniversity.com/screenreaders/voiceover-keyboard-shortcuts">
+        VoiceOver
+      </a>.
+      La experiencia visual se inspira en el modelo de exploración por herramienta,
+      menú lateral y teclado de
+      <a href="https://shrtcts.click/">
+        SHRTCTS
+      </a>.
+    </p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
